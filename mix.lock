@@ -1,0 +1,10 @@
+[ "cowboy": {:git,"https://github.com/extend/cowboy.git","46b2ea0aaa7fe891bfdf3f8a0c47357393e72cf6",[tag: "0.8.4"]},
+  "erlsha2": {:git,"https://github.com/vinoski/erlsha2.git","79e2564c81ee94718711d48516aac3cab7794c35",[]},
+  "exlager": {:git,"https://github.com/khia/exlager.git","f8dd0715d7668290d7d02a4517acfee4e8be885c",[]},
+  "goldrush": {:git,"https://github.com/DeadZen/goldrush.git","7ff9b03e4038e83732b241d92ccee2322c4ece5e",[tag: "7ff9b03"]},
+  "gproc": {:git,"https://github.com/uwiger/gproc.git","3b32300125c491f03b728733d4b6ea9e32730ea0",[ref: "3b32300125c491f03b728733d4b6ea9e32730ea0"]},
+  "jsx": {:git,"https://github.com/talentdeficit/jsx.git","f0f43c4abab4d4e889bff79e5d5aab675f9e8d4d",[tag: "v1.4.1"]},
+  "lager": {:git,"https://github.com/basho/lager.git","dc23b34ad40de2473c36d1a2bfeca4910279cc3f",[]},
+  "meck": {:git,"https://github.com/eproxus/meck.git","2447206f201bab1054c49cd32621eee23fa0ee3b",[tag: "0.7.2"]},
+  "ranch": {:git,"https://github.com/extend/ranch.git","53be20d25f94095ec9b44c5bd03cf158dd5a6820",[tag: "0.8.3"]},
+  "uuid": {:git,"https://github.com/avtobiff/erlang-uuid.git","1c84001651ef411b3fd6076b9376708925d6c00f",[tag: "v0.4.3"]} ]
