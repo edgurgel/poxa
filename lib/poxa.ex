@@ -1,6 +1,6 @@
 defmodule Poxa do
   @moduledoc """
-  This application is a server that undertands the Pusher Protocol
+  This application is a server that understands the Pusher Protocol
   More info at: http://pusher.com/docs/pusher_protocol
   """
   use Application.Behaviour
