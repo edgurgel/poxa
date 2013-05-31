@@ -56,4 +56,7 @@ defmodule Poxa.Mixfile do
     [exlager_level: :critical, exlager_truncation_size: 8096]
   end
 
+  defp options(_) do
+  end
+
 end

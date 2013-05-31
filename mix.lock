@@ -1,5 +1,6 @@
 [ "cowboy": {:git,"https://github.com/extend/cowboy.git","46b2ea0aaa7fe891bfdf3f8a0c47357393e72cf6",[tag: "0.8.4"]},
   "erlsha2": {:git,"https://github.com/vinoski/erlsha2.git","79e2564c81ee94718711d48516aac3cab7794c35",[]},
+  "ex_doc": {:git,"https://github.com/elixir-lang/ex_doc.git","3d097f8aa5638b96cbc5831737ff1baf637b2896",[]},
   "exlager": {:git,"https://github.com/khia/exlager.git","f8dd0715d7668290d7d02a4517acfee4e8be885c",[]},
   "goldrush": {:git,"https://github.com/DeadZen/goldrush.git","7ff9b03e4038e83732b241d92ccee2322c4ece5e",[tag: "7ff9b03"]},
   "gproc": {:git,"https://github.com/uwiger/gproc.git","3b32300125c491f03b728733d4b6ea9e32730ea0",[ref: "3b32300125c491f03b728733d4b6ea9e32730ea0"]},
