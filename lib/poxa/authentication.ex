@@ -83,12 +83,9 @@ defmodule Poxa.Authentication do
                                '&auth_timestamp=', auth_timestamp,
                                '&auth_version=', auth_version,
                                '&body_md5=', body_md5 ])
-    case :application.get_env(:poxa, :app_secret) do
-        {:ok, app_secret} ->
-          signed_data = CryptoHelper.hmac256_to_binary(app_secret, to_sign)
-          if signed_data == auth_signature, do: :ok,
-          else: {:error, "auth_signature does not match"}
-        _ -> {:error, "app_secret not found"}
-    end
+   {:ok, app_secret} = :application.get_env(:poxa, :app_secret)
+   signed_data = CryptoHelper.hmac256_to_binary(app_secret, to_sign)
+   if signed_data == auth_signature, do: :ok,
+   else: {:error, "auth_signature does not match"}
   end
 end
