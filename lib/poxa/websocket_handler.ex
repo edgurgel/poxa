@@ -75,11 +75,17 @@ defmodule Poxa.WebsocketHandler do
 
   def websocket_info(:start, req, _State) do
     # Unique identifier for the connection
-    socket_id =  list_to_binary(:uuid.to_string(:uuid.uuid1))
+    socket_id = generate_uuid
     # Register the name of the connection as SocketId
     :gproc.reg({:n, :l, socket_id})
     reply = PusherEvent.connection_established(socket_id)
     {:reply, {:text, reply}, req, socket_id}
+  end
+
+  defp generate_uuid do
+    :uuid.uuid1
+    |> :uuid.to_string
+    |> list_to_binary
   end
 
   def websocket_info({_pid, msg}, req, state) do

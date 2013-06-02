@@ -12,6 +12,8 @@ defmodule Poxa.Subscription do
   Returns :ok to public and private channels and
   {:presence, channel, channel_data} to presence channel
   """
+  @spec subscribe!(:jsx.json_term, binary) :: :ok | {:presence, binary, {PresenceSubscription.user_id,
+                                                                          :jsx.json_term}} | :error
   def subscribe!(data, socket_id) do
     channel = :proplists.get_value("channel", data)
     case channel do
@@ -59,6 +61,7 @@ defmodule Poxa.Subscription do
   @doc """
   Unsubscribe to a channel always returning :ok
   """
+  @spec unsubscribe!(:jsx.json_term) :: :ok
   def unsubscribe!(data) do
     channel = :proplists.get_value("channel", data, :undefined)
     if PresenceSubscription.presence_channel?(channel) do
@@ -79,6 +82,7 @@ defmodule Poxa.Subscription do
   @doc """
   Returns true if subscribed to `channel` and false otherwise
   """
+  @spec subscribed?(binary) :: boolean
   def subscribed?(channel) do
     match = {{:p, :l, {:pusher, channel}}, self, :_}
     case :gproc.select([{match, [], [:'$$']}]) do

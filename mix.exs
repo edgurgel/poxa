@@ -6,6 +6,8 @@ defmodule Poxa.Mixfile do
       version: "0.0.1",
       name: "Poxa",
       deps: deps(Mix.env),
+      dialyzer: [ plt_apps: ["erts","kernel", "stdlib", "crypto", "public_key", "mnesia"],
+                  flags: ["-Wunmatched_returns","-Werror_handling","-Wrace_conditions"]],
       elixirc_options: options(Mix.env)]
   end
 

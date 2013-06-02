@@ -13,6 +13,7 @@ defmodule Poxa.PusherEvent do
       { "event" : "pusher:connection_established",
         "data" : { "socket_id" : "129319" } }"
   """
+  @spec connection_established(binary) :: binary
   def connection_established(socket_id) do
     :jsx.encode([ event: "pusher:connection_established",
                    data: [ socket_id: socket_id ] ])
@@ -26,6 +27,7 @@ defmodule Poxa.PusherEvent do
       "{ "event" : "pusher_internal:subscription_succeeded",
          "data" : [] }"
   """
+  @spec subscription_succeeded :: <<_ :: 480>>
   def subscription_succeeded do
     @subscription_succeeded
   end
@@ -38,6 +40,7 @@ defmodule Poxa.PusherEvent do
       "{ "event" : "pusher:subscription_error",
          "data" : [] }"
   """
+  @spec subscription_error :: <<_ :: 376>>
   def subscription_error do
     @subscription_error
   end
@@ -50,6 +53,7 @@ defmodule Poxa.PusherEvent do
       "{ "event" : "pusher:pong",
          "data" : [] }"
   """
+  @spec pong :: <<_ :: 264>>
   def pong do
     @pong
   end
@@ -77,6 +81,7 @@ defmodule Poxa.PusherEvent do
         }
       }
   """
+  @spec presence_subscription_succeeded(binary, [{pid, {PresenceSubscription.user_id, PresenceSubscription.user_info}}]) :: binary
   def presence_subscription_succeeded(channel, presence_data) do
     # This may be too slow in the future...let's wait and see :)
     ids_hash = lc {_pid, {user_id, user_info}} inlist presence_data do
@@ -101,6 +106,7 @@ defmodule Poxa.PusherEvent do
          "data" : { "user_id" : 123,
                     "user_info" : "456" } }"
   """
+  @spec presence_member_added(binary, PresenceSubscription.user_id, PresenceSubscription.user_info) :: binary
   def presence_member_added(channel, user_id, user_info) do
     :jsx.encode([ event: "pusher_internal:member_added",
                   channel: channel,
@@ -117,6 +123,7 @@ defmodule Poxa.PusherEvent do
          "channel" : "public-channel",
          "data" : { "user_id" : 123 } }"
   """
+  @spec presence_member_removed(binary, PresenceSubscription.user_id) :: binary
   def presence_member_removed(channel, user_id) do
     :jsx.encode([ event: "pusher_internal:member_removed",
                   channel: channel,
@@ -137,6 +144,9 @@ defmodule Poxa.PusherEvent do
       {[{"socket_id","to_exclude123"}],["a-channel"],"to_exclude123"}
 
   """
+  @spec parse_channels([{binary, any}]) :: {:jsx.json_term,
+                                            [binary] | :undefined,
+                                            :undefined | binary}
   def parse_channels(message) do
     exclude = :proplists.get_value("socket_id", message, :undefined)
     case :proplists.get_value("channel", message) do
@@ -156,6 +166,7 @@ defmodule Poxa.PusherEvent do
   @doc """
   Send `message` to `channels` excluding `exclude`
   """
+  @spec send_message_to_channels([binary], :jsx.json_term, binary) :: :ok
   def send_message_to_channels(channels, message, exclude) do
     Lager.debug("Sending message to channels ~p", [channels])
     pid_to_exclude = case exclude do
@@ -165,6 +176,7 @@ defmodule Poxa.PusherEvent do
     lc channel inlist channels do
       send_message_to_channel(channel, message, pid_to_exclude)
     end
+    :ok
   end
 
 
@@ -172,6 +184,7 @@ defmodule Poxa.PusherEvent do
   Send `message` to `channel` excluding `exclude` appending the channel name info
   to the message
   """
+  @spec send_message_to_channel(binary, :jsx.json_term, [pid]) :: :ok
   def send_message_to_channel(channel, message, pid_to_exclude) do
     message = :lists.append(message, [{"channel", channel}])
     pids = :gproc.lookup_pids({:p, :l, {:pusher, channel}})
@@ -180,6 +193,7 @@ defmodule Poxa.PusherEvent do
     lc pid inlist pids do
       pid <- {self, :jsx.encode(message)}
     end
+    :ok
   end
 
 end

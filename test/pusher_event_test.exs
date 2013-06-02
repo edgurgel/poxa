@@ -81,7 +81,7 @@ defmodule Poxa.PusherEventTest do
     :meck.new :jsx
     :meck.expect(:gproc, :lookup_pids, 1, [pid])
     :meck.expect(:jsx, :encode, 1, :msg)
-    assert send_message_to_channel(:channel, [], []) == [{ pid, :msg }]
+    assert send_message_to_channel(:channel, [], []) == :ok
     assert_receive { ^pid, :msg }
     assert :meck.validate :gproc
     assert :meck.validate :jsx
@@ -92,7 +92,7 @@ defmodule Poxa.PusherEventTest do
     :meck.new :jsx
     :meck.expect(:gproc, :lookup_pids, 1, [self])
     :meck.expect(:jsx, :encode, 1, :ok)
-    assert send_message_to_channel(:channel, [], [self]) == []
+    assert send_message_to_channel(:channel, [], [self]) == :ok
     assert :meck.validate :gproc
     assert :meck.validate :jsx
     :meck.unload :jsx
@@ -103,7 +103,7 @@ defmodule Poxa.PusherEventTest do
     :meck.new :jsx
     :meck.expect(:gproc, :lookup_pids, 1, [pid])
     :meck.expect(:jsx, :encode, 1, :msg)
-    assert send_message_to_channels([:channel], [], :undefined) == [[{ pid, :msg }]]
+    assert send_message_to_channels([:channel], [], :undefined) == :ok
     assert_receive { ^pid, :msg }
     assert :meck.validate :gproc
     assert :meck.validate :jsx
@@ -114,7 +114,7 @@ defmodule Poxa.PusherEventTest do
     :meck.new :jsx
     :meck.expect(:gproc, :lookup_pids, 1, [self])
     :meck.expect(:jsx, :encode, 1, :ok)
-    assert send_message_to_channels([:channel], [], "SocketId") == [[]]
+    assert send_message_to_channels([:channel], [], "SocketId") == :ok
     assert :meck.validate :gproc
     assert :meck.validate :jsx
     :meck.unload :jsx

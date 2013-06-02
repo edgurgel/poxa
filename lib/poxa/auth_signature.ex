@@ -6,6 +6,7 @@ defmodule Poxa.AuthSignature do
   Validate auth signature as described at: http://pusher.com/docs/auth_signatures .
   Returns :ok or :error
   """
+  @spec validate(binary, binary) :: :ok | :error
   def validate(to_sign, auth) do
     case String.split(auth, ":", global: false) do
       [app_key, remote_signed_data] ->
@@ -19,7 +20,7 @@ defmodule Poxa.AuthSignature do
               Lager.info("Authentication failed.")
               :error
             end
-          :error -> :error
+          { :error, _reason } -> :error
         end
       _ -> :error
     end

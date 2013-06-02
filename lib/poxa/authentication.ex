@@ -2,10 +2,13 @@ defmodule Poxa.Authentication do
   require Lager
   alias Poxa.CryptoHelper
 
+  @type error_reason :: {:error, binary}
+
   @doc """
   Returns :ok if every step on authentication is :ok
   More info at: http://pusher.com/docs/rest_api#authentication
   """
+  @spec check(binary, binary, [{binary, binary}]) :: :ok | {:badauth, binary}
   def check(path, body, qs_vals) do
     try do
       #If any of these values are not avaiable -> MatchError
@@ -32,6 +35,7 @@ defmodule Poxa.Authentication do
   Returns :ok if the auth_key is identical to app_key and
   :error, reason tuple otherwise
   """
+  @spec check_key(binary) :: :ok | error_reason
   def check_key(auth_key) do
     {:ok, app_key} = :application.get_env(:poxa, :app_key)
     if auth_key == app_key, do: :ok,
@@ -42,6 +46,7 @@ defmodule Poxa.Authentication do
   Returns :ok if the timestamp is not bigger than 600s and
   :error, reason tuple otherwise
   """
+  @spec check_timestamp(binary) :: :ok | error_reason
   def check_timestamp(auth_timestamp) do
     int_auth_timestamp = list_to_integer(binary_to_list(auth_timestamp))
     {mega,sec,_micro} = :os.timestamp()
@@ -55,6 +60,7 @@ defmodule Poxa.Authentication do
   @doc """
   Returns :ok if the version is 1.0 and :error, reason tuple otherwise
   """
+  @spec check_version(binary) :: :ok | error_reason
   def check_version(auth_version) do
     if auth_version == "1.0", do: :ok,
     else: {:error, "auth_version is not 1.0"}
@@ -63,6 +69,7 @@ defmodule Poxa.Authentication do
   @doc """
   Returns :ok if the body md5 matches and :error, reason tuple otherwise
   """
+  @spec check_body(binary, binary) :: :ok | error_reason
   def check_body(body, body_md5) do
     md5 = CryptoHelper.md5_to_binary(body)
     if md5 == body_md5, do: :ok,
@@ -75,6 +82,7 @@ defmodule Poxa.Authentication do
       http_verb + path + auth_key + auth_timestamp + auth_version + body_md5
   More info at: https://github.com/mloughran/signature
   """
+  @spec check_signature(binary, binary, binary, binary, binary, binary) :: :ok | error_reason
   def check_signature(path, auth_key, auth_timestamp,
                       auth_version, body_md5, auth_signature) do
   #"POST\n/apps/3/events\nauth_key=278d425bdf160c739803&auth_timestamp=1353088179&auth_version=1.0&body_md5=ec365a775a4cd0599faeb73354201b6f"

@@ -9,6 +9,8 @@ defmodule Poxa.PresenceSubscription do
 
   More info at: http://pusher.com/docs/client_api_guide/client_presence_channels
   """
+  @type user_id :: integer | binary # Maybe a json_term too?
+
   alias Poxa.PusherEvent
   alias Poxa.Subscription
   require Lager
@@ -16,6 +18,7 @@ defmodule Poxa.PresenceSubscription do
   @doc """
   Returns {:presence, `channel`, [{pid(), {user_id, user_info}}]
   """
+  @spec subscribe!(binary, :jsx.json_term) :: {:presence, binary, [{pid, {user_id, :jsx.json_term}}]}
   def subscribe!(channel, channel_data) do
     decoded_channel_data = :jsx.decode(channel_data)
     if Subscription.subscribed?(channel) do
@@ -41,6 +44,7 @@ defmodule Poxa.PresenceSubscription do
     {user_id, user_info}
   end
 
+  @spec unsubscribe!(binary) :: :ok
   def unsubscribe!(channel) do
     case :gproc.get_value({:p, :l, {:pusher, channel}}) do
       {user_id, _} ->
@@ -58,6 +62,7 @@ defmodule Poxa.PresenceSubscription do
   If the connection is unique, fire up the member_removed event
   Otherwise decrement the counter
   """
+  @spec check_and_remove :: :ok
   def check_and_remove do
     match = {{:p, :l, {:pusher, :'$1'}}, self, {:'$2', :_}}
     channel_user_id = :gproc.select([{match, [], [[:'$1',:'$2']]}])
@@ -78,6 +83,7 @@ defmodule Poxa.PresenceSubscription do
     :ok
   end
 
+  @spec presence_channel?(any) :: boolean
   def presence_channel?(<< "presence-", _presence_channel :: binary >> = _channel) do
     true
   end
