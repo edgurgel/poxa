@@ -14,6 +14,18 @@ defmodule Poxa.PusherEventTest do
 
   doctest Poxa.PusherEvent
 
+  test "valid? for valid event" do
+    assert valid?([{"name", "publish"}, {"data", "{ \"key\" : \"value\" }"}])
+  end
+
+  test "valid? for event without \"name\"" do
+    refute valid?([{"names", "publish"}, {"data", "{ \"key\" : \"value\" }"}])
+  end
+
+  test "valid? for event without \"data\"" do
+    refute valid?([{"name", "publish"}, {"dat", "{ \"key\" : \"value\" }"}])
+  end
+
   test "connection established output" do
     json = "{\"event\":\"pusher:connection_established\",\"data\":{\"socket_id\":\"SocketId\"}}"
     assert connection_established("SocketId") == json

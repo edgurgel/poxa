@@ -26,6 +26,9 @@ defmodule Poxa.EventHandler do
     end
   end
 
+  @authentication_error_json :jsx.encode([error: "Authentication error"])
+  @invalid_event_json :jsx.encode([error: "Event must have channel(s), name, and data"])
+
   @doc """
   Decode the JSON and send events to channels if successful
   """
@@ -37,22 +40,22 @@ defmodule Poxa.EventHandler do
       :ok ->
         request_data = :jsx.decode(body)
         {request_data, channels, exclude} = PusherEvent.parse_channels(request_data)
-        case channels do
-          nil ->
-            Lager.info('No channel defined')
-            {:ok, req, nil}
-          _ ->
-            message = prepare_message(request_data)
-            PusherEvent.send_message_to_channels(channels, message, exclude)
-            {:ok, req} = :cowboy_req.reply(200, [], "{}", req)
-            {:ok, req, nil}
+        if channels && PusherEvent.valid?(request_data) do
+          message = prepare_message(request_data)
+          PusherEvent.send_message_to_channels(channels, message, exclude)
+          {:ok, req} = :cowboy_req.reply(200, [], "{}", req)
+          {:ok, req, nil}
+        else
+          Lager.info('No channel defined')
+          {:ok, req} = :cowboy_req.reply(400, [], @invalid_event_json, req)
+          {:ok, req, nil}
         end
       _ ->
         Lager.info('Authentication failed')
+        {:ok, req} = :cowboy_req.reply(401, [], @authentication_error_json, req)
         {:ok, req, nil}
     end
   end
-
 
   def content_types_accepted(req, state) do
     {[{{"application", "json", []}, :handle}], req, state}

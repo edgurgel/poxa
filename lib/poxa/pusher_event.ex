@@ -6,6 +6,10 @@ defmodule Poxa.PusherEvent do
   """
   require Lager
 
+  def valid?(event) do
+    Enum.all?(["name", "data"], ListDict.has_key?(event, &1))
+  end
+
   @doc """
   Return a JSON for an established connection using the `socket_id` parameter to
   identify this connection

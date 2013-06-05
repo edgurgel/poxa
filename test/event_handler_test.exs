@@ -54,6 +54,7 @@ defmodule Poxa.EventHandlerTest do
     :meck.expect(:cowboy_req, :reply, 4, {:ok, :req4})
     :meck.expect(PusherEvent, :parse_channels, 1,
                 {[{"name", "event_etc"}], :channels, nil})
+    :meck.expect(PusherEvent, :valid?, 1, true)
     :meck.expect(PusherEvent, :send_message_to_channels, 3, :ok)
 
     assert handle(:req, :state) == {:ok, :req4, nil}
@@ -74,6 +75,7 @@ defmodule Poxa.EventHandlerTest do
     :meck.expect(:cowboy_req, :reply, 4, {:ok, :req4})
     :meck.expect(PusherEvent, :parse_channels, 1,
                 {[{"name", "event_etc"}], :channels, :exclude})
+    :meck.expect(PusherEvent, :valid?, 1, true)
     :meck.expect(PusherEvent, :send_message_to_channels, 3, :ok)
     :meck.expect(:cowboy_req, :reply, 4, {:ok, :req4})
 
@@ -96,12 +98,33 @@ defmodule Poxa.EventHandlerTest do
     :meck.expect(PusherEvent, :parse_channels, 1,
                 {[{"name", "event_etc"}], :channels, nil})
     :meck.expect(PusherEvent, :send_message_to_channels, 3, :ok)
+    :meck.expect(PusherEvent, :valid?, 1, true)
     :meck.expect(:cowboy_req, :reply, 4, {:ok, :req4})
 
     assert handle(:req, :state) == {:ok, :req4, nil}
 
     assert :meck.validate PusherEvent
     assert :meck.validate Authentication
+    assert :meck.validate :cowboy_req
+    assert :meck.validate :jsx
+  end
+
+  test "invalid event" do
+    :meck.expect(Authentication, :check, 3, :ok)
+    :meck.expect(:cowboy_req, :body, 1,
+                {:ok, :body, :req1})
+    :meck.expect(:cowboy_req, :qs_vals, 1, {:qsvals, :req2})
+    :meck.expect(:cowboy_req, :path, 1, {:path, :req3})
+    :meck.expect(:jsx, :decode, 1, :decoded_json)
+    :meck.expect(:cowboy_req, :reply, 4, {:ok, :req4})
+    :meck.expect(PusherEvent, :valid?, 1, false)
+    :meck.expect(PusherEvent, :parse_channels, 1,
+                {[{"name", "event_etc"}], :channels, nil})
+
+    assert handle(:req, :state) == {:ok, :req4, nil}
+
+    assert :meck.validate Authentication
+    assert :meck.validate PusherEvent
     assert :meck.validate :cowboy_req
     assert :meck.validate :jsx
   end
@@ -113,13 +136,15 @@ defmodule Poxa.EventHandlerTest do
     :meck.expect(:cowboy_req, :qs_vals, 1, {:qsvals, :req2})
     :meck.expect(:cowboy_req, :path, 1, {:path, :req3})
     :meck.expect(:jsx, :decode, 1, :decoded_json)
-    :meck.expect(:cowboy_req, :reply, 4, {:ok, :req4})
+    :meck.expect(PusherEvent, :valid?, 1, true)
     :meck.expect(PusherEvent, :parse_channels, 1,
                 {[{"name", "event_etc"}], nil, nil})
+    :meck.expect(:cowboy_req, :reply, 4, {:ok, :req4})
 
-    assert handle(:req, :state) == {:ok, :req3, nil}
+    assert handle(:req, :state) == {:ok, :req4, nil}
 
     assert :meck.validate Authentication
+    assert :meck.validate PusherEvent
     assert :meck.validate :cowboy_req
     assert :meck.validate :jsx
   end
@@ -131,10 +156,12 @@ defmodule Poxa.EventHandlerTest do
     :meck.expect(:cowboy_req, :qs_vals, 1, {:qsvals, :req2})
     :meck.expect(:cowboy_req, :path, 1, {:path, :req3})
     :meck.expect(:jsx, :decode, 1, :decoded_json)
+    :meck.expect(:cowboy_req, :reply, 4, {:ok, :req4})
 
-    assert handle(:req, :state) == {:ok, :req3, nil}
+    assert handle(:req, :state) == {:ok, :req4, nil}
 
     assert :meck.validate Authentication
+    assert :meck.validate PusherEvent
     assert :meck.validate :cowboy_req
     assert :meck.validate :jsx
   end
