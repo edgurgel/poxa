@@ -53,7 +53,7 @@ defmodule Poxa.EventHandlerTest do
                  {"name", "event_etc"} ])
     :meck.expect(:cowboy_req, :reply, 4, {:ok, :req4})
     :meck.expect(PusherEvent, :parse_channels, 1,
-                {[{"name", "event_etc"}], :channels, :undefined})
+                {[{"name", "event_etc"}], :channels, nil})
     :meck.expect(PusherEvent, :send_message_to_channels, 3, :ok)
 
     assert handle(:req, :state) == {:ok, :req4, nil}
@@ -94,7 +94,7 @@ defmodule Poxa.EventHandlerTest do
     :meck.expect(:jsx, :decode, 1, :decoded_json)
     :meck.expect(:cowboy_req, :reply, 4, {:ok, :req4})
     :meck.expect(PusherEvent, :parse_channels, 1,
-                {[{"name", "event_etc"}], :channels, :undefined})
+                {[{"name", "event_etc"}], :channels, nil})
     :meck.expect(PusherEvent, :send_message_to_channels, 3, :ok)
     :meck.expect(:cowboy_req, :reply, 4, {:ok, :req4})
 
@@ -115,7 +115,7 @@ defmodule Poxa.EventHandlerTest do
     :meck.expect(:jsx, :decode, 1, :decoded_json)
     :meck.expect(:cowboy_req, :reply, 4, {:ok, :req4})
     :meck.expect(PusherEvent, :parse_channels, 1,
-                {[{"name", "event_etc"}], :undefined, :undefined})
+                {[{"name", "event_etc"}], nil, nil})
 
     assert handle(:req, :state) == {:ok, :req3, nil}
 

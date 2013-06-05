@@ -10,7 +10,7 @@ defmodule Poxa.EventHandler do
   alias Poxa.PusherEvent
   require Lager
 
-  @error_json :jsx.encode([{"error","invalid json"}])
+  @error_json :jsx.encode([error: "invalid json"])
   @doc """
   If the body is a valid JSON, the state of the handler will be the body
   Otherwise the response will be a 400 status code
@@ -38,7 +38,7 @@ defmodule Poxa.EventHandler do
         request_data = :jsx.decode(body)
         {request_data, channels, exclude} = PusherEvent.parse_channels(request_data)
         case channels do
-          :undefined ->
+          nil ->
             Lager.info('No channel defined')
             {:ok, req, nil}
           _ ->
@@ -66,9 +66,8 @@ defmodule Poxa.EventHandler do
 
   # Remove name and add event to the response
   defp prepare_message(message) do
-    event = :proplists.get_value("name", message, :undefined)
-    message = List.concat(message, [{"event", event}])
-    :proplists.delete("name", message)
+    {event, message} = ListDict.pop(message, "name")
+    List.concat(message, [{"event", event}])
   end
 
 end

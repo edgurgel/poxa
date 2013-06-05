@@ -52,12 +52,12 @@ defmodule Poxa.WebsocketHandlerTest do
   end
 
   test "undefined process message" do
-    assert websocket_info(:undefined, :req, :state) == {:ok, :req, :state}
+    assert websocket_info(nil, :req, :state) == {:ok, :req, :state}
   end
 
   test "undefined pusher event websocket message" do
-    :meck.expect(:jsx, :decode, 1, [{"event", "pusher:undefined"}])
-    assert websocket_handle({:text, :undefined_event_json}, :req, :state) ==
+    :meck.expect(:jsx, :decode, 1, [{"event", "pushernil"}])
+    assert websocket_handle({:text, :undefined_event_jon}, :req, :state) ==
       {:ok, :req, :state}
     assert :meck.validate :jsx
   end
@@ -156,7 +156,7 @@ defmodule Poxa.WebsocketHandlerTest do
 
   test "client event on presence channel" do
     :meck.expect(:jsx, :decode, 1, [{"event", "client-event"}])
-    :meck.expect(PusherEvent, :parse_channels, 1, {:message, ["presence-channel"], :undefined})
+    :meck.expect(PusherEvent, :parse_channels, 1, {:message, ["presence-channel"], nil})
     :meck.expect(PusherEvent, :send_message_to_channel, 3, :ok)
     :meck.expect(Subscription, :subscribed?, 1, true)
     assert websocket_handle({:text, :client_event_json}, :req, :socket_id) ==
@@ -168,7 +168,7 @@ defmodule Poxa.WebsocketHandlerTest do
 
   test "client event on private channel" do
     :meck.expect(:jsx, :decode, 1, [{"event", "client-event"}])
-    :meck.expect(PusherEvent, :parse_channels, 1, {:message, ["private-channel"], :undefined})
+    :meck.expect(PusherEvent, :parse_channels, 1, {:message, ["private-channel"], nil})
     :meck.expect(PusherEvent, :send_message_to_channel, 3, :ok)
     :meck.expect(Subscription, :subscribed?, 1, true)
     assert websocket_handle({:text, :client_event_json}, :req, :socket_id) ==
@@ -180,7 +180,7 @@ defmodule Poxa.WebsocketHandlerTest do
 
   test "client event on public channel" do
     :meck.expect(:jsx, :decode, 1, [{"event", "client-event"}])
-    :meck.expect(PusherEvent, :parse_channels, 1, {:message, ["public-channel"], :undefined})
+    :meck.expect(PusherEvent, :parse_channels, 1, {:message, ["public-channel"], nil})
     assert websocket_handle({:text, :client_event_json}, :req, :socket_id) ==
       {:ok, :req, :socket_id}
     assert :meck.validate :jsx

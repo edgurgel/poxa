@@ -13,12 +13,12 @@ defmodule Poxa.Subscription do
   {:presence, channel, channel_data} to presence channel
   """
   def subscribe!(data, socket_id) do
-    channel = :proplists.get_value("channel", data)
+    channel = ListDict.get(data, "channel")
     case channel do
       <<"private-", _private_channel :: binary>> ->
-        auth = :proplists.get_value("auth", data)
-        to_sign = case :proplists.get_value("channel_data", data, :undefined) do
-          :undefined -> << socket_id :: binary, ":", channel :: binary >>
+        auth = ListDict.get(data, "auth")
+        to_sign = case ListDict.get(data, "channel_data") do
+          nil -> << socket_id :: binary, ":", channel :: binary >>
           channel_data -> << socket_id :: binary, ":", channel :: binary, ":", channel_data :: binary >>
         end
         case AuthSignature.validate(to_sign, auth) do
@@ -26,14 +26,14 @@ defmodule Poxa.Subscription do
           :error -> subscribe_error(channel)
         end
       <<"presence-", _presence_channel :: binary>> ->
-        auth = :proplists.get_value("auth", data)
-        channel_data = :proplists.get_value("channel_data", data, "undefined")
+        auth = ListDict.get(data, "auth")
+        channel_data = ListDict.get(data, "channel_data", "undefined")
         to_sign = <<socket_id :: binary, ":", channel ::binary, ":", channel_data :: binary>>
         case AuthSignature.validate(to_sign, auth) do
           :ok -> PresenceSubscription.subscribe!(channel, channel_data)
           :error -> subscribe_error(channel)
         end
-      :undefined ->
+      nil ->
         Lager.info("Missing channel")
         :error
       _ -> subscribe_channel(channel)
@@ -60,7 +60,7 @@ defmodule Poxa.Subscription do
   Unsubscribe to a channel always returning :ok
   """
   def unsubscribe!(data) do
-    channel = :proplists.get_value("channel", data, :undefined)
+    channel = ListDict.get(data, "channel")
     if PresenceSubscription.presence_channel?(channel) do
       PresenceSubscription.unsubscribe!(channel);
     end

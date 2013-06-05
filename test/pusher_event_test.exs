@@ -53,19 +53,19 @@ defmodule Poxa.PusherEventTest do
     data = [ {"channel", "channel_name"},
              {"name", "event_etc"} ]
     expected_data = [{"name", "event_etc"}]
-    assert parse_channels(data) == {expected_data, ["channel_name"], :undefined}
+    assert parse_channels(data) == {expected_data, ["channel_name"], nil}
   end
 
   test "parse channels having multiple channels" do
     data = [ {"channels", ["channel_name1", "channel_name2"]},
              {"name", "event_etc"} ]
     expected_data = [{"name", "event_etc"}]
-    assert parse_channels(data) == {expected_data, ["channel_name1", "channel_name2"], :undefined}
+    assert parse_channels(data) == {expected_data, ["channel_name1", "channel_name2"], nil}
   end
 
   test "parse channels having no channels" do
     data = [{"name", "event_etc"}]
-    assert parse_channels(data) == {data, :undefined, :undefined}
+    assert parse_channels(data) == {data, nil, nil}
   end
 
   test "parse channels excluding socket id" do
@@ -103,7 +103,7 @@ defmodule Poxa.PusherEventTest do
     :meck.new :jsx
     :meck.expect(:gproc, :lookup_pids, 1, [pid])
     :meck.expect(:jsx, :encode, 1, :msg)
-    assert send_message_to_channels([:channel], [], :undefined) == [[{ pid, :msg }]]
+    assert send_message_to_channels([:channel], [], nil) == [[{ pid, :msg }]]
     assert_receive { ^pid, :msg }
     assert :meck.validate :gproc
     assert :meck.validate :jsx

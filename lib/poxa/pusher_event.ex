@@ -130,25 +130,25 @@ defmodule Poxa.PusherEvent do
 
   ## Examples
       iex> Poxa.PusherEvent.parse_channels([{"channel", "private-channel"}])
-      {[],["private-channel"],:undefined}
+      {[],["private-channel"],nil}
       iex> Poxa.PusherEvent.parse_channels([{"channels", ["private-channel", "public-channel"]}])
-      {[],["private-channel","public-channel"],:undefined}
+      {[],["private-channel","public-channel"],nil}
       iex> Poxa.PusherEvent.parse_channels([{"channel", "a-channel"}, {"socket_id", "to_exclude123" }])
       {[{"socket_id","to_exclude123"}],["a-channel"],"to_exclude123"}
 
   """
   def parse_channels(message) do
-    exclude = :proplists.get_value("socket_id", message, :undefined)
-    case :proplists.get_value("channel", message) do
-      :undefined ->
-        case :proplists.get_value("channels", message) do
-          :undefined -> {message, :undefined, exclude} # channel/channels not found
+    exclude = ListDict.get(message, "socket_id")
+    case ListDict.get(message, "channel") do
+      nil ->
+        case ListDict.get(message, "channels") do
+          nil -> {message, nil, exclude} # channel/channels not found
           channels ->
-            message = :proplists.delete("channels", message)
+            message = ListDict.delete(message, "channels")
             {message, channels, exclude}
         end
       channel ->
-        message = :proplists.delete("channel", message)
+        message = ListDict.delete(message, "channel")
         {message, [channel], exclude}
     end
   end
@@ -158,10 +158,8 @@ defmodule Poxa.PusherEvent do
   """
   def send_message_to_channels(channels, message, exclude) do
     Lager.debug("Sending message to channels ~p", [channels])
-    pid_to_exclude = case exclude do
-      :undefined -> []
-      _ -> :gproc.lookup_pids({:n, :l, exclude})
-    end
+    pid_to_exclude = if exclude, do: :gproc.lookup_pids({:n, :l, exclude}),
+    else: []
     lc channel inlist channels do
       send_message_to_channel(channel, message, pid_to_exclude)
     end
@@ -173,7 +171,7 @@ defmodule Poxa.PusherEvent do
   to the message
   """
   def send_message_to_channel(channel, message, pid_to_exclude) do
-    message = :lists.append(message, [{"channel", channel}])
+    message = message ++ [{"channel", channel}]
     pids = :gproc.lookup_pids({:p, :l, {:pusher, channel}})
     pids = pids -- pid_to_exclude
 

@@ -36,8 +36,8 @@ defmodule Poxa.PresenceSubscription do
   end
 
   defp extract_userid_and_userinfo(channel_data) do
-    user_id = sanitize_user_id(:proplists.get_value("user_id", channel_data))
-    user_info = :proplists.get_value("user_info", channel_data)
+    user_id = sanitize_user_id(ListDict.get(channel_data, "user_id"))
+    user_info = ListDict.get(channel_data, "user_info")
     {user_id, user_info}
   end
 
@@ -46,7 +46,7 @@ defmodule Poxa.PresenceSubscription do
       {user_id, _} ->
         message = PusherEvent.presence_member_removed(channel, user_id)
         :gproc.send({:p, :l, {:pusher, channel}}, {self, message})
-      _ -> :undefined
+      _ -> nil
     end
     :ok
   end
@@ -71,7 +71,7 @@ defmodule Poxa.PresenceSubscription do
           :gproc.update_shared_counter({:c, :l, {:presence, channel, user_id}}, -1)
         end
       else
-        :undefined
+        nil
       end
     end
     Enum.each(channel_user_id, member_remove_fun)
