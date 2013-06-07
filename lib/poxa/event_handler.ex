@@ -10,14 +10,14 @@ defmodule Poxa.EventHandler do
   alias Poxa.PusherEvent
   require Lager
 
-  @error_json :jsx.encode([{"error","invalid json"}])
+  @error_json JSEX.encode!([error: "invalid json"])
   @doc """
   If the body is a valid JSON, the state of the handler will be the body
   Otherwise the response will be a 400 status code
   """
   def init(_transport, req, _opts) do
     {:ok, body, req} = :cowboy_req.body(req)
-    if :jsx.is_json(body) do
+    if JSEX.is_json?(body) do
       {:ok, req, body}
     else
       Lager.info("Invalid JSON on Event Handler: #{body}")
@@ -25,6 +25,9 @@ defmodule Poxa.EventHandler do
       {:shutdown, req, nil}
     end
   end
+
+  @authentication_error_json JSEX.encode!([error: "Authentication error"])
+  @invalid_event_json JSEX.encode!([error: "Event must have channel(s), name, and data"])
 
   @doc """
   Decode the JSON and send events to channels if successful
@@ -35,24 +38,24 @@ defmodule Poxa.EventHandler do
     # http://pusher.com/docs/rest_api#authentication
     case Authentication.check(path,body, qs_vals) do
       :ok ->
-        request_data = :jsx.decode(body)
+        request_data = JSEX.decode!(body)
         {request_data, channels, exclude} = PusherEvent.parse_channels(request_data)
-        case channels do
-          :undefined ->
-            Lager.info('No channel defined')
-            {:ok, req, nil}
-          _ ->
-            message = prepare_message(request_data)
-            PusherEvent.send_message_to_channels(channels, message, exclude)
-            {:ok, req} = :cowboy_req.reply(200, [], "{}", req)
-            {:ok, req, nil}
+        if channels && PusherEvent.valid?(request_data) do
+          message = prepare_message(request_data)
+          PusherEvent.send_message_to_channels(channels, message, exclude)
+          {:ok, req} = :cowboy_req.reply(200, [], "{}", req)
+          {:ok, req, nil}
+        else
+          Lager.info('No channel defined')
+          {:ok, req} = :cowboy_req.reply(400, [], @invalid_event_json, req)
+          {:ok, req, nil}
         end
       _ ->
         Lager.info('Authentication failed')
+        {:ok, req} = :cowboy_req.reply(401, [], @authentication_error_json, req)
         {:ok, req, nil}
     end
   end
-
 
   def content_types_accepted(req, state) do
     {[{{"application", "json", []}, :handle}], req, state}
@@ -66,9 +69,8 @@ defmodule Poxa.EventHandler do
 
   # Remove name and add event to the response
   defp prepare_message(message) do
-    event = :proplists.get_value("name", message, :undefined)
-    message = List.concat(message, [{"event", event}])
-    :proplists.delete("name", message)
+    {event, message} = ListDict.pop(message, "name")
+    List.concat(message, [{"event", event}])
   end
 
 end

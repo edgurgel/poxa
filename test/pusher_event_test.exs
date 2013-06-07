@@ -14,6 +14,18 @@ defmodule Poxa.PusherEventTest do
 
   doctest Poxa.PusherEvent
 
+  test "valid? for valid event" do
+    assert valid?([{"name", "publish"}, {"data", "{ \"key\" : \"value\" }"}])
+  end
+
+  test "valid? for event without \"name\"" do
+    refute valid?([{"names", "publish"}, {"data", "{ \"key\" : \"value\" }"}])
+  end
+
+  test "valid? for event without \"data\"" do
+    refute valid?([{"name", "publish"}, {"dat", "{ \"key\" : \"value\" }"}])
+  end
+
   test "connection established output" do
     json = "{\"event\":\"pusher:connection_established\",\"data\":{\"socket_id\":\"SocketId\"}}"
     assert connection_established("SocketId") == json
@@ -53,19 +65,19 @@ defmodule Poxa.PusherEventTest do
     data = [ {"channel", "channel_name"},
              {"name", "event_etc"} ]
     expected_data = [{"name", "event_etc"}]
-    assert parse_channels(data) == {expected_data, ["channel_name"], :undefined}
+    assert parse_channels(data) == {expected_data, ["channel_name"], nil}
   end
 
   test "parse channels having multiple channels" do
     data = [ {"channels", ["channel_name1", "channel_name2"]},
              {"name", "event_etc"} ]
     expected_data = [{"name", "event_etc"}]
-    assert parse_channels(data) == {expected_data, ["channel_name1", "channel_name2"], :undefined}
+    assert parse_channels(data) == {expected_data, ["channel_name1", "channel_name2"], nil}
   end
 
   test "parse channels having no channels" do
     data = [{"name", "event_etc"}]
-    assert parse_channels(data) == {data, :undefined, :undefined}
+    assert parse_channels(data) == {data, nil, nil}
   end
 
   test "parse channels excluding socket id" do
@@ -78,45 +90,45 @@ defmodule Poxa.PusherEventTest do
 
   test "sending message to a channel" do
     pid = self
-    :meck.new :jsx
+    :meck.new JSEX
     :meck.expect(:gproc, :lookup_pids, 1, [pid])
-    :meck.expect(:jsx, :encode, 1, :msg)
+    :meck.expect(JSEX, :encode!, 1, :msg)
     assert send_message_to_channel(:channel, [], []) == :ok
     assert_receive { ^pid, :msg }
     assert :meck.validate :gproc
-    assert :meck.validate :jsx
-    :meck.unload :jsx
+    assert :meck.validate JSEX
+    :meck.unload JSEX
   end
 
   test "sending message to a channel excluding a pid" do
-    :meck.new :jsx
+    :meck.new JSEX
     :meck.expect(:gproc, :lookup_pids, 1, [self])
-    :meck.expect(:jsx, :encode, 1, :ok)
+    :meck.expect(JSEX, :encode!, 1, :ok)
     assert send_message_to_channel(:channel, [], [self]) == :ok
     assert :meck.validate :gproc
-    assert :meck.validate :jsx
-    :meck.unload :jsx
+    assert :meck.validate JSEX
+    :meck.unload JSEX
   end
 
   test "sending message to channels" do
     pid = self
-    :meck.new :jsx
+    :meck.new JSEX
     :meck.expect(:gproc, :lookup_pids, 1, [pid])
-    :meck.expect(:jsx, :encode, 1, :msg)
-    assert send_message_to_channels([:channel], [], :undefined) == :ok
+    :meck.expect(JSEX, :encode!, 1, :msg)
+    assert send_message_to_channels([:channel], [], nil) == :ok
     assert_receive { ^pid, :msg }
     assert :meck.validate :gproc
-    assert :meck.validate :jsx
-    :meck.unload :jsx
+    assert :meck.validate JSEX
+    :meck.unload JSEX
   end
 
   test "sending message to channels excluding a socket id" do
-    :meck.new :jsx
+    :meck.new JSEX
     :meck.expect(:gproc, :lookup_pids, 1, [self])
-    :meck.expect(:jsx, :encode, 1, :ok)
+    :meck.expect(JSEX, :encode!, 1, :ok)
     assert send_message_to_channels([:channel], [], "SocketId") == :ok
     assert :meck.validate :gproc
-    assert :meck.validate :jsx
-    :meck.unload :jsx
+    assert :meck.validate JSEX
+    :meck.unload JSEX
   end
 end

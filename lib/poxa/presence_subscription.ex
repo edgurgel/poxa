@@ -20,7 +20,7 @@ defmodule Poxa.PresenceSubscription do
   """
   @spec subscribe!(binary, :jsx.json_term) :: {:presence, binary, [{pid, {user_id, :jsx.json_term}}]}
   def subscribe!(channel, channel_data) do
-    decoded_channel_data = :jsx.decode(channel_data)
+    decoded_channel_data = JSEX.decode!(channel_data)
     if Subscription.subscribed?(channel) do
       Lager.info('Already subscribed ~p on channel ~p', [self, channel])
     else
@@ -39,8 +39,8 @@ defmodule Poxa.PresenceSubscription do
   end
 
   defp extract_userid_and_userinfo(channel_data) do
-    user_id = sanitize_user_id(:proplists.get_value("user_id", channel_data))
-    user_info = :proplists.get_value("user_info", channel_data)
+    user_id = sanitize_user_id(ListDict.get(channel_data, "user_id"))
+    user_info = ListDict.get(channel_data, "user_info")
     {user_id, user_info}
   end
 
@@ -50,7 +50,7 @@ defmodule Poxa.PresenceSubscription do
       {user_id, _} ->
         message = PusherEvent.presence_member_removed(channel, user_id)
         :gproc.send({:p, :l, {:pusher, channel}}, {self, message})
-      _ -> :undefined
+      _ -> nil
     end
     :ok
   end
@@ -76,7 +76,7 @@ defmodule Poxa.PresenceSubscription do
           :gproc.update_shared_counter({:c, :l, {:presence, channel, user_id}}, -1)
         end
       else
-        :undefined
+        nil
       end
     end
     Enum.each(channel_user_id, member_remove_fun)
@@ -92,8 +92,8 @@ defmodule Poxa.PresenceSubscription do
   end
 
   defp sanitize_user_id(user_id) do
-    case :jsx.is_term(user_id) do
-      true -> :jsx.encode(user_id)
+    case JSEX.is_term?(user_id) do
+      true -> JSEX.encode!(user_id)
       false -> user_id
     end
   end

@@ -27,13 +27,17 @@ defmodule Poxa.WebsocketHandler do
   end
 
   def websocket_handle({:text, json}, req, state) do
-    decoded_json = :jsx.decode(json)
-    event = :proplists.get_value("event", decoded_json)
-    handle_pusher_event(event, decoded_json, req, state)
+    JSEX.decode!(json)
+      |> handle_pusher_event(req, state)
+  end
+
+  def handle_pusher_event(decoded_json, req, state) do
+    ListDict.get(decoded_json, "event")
+    |> handle_pusher_event(decoded_json, req, state)
   end
 
   defp handle_pusher_event("pusher:subscribe", decoded_json, req, state) do
-    data = :proplists.get_value("data", decoded_json, :undefined)
+    data = ListDict.get(decoded_json, "data")
     reply = case Subscription.subscribe!(data, state) do
       :ok -> PusherEvent.subscription_succeeded
       {:presence, channel, presence_data} -> PusherEvent.presence_subscription_succeeded(channel, presence_data)
@@ -42,8 +46,8 @@ defmodule Poxa.WebsocketHandler do
     {:reply, {:text, reply}, req, state}
   end
   defp handle_pusher_event("pusher:unsubscribe", decoded_json, req, state) do
-    data = :proplists.get_value("data", decoded_json, :undefined)
-    :ok = Subscription.unsubscribe!(data)
+    :ok = ListDict.get(decoded_json, "data")
+      |> Subscription.unsubscribe!
     {:ok, req, state}
   end
   defp handle_pusher_event("pusher:ping", _decoded_json, req, state) do
@@ -59,16 +63,14 @@ defmodule Poxa.WebsocketHandler do
     {:ok, req, state}
   end
   defp handle_pusher_event(_, _data, req, state) do
-    Lager.info('Undefined event')
+    Lager.info("Undefined event")
     {:ok, req, state}
   end
 
   defp private_or_presence_channel(channel) do
     case channel do
-      <<"presence-", _presence_channel :: binary>> ->
-        true
-      <<"private-", _private_channel :: binary>> ->
-        true
+      <<"presence-", _presence_channel :: binary>> -> true
+      <<"private-", _private_channel :: binary>> -> true
       _ -> false
     end
   end

@@ -12,11 +12,11 @@ defmodule Poxa.Authentication do
   def check(path, body, qs_vals) do
     try do
       #If any of these values are not avaiable -> MatchError
-      auth_key = :proplists.get_value("auth_key", qs_vals)
-      auth_timestamp = :proplists.get_value("auth_timestamp", qs_vals)
-      auth_version = :proplists.get_value("auth_version", qs_vals)
-      body_md5 = :proplists.get_value("body_md5", qs_vals)
-      auth_signature = :proplists.get_value("auth_signature", qs_vals)
+      auth_key = ListDict.get(qs_vals, "auth_key")
+      auth_timestamp = ListDict.get(qs_vals, "auth_timestamp")
+      auth_version = ListDict.get(qs_vals, "auth_version")
+      body_md5 = ListDict.get(qs_vals, "body_md5")
+      auth_signature = ListDict.get(qs_vals, "auth_signature")
 
       :ok = check_key(auth_key)
       :ok = check_timestamp(auth_timestamp)
@@ -91,12 +91,9 @@ defmodule Poxa.Authentication do
                                '&auth_timestamp=', auth_timestamp,
                                '&auth_version=', auth_version,
                                '&body_md5=', body_md5 ])
-    case :application.get_env(:poxa, :app_secret) do
-        {:ok, app_secret} ->
-          signed_data = CryptoHelper.hmac256_to_binary(app_secret, to_sign)
-          if signed_data == auth_signature, do: :ok,
-          else: {:error, "auth_signature does not match"}
-        _ -> {:error, "app_secret not found"}
-    end
+   {:ok, app_secret} = :application.get_env(:poxa, :app_secret)
+   signed_data = CryptoHelper.hmac256_to_binary(app_secret, to_sign)
+   if signed_data == auth_signature, do: :ok,
+   else: {:error, "auth_signature does not match"}
   end
 end
