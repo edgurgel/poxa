@@ -17,7 +17,7 @@ defmodule Poxa.PresenceSubscription do
   Returns {:presence, `channel`, [{pid(), {user_id, user_info}}]
   """
   def subscribe!(channel, channel_data) do
-    decoded_channel_data = :jsx.decode(channel_data)
+    decoded_channel_data = JSEX.decode!(channel_data)
     if Subscription.subscribed?(channel) do
       Lager.info('Already subscribed ~p on channel ~p', [self, channel])
     else
@@ -86,8 +86,8 @@ defmodule Poxa.PresenceSubscription do
   end
 
   defp sanitize_user_id(user_id) do
-    case :jsx.is_term(user_id) do
-      true -> :jsx.encode(user_id)
+    case JSEX.is_term?(user_id) do
+      true -> JSEX.encode!(user_id)
       false -> user_id
     end
   end

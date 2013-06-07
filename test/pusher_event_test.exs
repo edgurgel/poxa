@@ -90,45 +90,45 @@ defmodule Poxa.PusherEventTest do
 
   test "sending message to a channel" do
     pid = self
-    :meck.new :jsx
+    :meck.new JSEX
     :meck.expect(:gproc, :lookup_pids, 1, [pid])
-    :meck.expect(:jsx, :encode, 1, :msg)
+    :meck.expect(JSEX, :encode!, 1, :msg)
     assert send_message_to_channel(:channel, [], []) == [{ pid, :msg }]
     assert_receive { ^pid, :msg }
     assert :meck.validate :gproc
-    assert :meck.validate :jsx
-    :meck.unload :jsx
+    assert :meck.validate JSEX
+    :meck.unload JSEX
   end
 
   test "sending message to a channel excluding a pid" do
-    :meck.new :jsx
+    :meck.new JSEX
     :meck.expect(:gproc, :lookup_pids, 1, [self])
-    :meck.expect(:jsx, :encode, 1, :ok)
+    :meck.expect(JSEX, :encode!, 1, :ok)
     assert send_message_to_channel(:channel, [], [self]) == []
     assert :meck.validate :gproc
-    assert :meck.validate :jsx
-    :meck.unload :jsx
+    assert :meck.validate JSEX
+    :meck.unload JSEX
   end
 
   test "sending message to channels" do
     pid = self
-    :meck.new :jsx
+    :meck.new JSEX
     :meck.expect(:gproc, :lookup_pids, 1, [pid])
-    :meck.expect(:jsx, :encode, 1, :msg)
+    :meck.expect(JSEX, :encode!, 1, :msg)
     assert send_message_to_channels([:channel], [], nil) == [[{ pid, :msg }]]
     assert_receive { ^pid, :msg }
     assert :meck.validate :gproc
-    assert :meck.validate :jsx
-    :meck.unload :jsx
+    assert :meck.validate JSEX
+    :meck.unload JSEX
   end
 
   test "sending message to channels excluding a socket id" do
-    :meck.new :jsx
+    :meck.new JSEX
     :meck.expect(:gproc, :lookup_pids, 1, [self])
-    :meck.expect(:jsx, :encode, 1, :ok)
+    :meck.expect(JSEX, :encode!, 1, :ok)
     assert send_message_to_channels([:channel], [], "SocketId") == [[]]
     assert :meck.validate :gproc
-    assert :meck.validate :jsx
-    :meck.unload :jsx
+    assert :meck.validate JSEX
+    :meck.unload JSEX
   end
 end

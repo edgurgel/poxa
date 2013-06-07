@@ -33,6 +33,7 @@ defmodule Poxa.Mixfile do
       {:lager, %r(.*), git: "https://github.com/basho/lager.git"},
       {:exlager, %r".*", github: "khia/exlager"},
       {:jsx, github: "talentdeficit/jsx", tag: "v1.4.1" },
+      {:jsex, github: "talentdeficit/jsex"},
       {:gproc, github: "uwiger/gproc", ref: "3b32300125c491f03b728733d4b6ea9e32730ea0" },
       {:uuid, github: "avtobiff/erlang-uuid", tag: "v0.4.3" },
       {:erlsha2, github: "vinoski/erlsha2" } ]

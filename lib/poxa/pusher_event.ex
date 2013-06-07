@@ -18,11 +18,11 @@ defmodule Poxa.PusherEvent do
         "data" : { "socket_id" : "129319" } }"
   """
   def connection_established(socket_id) do
-    :jsx.encode([ event: "pusher:connection_established",
+    JSEX.encode!([ event: "pusher:connection_established",
                    data: [ socket_id: socket_id ] ])
   end
 
-  @subscription_succeeded :jsx.encode([ event: "pusher_internal:subscription_succeeded",
+  @subscription_succeeded JSEX.encode!([ event: "pusher_internal:subscription_succeeded",
                                         data: [] ])
   @doc """
   Return a JSON for a succeeded subscription
@@ -34,7 +34,7 @@ defmodule Poxa.PusherEvent do
     @subscription_succeeded
   end
 
-  @subscription_error :jsx.encode([ event: "pusher:subscription_error",
+  @subscription_error JSEX.encode!([ event: "pusher:subscription_error",
                                     data: [] ])
   @doc """
   Return a JSON for a subscription error
@@ -46,7 +46,7 @@ defmodule Poxa.PusherEvent do
     @subscription_error
   end
 
-  @pong :jsx.encode([ event: "pusher:pong",
+  @pong JSEX.encode!([ event: "pusher:pong",
                       data: [] ])
   @doc """
   PING? PONG!
@@ -88,7 +88,7 @@ defmodule Poxa.PusherEvent do
     end
     [ids, _Hash] = List.unzip(ids_hash)
     count = Enum.count(ids)
-    :jsx.encode([ event: "pusher_internal:subscription_succeeded",
+    JSEX.encode!([ event: "pusher_internal:subscription_succeeded",
                   channel: channel,
                   data: [ presence: [ ids: ids,
                                       hash: ids_hash,
@@ -106,7 +106,7 @@ defmodule Poxa.PusherEvent do
                     "user_info" : "456" } }"
   """
   def presence_member_added(channel, user_id, user_info) do
-    :jsx.encode([ event: "pusher_internal:member_added",
+    JSEX.encode!([ event: "pusher_internal:member_added",
                   channel: channel,
                   data: [ user_id: user_id,
                           user_info: user_info]
@@ -122,7 +122,7 @@ defmodule Poxa.PusherEvent do
          "data" : { "user_id" : 123 } }"
   """
   def presence_member_removed(channel, user_id) do
-    :jsx.encode([ event: "pusher_internal:member_removed",
+    JSEX.encode!([ event: "pusher_internal:member_removed",
                   channel: channel,
                   data: [ user_id: user_id]
                 ])
@@ -176,7 +176,7 @@ defmodule Poxa.PusherEvent do
     pids = pids -- pid_to_exclude
 
     lc pid inlist pids do
-      pid <- {self, :jsx.encode(message)}
+      pid <- {self, JSEX.encode!(message)}
     end
   end
 

@@ -10,14 +10,14 @@ defmodule Poxa.EventHandler do
   alias Poxa.PusherEvent
   require Lager
 
-  @error_json :jsx.encode([error: "invalid json"])
+  @error_json JSEX.encode!([error: "invalid json"])
   @doc """
   If the body is a valid JSON, the state of the handler will be the body
   Otherwise the response will be a 400 status code
   """
   def init(_transport, req, _opts) do
     {:ok, body, req} = :cowboy_req.body(req)
-    if :jsx.is_json(body) do
+    if JSEX.is_json?(body) do
       {:ok, req, body}
     else
       Lager.info("Invalid JSON on Event Handler: #{body}")
@@ -26,8 +26,8 @@ defmodule Poxa.EventHandler do
     end
   end
 
-  @authentication_error_json :jsx.encode([error: "Authentication error"])
-  @invalid_event_json :jsx.encode([error: "Event must have channel(s), name, and data"])
+  @authentication_error_json JSEX.encode!([error: "Authentication error"])
+  @invalid_event_json JSEX.encode!([error: "Event must have channel(s), name, and data"])
 
   @doc """
   Decode the JSON and send events to channels if successful
@@ -38,7 +38,7 @@ defmodule Poxa.EventHandler do
     # http://pusher.com/docs/rest_api#authentication
     case Authentication.check(path,body, qs_vals) do
       :ok ->
-        request_data = :jsx.decode(body)
+        request_data = JSEX.decode!(body)
         {request_data, channels, exclude} = PusherEvent.parse_channels(request_data)
         if channels && PusherEvent.valid?(request_data) do
           message = prepare_message(request_data)
