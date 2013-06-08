@@ -84,12 +84,6 @@ defmodule Poxa.WebsocketHandler do
     {:reply, {:text, reply}, req, socket_id}
   end
 
-  defp generate_uuid do
-    :uuid.uuid1
-    |> :uuid.to_string
-    |> list_to_binary
-  end
-
   def websocket_info({_pid, msg}, req, state) do
     {:reply, {:text, msg}, req, state}
   end
@@ -97,6 +91,12 @@ defmodule Poxa.WebsocketHandler do
   def websocket_info(info, req, state) do
     Lager.debug('WS Unknown message: ~p', [info])
     {:ok, req, state}
+  end
+
+  defp generate_uuid do
+    :uuid.uuid1
+    |> :uuid.to_string
+    |> list_to_binary
   end
 
   def websocket_terminate(_reason, _req, _state) do
