@@ -53,9 +53,9 @@ test.config
 
 ```elixir
 [{poxa, [{port, 8080},
-                {app_id, <<"12345">>},
-                {app_key, <<"key-12345">>},
-                {app_secret, <<"secret6789">>}]}].
+         {app_id, <<"12345">>},
+         {app_key, <<"key-12345">>},
+         {app_secret, <<"secret6789">>}]}].
 ```
 
 And run:
