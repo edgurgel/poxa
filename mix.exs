@@ -3,7 +3,7 @@ defmodule Poxa.Mixfile do
 
   def project do
     [ app: :poxa,
-      version: "0.0.2",
+      version: "0.0.3",
       name: "Poxa",
       deps: deps(Mix.env),
       dialyzer: [ plt_apps: ["erts","kernel", "stdlib", "crypto", "public_key", "mnesia"],
