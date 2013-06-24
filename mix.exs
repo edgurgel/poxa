@@ -17,7 +17,6 @@ defmodule Poxa.Mixfile do
                       :exlager,
                       :crypto,
                       :gproc,
-                      :ranch,
                       :cowboy,
                       :erlsha2 ],
       mod: { Poxa, [] },
@@ -29,12 +28,8 @@ defmodule Poxa.Mixfile do
   end
 
   defp deps(:dev) do
-    [ {:ranch, github: "extend/ranch", tag: "0.8.3" },
-      {:cowboy, github: "extend/cowboy", tag: "0.8.4" },
-      {:goldrush, github: "DeadZen/goldrush", tag: "7ff9b03"},
-      {:lager, %r(.*), git: "https://github.com/basho/lager.git"},
+    [ {:cowboy, github: "extend/cowboy", tag: "0.8.4" },
       {:exlager, %r".*", github: "khia/exlager"},
-      {:jsx, github: "talentdeficit/jsx", tag: "v1.4.1" },
       {:jsex, github: "talentdeficit/jsex"},
       {:gproc, github: "uwiger/gproc", ref: "3b32300125c491f03b728733d4b6ea9e32730ea0" },
       {:uuid, github: "avtobiff/erlang-uuid", tag: "v0.4.3" },
