@@ -18,7 +18,7 @@ Open Pusher implementation compatible with Pusher libraries. It's designed to be
 * Simple console;
 * Integration test using pusher-js or other client library;
 * Web hooks;
-* Specify types signature to functions and use dyalizer to check them;
+* Specify types signature to functions and use dialyzer to check them;
 
 ## Typical usage
 
