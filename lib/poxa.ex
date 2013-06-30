@@ -21,9 +21,9 @@ defmodule Poxa do
                                       [env: [dispatch: dispatch]])
         run_ssl(dispatch)
         Poxa.Supervisor.start_link
-        :invalid_configuration ->
-          Lager.error('Error on start, set app_key, app_id and app_secret')
-          exit(:invalid_configuration)
+      :invalid_configuration ->
+        Lager.error('Error on start, set app_key, app_id and app_secret')
+        exit(:invalid_configuration)
     end
 
   end
