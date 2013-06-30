@@ -75,8 +75,6 @@ defmodule Poxa.PresenceSubscription do
         else
           :gproc.update_shared_counter({:c, :l, {:presence, channel, user_id}}, -1)
         end
-      else
-        nil
       end
     end
     Enum.each(channel_user_id, member_remove_fun)
@@ -87,9 +85,7 @@ defmodule Poxa.PresenceSubscription do
   def presence_channel?(<< "presence-", _presence_channel :: binary >> = _channel) do
     true
   end
-  def presence_channel?(_) do
-    false
-  end
+  def presence_channel?(_), do: false
 
   defp sanitize_user_id(user_id) do
     case JSEX.is_term?(user_id) do
