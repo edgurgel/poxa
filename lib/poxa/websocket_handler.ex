@@ -55,7 +55,7 @@ defmodule Poxa.WebsocketHandler do
     {:reply, {:text, reply}, req, state}
   end
   # Client Events
-  defp handle_pusher_event(<<"client-", _event_name :: binary>> = _event, decoded_json, req, state) do
+  defp handle_pusher_event("client-" <> _event_name = _event, decoded_json, req, state) do
     {message, channels, _exclude} = PusherEvent.parse_channels(decoded_json)
     lc channel inlist channels, private_or_presence_channel(channel), Subscription.subscribed?(channel) do
       PusherEvent.send_message_to_channel(channel, message, [self])
@@ -69,8 +69,8 @@ defmodule Poxa.WebsocketHandler do
 
   defp private_or_presence_channel(channel) do
     case channel do
-      <<"presence-", _presence_channel :: binary>> -> true
-      <<"private-", _private_channel :: binary>> -> true
+      "presence-" <> _presence_channel -> true
+      "private-" <> _private_channel -> true
       _ -> false
     end
   end

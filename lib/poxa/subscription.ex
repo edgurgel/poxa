@@ -17,7 +17,7 @@ defmodule Poxa.Subscription do
   def subscribe!(data, socket_id) do
     channel = ListDict.get(data, "channel")
     case channel do
-      <<"private-", _private_channel :: binary>> ->
+      "private-" <> _private_channel ->
         auth = ListDict.get(data, "auth")
         to_sign = case ListDict.get(data, "channel_data") do
           nil -> << socket_id :: binary, ":", channel :: binary >>
@@ -27,7 +27,7 @@ defmodule Poxa.Subscription do
           :ok -> subscribe_channel(channel)
           :error -> subscribe_error(channel)
         end
-      <<"presence-", _presence_channel :: binary>> ->
+      "presence-" <> _presence_channel ->
         auth = ListDict.get(data, "auth")
         channel_data = ListDict.get(data, "channel_data", "undefined")
         to_sign = <<socket_id :: binary, ":", channel ::binary, ":", channel_data :: binary>>

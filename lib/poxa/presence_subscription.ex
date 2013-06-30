@@ -82,7 +82,7 @@ defmodule Poxa.PresenceSubscription do
   end
 
   @spec presence_channel?(any) :: boolean
-  def presence_channel?(<< "presence-", _presence_channel :: binary >> = _channel) do
+  def presence_channel?("presence-" <> _presence_channel  = _channel) do
     true
   end
   def presence_channel?(_), do: false
