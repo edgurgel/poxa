@@ -9,7 +9,9 @@ Open Pusher implementation compatible with Pusher libraries. It's designed to be
 * Private channels;
 * Presence channels;
 * Client events;
-* SSL on websocket and REST api;
+* SSL on websocket and REST API;
+* REST API
+  * /users on presence channels
 
 ## TODO
 
