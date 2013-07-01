@@ -37,7 +37,7 @@ defmodule Poxa.EventHandler do
     {method, req} = :cowboy_req.method(req)
     {path, req} = :cowboy_req.path(req)
     # http://pusher.com/docs/rest_api#authentication
-    case Authentication.check(method, path,body, qs_vals) do
+    case Authentication.check(method, path, body, qs_vals) do
       :ok ->
         request_data = JSEX.decode!(body)
         {request_data, channels, exclude} = PusherEvent.parse_channels(request_data)
