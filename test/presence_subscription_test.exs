@@ -93,4 +93,10 @@ defmodule Poxa.PresenceSubscriptionTest do
     assert check_and_remove == :ok
     assert :meck.validate :gproc
   end
+
+  test "return unique user ids currently subscribed" do
+    :meck.expect(:gproc, :select, 1, [{:user_id, :user_info}, {:user_id, :user_info}, {:user_id2, :user_info2}])
+    assert users("presence-channel") == [:user_id, :user_id2]
+    assert :meck.validate :gproc
+  end
 end
