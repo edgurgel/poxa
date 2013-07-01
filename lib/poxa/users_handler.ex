@@ -13,30 +13,25 @@ defmodule Poxa.UsersHandler do
     {:upgrade, :protocol, :cowboy_rest}
   end
 
-  def is_authorized(req, state) do
+  def allowed_methods(req, state) do
+    {["GET"], req, state}
+  end
+
+  def malformed_request(req, state) do
+    {channel, req} = :cowboy_req.binding(:channel_name, req)
+    {!PresenceSubscription.presence_channel?(channel), req, channel}
+  end
+
+  def is_authorized(req, channel) do
     {:ok, body, req} = :cowboy_req.body(req)
     {method, req} = :cowboy_req.method(req)
     {qs_vals, req} = :cowboy_req.qs_vals(req)
     {path, req} = :cowboy_req.path(req)
     auth = Authentication.check(method, path, body, qs_vals)
     if auth == :ok do
-      {true, req, state}
+      {true, req, channel}
     else
-      {{false, "authentication failed"}, req, state}
-    end
-  end
-
-  def allowed_methods(req, state) do
-    {["GET"], req, state}
-  end
-
-  def resource_exists(req, state) do
-    {channel, req} = :cowboy_req.binding(:channel_name, req)
-    if PresenceSubscription.presence_channel?(channel) do
-      users = PresenceSubscription.users(channel)
-      {true, req, users}
-    else
-      {false, req, nil}
+      {{false, "authentication failed"}, req, nil}
     end
   end
 
@@ -44,8 +39,9 @@ defmodule Poxa.UsersHandler do
     {[{{"application", "json", []}, :get_json}], req, state}
   end
 
-  def get_json(req, users) do
-    response = Enum.map(users, fn(id) -> [{"id", id}] end)
+  def get_json(req, channel) do
+    response = PresenceSubscription.users(channel)
+      |> Enum.map(fn(id) -> [{"id", id}] end)
     {JSEX.encode!(users: response), req, response}
   end
 

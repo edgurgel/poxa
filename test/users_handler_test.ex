@@ -20,31 +20,23 @@ defmodule Poxa.UsersHandlerTest do
     :meck.unload :cowboy_req
   end
 
-  test "is_authorized returns true if signature is ok" do
-    :meck.expect(:cowboy_req, :body, 1, {:ok, :body, :req})
-    :meck.expect(:cowboy_req, :method, 1, {:method, :req})
-    :meck.expect(:cowboy_req, :qs_vals, 1, {:qs_vals, :req})
-    :meck.expect(:cowboy_req, :path, 1, {:path, :req})
-    :meck.expect(Authentication, :check, 4, :ok)
-    assert is_authorized(:req, :state) == {true, :req, :state}
-    assert :meck.validate(Authentication)
+  test "malformed_request returns false and the channel if we have a presence channel" do
+    :meck.expect(:cowboy_req, :binding, 2, {:presence_channel, :req})
+    :meck.expect(PresenceSubscription, :presence_channel?, 1, true)
+    assert malformed_request(:req, :state) == {false, :req, :presence_channel}
+    assert :meck.validate(PresenceSubscription)
     assert :meck.validate(:cowboy_req)
   end
 
-  test "is_authorized returns false if signature is not ok" do
-    :meck.expect(:cowboy_req, :body, 1, {:ok, :body, :req})
-    :meck.expect(:cowboy_req, :method, 1, {:method, :req})
-    :meck.expect(:cowboy_req, :qs_vals, 1, {:qs_vals, :req})
-    :meck.expect(:cowboy_req, :path, 1, {:path, :req})
-    :meck.expect(Authentication, :check, 4, :error)
-    assert is_authorized(:req, :state) == {{false, "authentication failed"}, :req, :state}
-    assert :meck.validate(Authentication)
+  test "malformed_request returns true and the channel if we have a presence channel" do
+    :meck.expect(:cowboy_req, :binding, 2, {:presence_channel, :req})
+    :meck.expect(PresenceSubscription, :presence_channel?, 1, false)
+    assert malformed_request(:req, :state) == {true, :req, :presence_channel}
+    assert :meck.validate(PresenceSubscription)
     assert :meck.validate(:cowboy_req)
   end
 
   test "resource_exists returns users if the channel is a presence_channel" do
-    :meck.expect(:cowboy_req, :binding, 2, {:presence_channel, :req})
-    :meck.expect(PresenceSubscription, :presence_channel?, 1, true)
     :meck.expect(PresenceSubscription, :users, 1, :user_ids)
     assert resource_exists(:req, :state) == {true, :req, :user_ids}
     assert :meck.validate(PresenceSubscription)
@@ -53,9 +45,7 @@ defmodule Poxa.UsersHandlerTest do
 
   test "resource_exists returns false if the channel is not a presence_channel" do
     :meck.expect(:cowboy_req, :binding, 2, {:presence_channel, :req})
-    :meck.expect(PresenceSubscription, :presence_channel?, 1, false)
     assert resource_exists(:req, :state) == {false, :req, nil}
-    assert :meck.validate(PresenceSubscription)
     assert :meck.validate(:cowboy_req)
   end
 
