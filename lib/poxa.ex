@@ -10,6 +10,7 @@ defmodule Poxa do
     dispatch = :cowboy_router.compile([
       {:_, [ {'/ping', Poxa.PingHandler, []},
              { '/apps/:app_id/events', Poxa.EventHandler, []},
+             { '/apps/:app_id/channels/:channel_name/users', Poxa.UsersHandler, []},
              {'/app/:app_key', Poxa.WebsocketHandler, []} ] }
     ])
     case load_config do
