@@ -8,8 +8,8 @@ defmodule Poxa.Authentication do
   Returns :ok if every step on authentication is :ok
   More info at: http://pusher.com/docs/rest_api#authentication
   """
-  @spec check(binary, binary, [{binary, binary}]) :: :ok | {:badauth, binary}
-  def check(path, body, qs_vals) do
+  @spec check(binary, binary, binary, [{binary, binary}]) :: :ok | {:badauth, binary}
+  def check(method, path, body, qs_vals) do
     try do
       #If any of these values are not avaiable -> MatchError
       auth_key = ListDict.get(qs_vals, "auth_key")
@@ -22,7 +22,7 @@ defmodule Poxa.Authentication do
       :ok = check_timestamp(auth_timestamp)
       :ok = check_version(auth_version)
       :ok = check_body(body, body_md5)
-      :ok = check_signature(path, auth_key, auth_timestamp,
+      :ok = check_signature(method, path, auth_key, auth_timestamp,
                            auth_version, body_md5, auth_signature)
     rescue
       MatchError ->
@@ -70,6 +70,7 @@ defmodule Poxa.Authentication do
   Returns :ok if the body md5 matches and :error, reason tuple otherwise
   """
   @spec check_body(binary, binary) :: :ok | error_reason
+  def check_body("", nil), do: :ok
   def check_body(body, body_md5) do
     md5 = CryptoHelper.md5_to_binary(body)
     if md5 == body_md5, do: :ok,
@@ -77,20 +78,23 @@ defmodule Poxa.Authentication do
   end
 
   @doc """
-  This function uses `path`, `auth_key`, `auth_timetamp`, `auth_version` and `body_md5` to
+  This function uses `method`, `path`, `auth_key`, `auth_timetamp`, `auth_version` and `body_md5` to
   check if the signature is correct applying on this order:
       http_verb + path + auth_key + auth_timestamp + auth_version + body_md5
   More info at: https://github.com/mloughran/signature
   """
-  @spec check_signature(binary, binary, binary, binary, binary, binary) :: :ok | error_reason
-  def check_signature(path, auth_key, auth_timestamp,
+  @spec check_signature(binary, binary, binary, binary, binary, binary, binary) :: :ok | error_reason
+  def check_signature(method, path, auth_key, auth_timestamp,
                       auth_version, body_md5, auth_signature) do
-  #"POST\n/apps/3/events\nauth_key=278d425bdf160c739803&auth_timestamp=1353088179&auth_version=1.0&body_md5=ec365a775a4cd0599faeb73354201b6f"
-    to_sign = list_to_binary([ 'POST\n', path,
-                               '\nauth_key=', auth_key,
-                               '&auth_timestamp=', auth_timestamp,
-                               '&auth_version=', auth_version,
-                               '&body_md5=', body_md5 ])
+   to_sign = method <> "\n" <> path <>
+             "\nauth_key=" <> auth_key <>
+             "&auth_timestamp=" <> auth_timestamp <>
+             "&auth_version=" <> auth_version
+   to_sign = if body_md5 do
+     to_sign <> "&body_md5=" <> body_md5
+   else
+    to_sign
+   end
    {:ok, app_secret} = :application.get_env(:poxa, :app_secret)
    signed_data = CryptoHelper.hmac256_to_binary(app_secret, to_sign)
    if signed_data == auth_signature, do: :ok,

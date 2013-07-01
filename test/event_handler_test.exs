@@ -45,8 +45,9 @@ defmodule Poxa.EventHandlerTest do
   end
 
   test "single channel event" do
-    :meck.expect(Authentication, :check, 3, :ok)
+    :meck.expect(Authentication, :check, 4, :ok)
     :meck.expect(:cowboy_req, :qs_vals, 1, {:qsvals, :req2})
+    :meck.expect(:cowboy_req, :method, 1, {:method, :req3})
     :meck.expect(:cowboy_req, :path, 1, {:path, :req3})
     :meck.expect(JSEX, :decode!, 1,
                 [{"channel", "channel_name"},
@@ -66,10 +67,11 @@ defmodule Poxa.EventHandlerTest do
   end
 
   test "single channel event excluding socket_id" do
-    :meck.expect(Authentication, :check, 3, :ok)
+    :meck.expect(Authentication, :check, 4, :ok)
     :meck.expect(:cowboy_req, :body, 1,
                 {:ok, :body, :req1})
     :meck.expect(:cowboy_req, :qs_vals, 1, {:qsvals, :req2})
+    :meck.expect(:cowboy_req, :method, 1, {:method, :req3})
     :meck.expect(:cowboy_req, :path, 1, {:path, :req3})
     :meck.expect(JSEX, :decode!, 1, :decoded_json)
     :meck.expect(:cowboy_req, :reply, 4, {:ok, :req4})
@@ -88,10 +90,11 @@ defmodule Poxa.EventHandlerTest do
   end
 
   test "multiple channel event" do
-    :meck.expect(Authentication, :check, 3, :ok)
+    :meck.expect(Authentication, :check, 4, :ok)
     :meck.expect(:cowboy_req, :body, 1,
                 {:ok, :body, :req1})
     :meck.expect(:cowboy_req, :qs_vals, 1, {:qsvals, :req2})
+    :meck.expect(:cowboy_req, :method, 1, {:method, :req3})
     :meck.expect(:cowboy_req, :path, 1, {:path, :req3})
     :meck.expect(JSEX, :decode!, 1, :decoded_json)
     :meck.expect(:cowboy_req, :reply, 4, {:ok, :req4})
@@ -110,10 +113,11 @@ defmodule Poxa.EventHandlerTest do
   end
 
   test "invalid event" do
-    :meck.expect(Authentication, :check, 3, :ok)
+    :meck.expect(Authentication, :check, 4, :ok)
     :meck.expect(:cowboy_req, :body, 1,
                 {:ok, :body, :req1})
     :meck.expect(:cowboy_req, :qs_vals, 1, {:qsvals, :req2})
+    :meck.expect(:cowboy_req, :method, 1, {:method, :req3})
     :meck.expect(:cowboy_req, :path, 1, {:path, :req3})
     :meck.expect(JSEX, :decode!, 1, :decoded_json)
     :meck.expect(:cowboy_req, :reply, 4, {:ok, :req4})
@@ -130,10 +134,11 @@ defmodule Poxa.EventHandlerTest do
   end
 
   test "undefined channel event" do
-    :meck.expect(Authentication, :check, 3, :ok)
+    :meck.expect(Authentication, :check, 4, :ok)
     :meck.expect(:cowboy_req, :body, 1,
                 {:ok, :body, :req1})
     :meck.expect(:cowboy_req, :qs_vals, 1, {:qsvals, :req2})
+    :meck.expect(:cowboy_req, :method, 1, {:method, :req3})
     :meck.expect(:cowboy_req, :path, 1, {:path, :req3})
     :meck.expect(JSEX, :decode!, 1, :decoded_json)
     :meck.expect(PusherEvent, :valid?, 1, true)
@@ -150,10 +155,11 @@ defmodule Poxa.EventHandlerTest do
   end
 
   test "failing authentication" do
-    :meck.expect(Authentication, :check, 3, :error)
+    :meck.expect(Authentication, :check, 4, :error)
     :meck.expect(:cowboy_req, :body, 1,
                 {:ok, :body, :req1})
     :meck.expect(:cowboy_req, :qs_vals, 1, {:qsvals, :req2})
+    :meck.expect(:cowboy_req, :method, 1, {:method, :req3})
     :meck.expect(:cowboy_req, :path, 1, {:path, :req3})
     :meck.expect(JSEX, :decode!, 1, :decoded_json)
     :meck.expect(:cowboy_req, :reply, 4, {:ok, :req4})

@@ -34,9 +34,10 @@ defmodule Poxa.EventHandler do
   """
   def handle(req, body) do
     {qs_vals, req} = :cowboy_req.qs_vals(req)
+    {method, req} = :cowboy_req.method(req)
     {path, req} = :cowboy_req.path(req)
     # http://pusher.com/docs/rest_api#authentication
-    case Authentication.check(path,body, qs_vals) do
+    case Authentication.check(method, path,body, qs_vals) do
       :ok ->
         request_data = JSEX.decode!(body)
         {request_data, channels, exclude} = PusherEvent.parse_channels(request_data)
@@ -55,14 +56,6 @@ defmodule Poxa.EventHandler do
         {:ok, req} = :cowboy_req.reply(401, [], @authentication_error_json, req)
         {:ok, req, nil}
     end
-  end
-
-  def content_types_accepted(req, state) do
-    {[{{"application", "json", []}, :handle}], req, state}
-  end
-
-  def content_types_provided(req, state) do
-    {[{{"application", "json", []}, :handle}], req, state}
   end
 
   def terminate(_reason, _req, _state), do: :ok

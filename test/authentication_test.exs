@@ -72,11 +72,15 @@ defmodule Poxa.AuthenticationTest do
     assert :meck.validate :hmac
   end
 
+  test "an empty  body" do
+    assert check_body("", nil) == :ok
+  end
+
   test "a valid signature" do
     :meck.expect(:application, :get_env, 2, {:ok, :app_secret})
     :meck.expect(:hmac, :hmac256, 2, "auth_signature")
     :meck.expect(:hmac, :hexlify, 1, 'auth_signature')
-    assert check_signature("path", "auth_key", "auth_timestamp",
+    assert check_signature("method", "path", "auth_key", "auth_timestamp",
                                           "auth_version", "body_md5", "auth_signature") == :ok
     assert :meck.validate :hmac
     assert :meck.validate :application
@@ -86,7 +90,7 @@ defmodule Poxa.AuthenticationTest do
     :meck.expect(:application, :get_env, 2, {:ok, :app_secret})
     :meck.expect(:hmac, :hmac256, 2, "auth_signature")
     :meck.expect(:hmac, :hexlify, 1, 'invalid_auth_signature')
-    {return, _} = check_signature("path", "auth_key", "auth_timestamp",
+    {return, _} = check_signature("method", "path", "auth_key", "auth_timestamp",
                                           "auth_version", "body_md5", "auth_signature")
     assert return == :error
     assert :meck.validate :hmac
