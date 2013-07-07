@@ -12,11 +12,11 @@ defmodule Poxa.Authentication do
   def check(method, path, body, qs_vals) do
     try do
       #If any of these values are not avaiable -> MatchError
-      auth_key = ListDict.get(qs_vals, "auth_key")
-      auth_timestamp = ListDict.get(qs_vals, "auth_timestamp")
-      auth_version = ListDict.get(qs_vals, "auth_version")
-      body_md5 = ListDict.get(qs_vals, "body_md5")
-      auth_signature = ListDict.get(qs_vals, "auth_signature")
+      auth_key = qs_vals["auth_key"]
+      auth_timestamp = qs_vals["auth_timestamp"]
+      auth_version = qs_vals["auth_version"]
+      body_md5 = qs_vals["body_md5"]
+      auth_signature = qs_vals["auth_signature"]
 
       :ok = check_key(auth_key)
       :ok = check_timestamp(auth_timestamp)

@@ -15,23 +15,21 @@ defmodule Poxa.Subscription do
   @spec subscribe!(:jsx.json_term, binary) :: :ok | {:presence, binary, {PresenceSubscription.user_id,
                                                                           :jsx.json_term}} | :error
   def subscribe!(data, socket_id) do
-    channel = ListDict.get(data, "channel")
+    channel = data["channel"]
     case channel do
       "private-" <> _private_channel ->
-        auth = ListDict.get(data, "auth")
-        to_sign = case ListDict.get(data, "channel_data") do
+        to_sign = case data["channel_data"] do
           nil -> << socket_id :: binary, ":", channel :: binary >>
           channel_data -> << socket_id :: binary, ":", channel :: binary, ":", channel_data :: binary >>
         end
-        case AuthSignature.validate(to_sign, auth) do
+        case AuthSignature.validate(to_sign, data["auth"]) do
           :ok -> subscribe_channel(channel)
           :error -> subscribe_error(channel)
         end
       "presence-" <> _presence_channel ->
-        auth = ListDict.get(data, "auth")
         channel_data = ListDict.get(data, "channel_data", "undefined")
         to_sign = <<socket_id :: binary, ":", channel ::binary, ":", channel_data :: binary>>
-        case AuthSignature.validate(to_sign, auth) do
+        case AuthSignature.validate(to_sign, data["auth"]) do
           :ok -> PresenceSubscription.subscribe!(channel, channel_data)
           :error -> subscribe_error(channel)
         end
@@ -63,7 +61,7 @@ defmodule Poxa.Subscription do
   """
   @spec unsubscribe!(:jsx.json_term) :: :ok
   def unsubscribe!(data) do
-    channel = ListDict.get(data, "channel")
+    channel = data["channel"]
     if PresenceSubscription.presence_channel?(channel) do
       PresenceSubscription.unsubscribe!(channel);
     end

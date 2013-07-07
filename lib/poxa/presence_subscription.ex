@@ -39,8 +39,8 @@ defmodule Poxa.PresenceSubscription do
   end
 
   defp extract_userid_and_userinfo(channel_data) do
-    user_id = sanitize_user_id(ListDict.get(channel_data, "user_id"))
-    user_info = ListDict.get(channel_data, "user_info")
+    user_id = sanitize_user_id(channel_data["user_id"])
+    user_info = channel_data["user_info"]
     {user_id, user_info}
   end
 

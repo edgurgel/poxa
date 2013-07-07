@@ -152,7 +152,7 @@ defmodule Poxa.PusherEvent do
                                             [binary] | :undefined,
                                             :undefined | binary}
   def parse_channels(message) do
-    exclude = ListDict.get(message, "socket_id")
+    exclude = message["socket_id"]
     case ListDict.pop(message, "channels") do
       {nil, message} ->
         case ListDict.pop(message, "channel") do
