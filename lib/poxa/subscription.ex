@@ -89,4 +89,13 @@ defmodule Poxa.Subscription do
     end
   end
 
+  @doc """
+  Returns how many connections are opened on the `channel`
+  """
+  @spec subscription_count(binary) :: integer
+  def subscription_count(channel) do
+    match = {{:p, :l, {:pusher, channel}}, :_, :_}
+    :gproc.select_count([{match, [], [true]}])
+  end
+
 end
