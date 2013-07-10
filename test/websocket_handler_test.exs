@@ -2,34 +2,35 @@ Code.require_file "test_helper.exs", __DIR__
 
 defmodule Poxa.WebsocketHandlerTest do
   use ExUnit.Case
-  import Poxa.WebsocketHandler
   alias Poxa.Authentication
   alias Poxa.PresenceSubscription
   alias Poxa.PusherEvent
   alias Poxa.Subscription
+  import :meck
+  import Poxa.WebsocketHandler
 
   setup do
-    :meck.new PusherEvent
-    :meck.new Authentication
-    :meck.new Subscription
-    :meck.new PresenceSubscription
-    :meck.new :application, [:unstick]
-    :meck.new JSEX
-    :meck.new :gproc
-    :meck.new :uuid
-    :meck.new :cowboy_req
+    new PusherEvent
+    new Authentication
+    new Subscription
+    new PresenceSubscription
+    new :application, [:unstick]
+    new JSEX
+    new :gproc
+    new :uuid
+    new :cowboy_req
   end
 
   teardown do
-    :meck.unload PusherEvent
-    :meck.unload Authentication
-    :meck.unload Subscription
-    :meck.unload PresenceSubscription
-    :meck.unload :application
-    :meck.unload JSEX
-    :meck.unload :gproc
-    :meck.unload :uuid
-    :meck.unload :cowboy_req
+    unload PusherEvent
+    unload Authentication
+    unload Subscription
+    unload PresenceSubscription
+    unload :application
+    unload JSEX
+    unload :gproc
+    unload :uuid
+    unload :cowboy_req
   end
 
   test "normal process message" do
@@ -38,17 +39,17 @@ defmodule Poxa.WebsocketHandlerTest do
   end
 
   test "special start process message" do
-    :meck.expect(JSEX, :encode!, 1, :encoded_data)
-    :meck.expect(:uuid, :uuid1, fn -> :meck.passthrough([]) end)
-    :meck.expect(:uuid, :to_string, 1, 'uuid')
-    :meck.expect(:gproc, :reg, 1, :registered)
-    :meck.expect(PusherEvent, :connection_established, 1, :connection_established)
+    expect(JSEX, :encode!, 1, :encoded_data)
+    expect(:uuid, :uuid1, fn -> passthrough([]) end)
+    expect(:uuid, :to_string, 1, 'uuid')
+    expect(:gproc, :reg, 1, :registered)
+    expect(PusherEvent, :connection_established, 1, :connection_established)
     assert websocket_info(:start, :req, :state) ==
       {:reply, {:text, :connection_established}, :req, "uuid"}
-    assert :meck.validate PusherEvent
-    assert :meck.validate :uuid
-    assert :meck.validate :gproc
-    assert :meck.validate JSEX
+    assert validate PusherEvent
+    assert validate :uuid
+    assert validate :gproc
+    assert validate JSEX
   end
 
   test "undefined process message" do
@@ -56,160 +57,160 @@ defmodule Poxa.WebsocketHandlerTest do
   end
 
   test "undefined pusher event websocket message" do
-    :meck.expect(JSEX, :decode!, 1, [{"event", "pushernil"}])
+    expect(JSEX, :decode!, 1, [{"event", "pushernil"}])
     assert websocket_handle({:text, :undefined_event_jon}, :req, :state) ==
       {:ok, :req, :state}
-    assert :meck.validate JSEX
+    assert validate JSEX
   end
 
   test "pusher ping event" do
-    :meck.expect(JSEX, :decode!, 1, [{"event", "pusher:ping"}])
-    :meck.expect(PusherEvent, :pong, 0, :pong)
+    expect(JSEX, :decode!, 1, [{"event", "pusher:ping"}])
+    expect(PusherEvent, :pong, 0, :pong)
     assert websocket_handle({:text, :ping_json}, :req, :state) ==
       {:reply, {:text, :pong}, :req, :state}
-    assert :meck.validate JSEX
-    assert :meck.validate PusherEvent
+    assert validate JSEX
+    assert validate PusherEvent
   end
 
   test "subscribe private channel event" do
-    :meck.expect(:application, :get_env, 2, "secret")
-    :meck.expect(JSEX, :decode!, 1, [{"event", "pusher:subscribe"}])
-    :meck.expect(Subscription, :subscribe!, 2, :ok)
-    :meck.expect(PusherEvent, :subscription_succeeded, 0, :subscription_succeeded)
+    expect(:application, :get_env, 2, "secret")
+    expect(JSEX, :decode!, 1, [{"event", "pusher:subscribe"}])
+    expect(Subscription, :subscribe!, 2, :ok)
+    expect(PusherEvent, :subscription_succeeded, 0, :subscription_succeeded)
     assert websocket_handle({:text, :subscribe_json}, :req, :socket_id) ==
       {:reply, {:text, :subscription_succeeded}, :req, :socket_id}
-    assert :meck.validate JSEX
-    assert :meck.validate :application
-    assert :meck.validate PusherEvent
-    assert :meck.validate Subscription
+    assert validate JSEX
+    assert validate :application
+    assert validate PusherEvent
+    assert validate Subscription
   end
 
   test "subscribe private channel event failing for bad authentication" do
-    :meck.expect(:application, :get_env, 2, "secret")
-    :meck.expect(JSEX, :decode!, 1, [{"event", "pusher:subscribe"}])
-    :meck.expect(Subscription, :subscribe!, 2, :error)
-    :meck.expect(PusherEvent, :subscription_error, 0, :subscription_error)
+    expect(:application, :get_env, 2, "secret")
+    expect(JSEX, :decode!, 1, [{"event", "pusher:subscribe"}])
+    expect(Subscription, :subscribe!, 2, :error)
+    expect(PusherEvent, :subscription_error, 0, :subscription_error)
     assert websocket_handle({:text, :subscription_json}, :req, :state) ==
       {:reply, {:text, :subscription_error}, :req, :state}
-    assert :meck.validate JSEX
-    assert :meck.validate :application
-    assert :meck.validate PusherEvent
-    assert :meck.validate Subscription
+    assert validate JSEX
+    assert validate :application
+    assert validate PusherEvent
+    assert validate Subscription
   end
 
   test "subscribe presence channel event" do
-    :meck.expect(:application, :get_env, 2, "secret")
-    :meck.expect(JSEX, :decode!, 1, [{"event", "pusher:subscribe"}])
-    :meck.expect(Subscription, :subscribe!, 2, {:presence, :channel, :data})
-    :meck.expect(PusherEvent, :presence_subscription_succeeded, 2, :subscription_succeeded)
+    expect(:application, :get_env, 2, "secret")
+    expect(JSEX, :decode!, 1, [{"event", "pusher:subscribe"}])
+    expect(Subscription, :subscribe!, 2, {:presence, :channel, :data})
+    expect(PusherEvent, :presence_subscription_succeeded, 2, :subscription_succeeded)
     assert websocket_handle({:text, :subscribe_json}, :req, :socket_id) ==
       {:reply, {:text, :subscription_succeeded}, :req, :socket_id}
-    assert :meck.validate JSEX
-    assert :meck.validate :application
-    assert :meck.validate PusherEvent
-    assert :meck.validate Subscription
+    assert validate JSEX
+    assert validate :application
+    assert validate PusherEvent
+    assert validate Subscription
   end
 
   test "subscribe presence channel event failing for bad authentication" do
-    :meck.expect(:application, :get_env, 2, "secret")
-    :meck.expect(JSEX, :decode!, 1, [{"event", "pusher:subscribe"}])
-    :meck.expect(Subscription, :subscribe!, 2, :error)
-    :meck.expect(PusherEvent, :subscription_error, 0, :subscription_error)
+    expect(:application, :get_env, 2, "secret")
+    expect(JSEX, :decode!, 1, [{"event", "pusher:subscribe"}])
+    expect(Subscription, :subscribe!, 2, :error)
+    expect(PusherEvent, :subscription_error, 0, :subscription_error)
     assert websocket_handle({:text, :subscription_json}, :req, :state) ==
       {:reply, {:text, :subscription_error}, :req, :state}
-    assert :meck.validate JSEX
-    assert :meck.validate :application
-    assert :meck.validate PusherEvent
-    assert :meck.validate Subscription
+    assert validate JSEX
+    assert validate :application
+    assert validate PusherEvent
+    assert validate Subscription
   end
 
   test "subscribe public channel event" do
-    :meck.expect(JSEX, :decode!, 1, [{"event", "pusher:subscribe"}])
-    :meck.expect(Subscription, :subscribe!, 2, :ok)
-    :meck.expect(PusherEvent, :subscription_succeeded, 0, :subscription_succeeded)
+    expect(JSEX, :decode!, 1, [{"event", "pusher:subscribe"}])
+    expect(Subscription, :subscribe!, 2, :ok)
+    expect(PusherEvent, :subscription_succeeded, 0, :subscription_succeeded)
     assert websocket_handle({:text, :subscribe_json}, :req, :socket_id) ==
       {:reply, {:text, :subscription_succeeded}, :req, :socket_id}
-    assert :meck.validate JSEX
-    assert :meck.validate PusherEvent
-    assert :meck.validate Subscription
+    assert validate JSEX
+    assert validate PusherEvent
+    assert validate Subscription
   end
 
   test "subscribe event on an already subscribed channel" do
-    :meck.expect(JSEX, :decode!, 1, [{"event", "pusher:subscribe"}])
-    :meck.expect(Subscription, :subscribe!, 2, :ok)
-    :meck.expect(PusherEvent, :subscription_succeeded, 0, :subscription_succeeded)
+    expect(JSEX, :decode!, 1, [{"event", "pusher:subscribe"}])
+    expect(Subscription, :subscribe!, 2, :ok)
+    expect(PusherEvent, :subscription_succeeded, 0, :subscription_succeeded)
     assert websocket_handle({:text, :subscribe_json}, :req, :socket_id) ==
       {:reply, {:text, :subscription_succeeded}, :req, :socket_id}
-    assert :meck.validate JSEX
-    assert :meck.validate PusherEvent
-    assert :meck.validate Subscription
+    assert validate JSEX
+    assert validate PusherEvent
+    assert validate Subscription
   end
 
   test "unsubscribe event" do
-    :meck.expect(JSEX, :decode!, 1, [{"event", "pusher:unsubscribe"}])
-    :meck.expect(Subscription, :unsubscribe!, 1, :ok)
+    expect(JSEX, :decode!, 1, [{"event", "pusher:unsubscribe"}])
+    expect(Subscription, :unsubscribe!, 1, :ok)
     assert websocket_handle({:text, :unsubscribe_json}, :req, :socket_id) ==
       {:ok, :req, :socket_id}
-    assert :meck.validate JSEX
-    assert :meck.validate Subscription
+    assert validate JSEX
+    assert validate Subscription
   end
 
   test "client event on presence channel" do
-    :meck.expect(JSEX, :decode!, 1, [{"event", "client-event"}])
-    :meck.expect(PusherEvent, :parse_channels, 1, {:message, ["presence-channel"], nil})
-    :meck.expect(PusherEvent, :send_message_to_channel, 3, :ok)
-    :meck.expect(Subscription, :subscribed?, 1, true)
+    expect(JSEX, :decode!, 1, [{"event", "client-event"}])
+    expect(PusherEvent, :parse_channels, 1, {:message, ["presence-channel"], nil})
+    expect(PusherEvent, :send_message_to_channel, 3, :ok)
+    expect(Subscription, :subscribed?, 1, true)
     assert websocket_handle({:text, :client_event_json}, :req, :socket_id) ==
       {:ok, :req, :socket_id}
-    assert :meck.validate JSEX
-    assert :meck.validate PusherEvent
-    assert :meck.validate Subscription
+    assert validate JSEX
+    assert validate PusherEvent
+    assert validate Subscription
   end
 
   test "client event on private channel" do
-    :meck.expect(JSEX, :decode!, 1, [{"event", "client-event"}])
-    :meck.expect(PusherEvent, :parse_channels, 1, {:message, ["private-channel"], nil})
-    :meck.expect(PusherEvent, :send_message_to_channel, 3, :ok)
-    :meck.expect(Subscription, :subscribed?, 1, true)
+    expect(JSEX, :decode!, 1, [{"event", "client-event"}])
+    expect(PusherEvent, :parse_channels, 1, {:message, ["private-channel"], nil})
+    expect(PusherEvent, :send_message_to_channel, 3, :ok)
+    expect(Subscription, :subscribed?, 1, true)
     assert websocket_handle({:text, :client_event_json}, :req, :socket_id) ==
       {:ok, :req, :socket_id}
-    assert :meck.validate JSEX
-    assert :meck.validate PusherEvent
-    assert :meck.validate Subscription
+    assert validate JSEX
+    assert validate PusherEvent
+    assert validate Subscription
   end
 
   test "client event on public channel" do
-    :meck.expect(JSEX, :decode!, 1, [{"event", "client-event"}])
-    :meck.expect(PusherEvent, :parse_channels, 1, {:message, ["public-channel"], nil})
+    expect(JSEX, :decode!, 1, [{"event", "client-event"}])
+    expect(PusherEvent, :parse_channels, 1, {:message, ["public-channel"], nil})
     assert websocket_handle({:text, :client_event_json}, :req, :socket_id) ==
       {:ok, :req, :socket_id}
-    assert :meck.validate JSEX
-    assert :meck.validate PusherEvent
+    assert validate JSEX
+    assert validate PusherEvent
   end
 
   test "websocket init" do
-    :meck.expect(:application, :get_env, 2, {:ok, "app_key"})
-    :meck.expect(:cowboy_req, :binding, 2, {"app_key", :req})
-    :meck.expect(PusherEvent, :connection_established, 1, :connection_established)
+    expect(:application, :get_env, 2, {:ok, "app_key"})
+    expect(:cowboy_req, :binding, 2, {"app_key", :req})
+    expect(PusherEvent, :connection_established, 1, :connection_established)
     assert websocket_init(:transport, :req, :opts) == {:ok, :req, nil}
-    assert :meck.validate :application
-    assert :meck.validate :cowboy_req
-    assert :meck.validate PusherEvent
+    assert validate :application
+    assert validate :cowboy_req
+    assert validate PusherEvent
   end
 
 
   test "websocket init using wrong app_key" do
-    :meck.expect(:application, :get_env, 2, {:ok, "app_key"})
-    :meck.expect(:cowboy_req, :binding, 2, {"different_app_key", :req})
+    expect(:application, :get_env, 2, {:ok, "app_key"})
+    expect(:cowboy_req, :binding, 2, {"different_app_key", :req})
     assert websocket_init(:transport, :req, :opts) == {:shutdown, :req, nil}
-    assert :meck.validate :application
-    assert :meck.validate :cowboy_req
+    assert validate :application
+    assert validate :cowboy_req
   end
 
   test "websocket termination" do
-    :meck.expect(PresenceSubscription, :check_and_remove, 0, :ok)
+    expect(PresenceSubscription, :check_and_remove, 0, :ok)
     assert websocket_terminate(:reason, :req, :state) == :ok
-    :meck.validate PresenceSubscription
+    validate PresenceSubscription
   end
 
 end
