@@ -6,8 +6,8 @@ defmodule Poxa.UsersHandler do
   """
 
   require Lager
+  alias Poxa.AuthorizationHelper
   alias Poxa.PresenceSubscription
-  alias Poxa.Authentication
 
   def init(_transport, req, _opts) do
     {:upgrade, :protocol, :cowboy_rest}
@@ -23,16 +23,7 @@ defmodule Poxa.UsersHandler do
   end
 
   def is_authorized(req, channel) do
-    {:ok, body, req} = :cowboy_req.body(req)
-    {method, req} = :cowboy_req.method(req)
-    {qs_vals, req} = :cowboy_req.qs_vals(req)
-    {path, req} = :cowboy_req.path(req)
-    auth = Authentication.check(method, path, body, qs_vals)
-    if auth == :ok do
-      {true, req, channel}
-    else
-      {{false, "authentication failed"}, req, nil}
-    end
+    AuthorizationHelper.is_authorized(req, channel)
   end
 
   def content_types_provided(req, state) do
