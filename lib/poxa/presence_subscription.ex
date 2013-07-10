@@ -68,6 +68,13 @@ defmodule Poxa.PresenceSubscription do
     |> Enum.map(fn {user_id, _} -> user_id end)
   end
 
+  def user_count(channel) do
+    match = {{:p, :l, {:pusher, channel}}, :_, :'$1'}
+    :gproc.select([{match, [], [:'$1']}])
+    |> Enum.uniq(fn {user_id, _} -> user_id end)
+    |> Enum.count
+  end
+
   @doc """
   This function checks if the user that is leaving the presence channel
   have more than one connection subscribed.

@@ -95,8 +95,18 @@ defmodule Poxa.PresenceSubscriptionTest do
   end
 
   test "return unique user ids currently subscribed" do
-    :meck.expect(:gproc, :select, 1, [{:user_id, :user_info}, {:user_id, :user_info}, {:user_id2, :user_info2}])
+    :meck.expect(:gproc, :select, 1, [ {:user_id, :user_info},
+                                       {:user_id, :user_info},
+                                       {:user_id2, :user_info2} ])
     assert users("presence-channel") == [:user_id, :user_id2]
+    assert :meck.validate :gproc
+  end
+
+  test "return number of unique subscribed users" do
+    :meck.expect(:gproc, :select, 1, [ {:user_id, :user_info},
+                                       {:user_id, :user_info},
+                                       {:user_id2, :user_info2} ])
+    assert user_count("presence-channel") == 2
     assert :meck.validate :gproc
   end
 end
