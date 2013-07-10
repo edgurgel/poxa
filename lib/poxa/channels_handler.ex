@@ -12,8 +12,8 @@ defmodule Poxa.ChannelsHandler do
     {["GET"], req, state}
   end
 
-  def is_authorized(req, channel) do
-    AuthorizationHelper.is_authorized(req, channel)
+  def is_authorized(req, state) do
+    AuthorizationHelper.is_authorized(req, state)
   end
 
   def content_types_provided(req, state) do
