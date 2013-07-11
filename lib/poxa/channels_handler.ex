@@ -1,4 +1,9 @@
 defmodule Poxa.ChannelsHandler do
+  @moduledoc """
+  This module contains Cowboy HTTP handler callbacks to request on /apps/:app_id/channels[/:channel]
+
+  More info on Pusher REST API at: http://pusher.com/docs/rest_api
+  """
 
   require Lager
   alias Poxa.AuthorizationHelper
@@ -26,5 +31,4 @@ defmodule Poxa.ChannelsHandler do
     {JSEX.encode!(occupied: count > 0, subscription_count: count), req, nil}
   end
 
-  def terminate(_reason, _req, _state), do: :ok
 end

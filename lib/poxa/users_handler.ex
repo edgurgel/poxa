@@ -35,7 +35,5 @@ defmodule Poxa.UsersHandler do
       |> Enum.map(fn(id) -> [{"id", id}] end)
     {JSEX.encode!(users: response), req, response}
   end
-
-  def terminate(_reason, _req, _state), do: :ok
 end
 
