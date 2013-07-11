@@ -12,6 +12,7 @@ Open Pusher implementation compatible with Pusher libraries. It's designed to be
 * SSL on websocket and REST API;
 * REST API
   * /users on presence channels
+  * /channels/:channel_name (Partial support)
 
 ## TODO
 
