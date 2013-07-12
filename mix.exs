@@ -39,7 +39,7 @@ defmodule Poxa.Mixfile do
 
   defp deps(:test) do
     deps(:dev) ++
-     [ {:meck, github: "eproxus/meck", tag: "0.7.2" } ]
+     [ {:meck, github: "eproxus/meck", branch: "develop" } ]
   end
 
   defp deps(:docs) do

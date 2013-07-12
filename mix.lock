@@ -6,6 +6,6 @@
   "jsex": {:git,"git://github.com/talentdeficit/jsex.git","fe4c661d14f942baabf1b27b22ef04dcb92a1268",[]},
   "jsx": {:git,"git://github.com/talentdeficit/jsx.git","f0f43c4abab4d4e889bff79e5d5aab675f9e8d4d",[tag: "v1.4.2"]},
   "lager": {:git,"https://github.com/basho/lager.git","dc23b34ad40de2473c36d1a2bfeca4910279cc3f",[]},
-  "meck": {:git,"git://github.com/eproxus/meck.git","2447206f201bab1054c49cd32621eee23fa0ee3b",[tag: "0.7.2"]},
+  "meck": {:git,"git://github.com/eproxus/meck.git","4b085043972dee845fc3dd6f3a1926df4e39ed3d",[branch: "develop"]},
   "ranch": {:git,"git://github.com/extend/ranch.git","53be20d25f94095ec9b44c5bd03cf158dd5a6820",[ref: "0.8.1"]},
   "uuid": {:git,"git://github.com/avtobiff/erlang-uuid.git","1c84001651ef411b3fd6076b9376708925d6c00f",[tag: "v0.4.3"]} ]
