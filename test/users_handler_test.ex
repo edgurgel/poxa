@@ -2,20 +2,17 @@ Code.require_file "test_helper.exs", __DIR__
 
 defmodule Poxa.UsersHandlerTest do
   use ExUnit.Case
-  alias Poxa.Authentication
   alias Poxa.PresenceSubscription
   import :meck
   import Poxa.UsersHandler
 
   setup do
-    new Authentication
     new JSEX
     new PresenceSubscription
     new :cowboy_req
   end
 
   teardown do
-    unload Authentication
     unload JSEX
     unload PresenceSubscription
     unload :cowboy_req
