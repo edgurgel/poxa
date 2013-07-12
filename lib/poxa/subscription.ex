@@ -98,4 +98,10 @@ defmodule Poxa.Subscription do
     :gproc.select_count([{match, [], [true]}])
   end
 
+  def all_channels do
+    match = {{:p, :l, {:pusher, :'$1'}}, :_, :_}
+    :gproc.select([{match, [], [:'$1']}])
+    |> Enum.uniq
+  end
+
 end
