@@ -68,6 +68,10 @@ defmodule Poxa.PresenceSubscription do
     |> Enum.map(fn {user_id, _} -> user_id end)
   end
 
+  @doc """
+  Returns the number of unique users on a presence channel
+  """
+  @spec user_count(binary) :: non_neg_integer
   def user_count(channel) do
     match = {{:p, :l, {:pusher, channel}}, :_, :'$1'}
     :gproc.select([{match, [], [:'$1']}])
