@@ -2,11 +2,12 @@ defmodule Poxa.ChannelsHandler do
   @moduledoc """
   This module contains Cowboy HTTP handler callbacks to request on /apps/:app_id/channels[/:channel]
 
-  More info on Pusher REST API at: http://pusher.com/docs/rest_api
+  More info on Pusher REST API at: http://pusher.com/docs/rest_api#channels
   """
 
   require Lager
   alias Poxa.AuthorizationHelper
+  alias Poxa.PresenceSubscription
   alias Poxa.Subscription
 
   def init(_transport, req, _opts) do
@@ -26,9 +27,30 @@ defmodule Poxa.ChannelsHandler do
   end
 
   def get_json(req, state) do
-    {channel, req} = :cowboy_req.binding(:channel_name, req)
+    {channel, req} = :cowboy_req.binding(:channel_name, req, nil)
+    if channel do
+      show(channel, req, state)
+    else
+      index(req, state)
+    end
+  end
+
+  defp show(channel, req, state) do
     count = Subscription.subscription_count(channel)
-    {JSEX.encode!(occupied: count > 0, subscription_count: count), req, nil}
+    {JSEX.encode!(occupied: count > 0, subscription_count: count), req, state}
+  end
+
+  defp index(req, state) do
+    channels =
+    Subscription.all_channels
+      |> Enum.filter_map(
+        fn channel ->
+          PresenceSubscription.presence_channel? channel
+        end,
+        fn channel ->
+          {channel, [user_count: PresenceSubscription.user_count(channel)]}
+        end)
+    {JSEX.encode!(channels: channels), req, state}
   end
 
 end
