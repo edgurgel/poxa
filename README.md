@@ -16,6 +16,7 @@ Open Pusher implementation compatible with Pusher libraries. It's designed to be
 
 ## TODO
 
+* SockJS support;
 * Complete REST api;
 * Mimic pusher error codes;
 * Simple console;
