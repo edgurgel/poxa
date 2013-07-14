@@ -87,7 +87,6 @@ defmodule Poxa.WebsocketHandler do
   end
 
   def websocket_info(info, req, state) do
-    Lager.debug('WS Unknown message: ~p', [info])
     {:ok, req, state}
   end
 

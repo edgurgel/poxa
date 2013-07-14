@@ -10,7 +10,7 @@ defmodule Poxa.ChannelsHandler do
   alias Poxa.PresenceSubscription
   alias Poxa.Subscription
 
-  def init(_transport, req, _opts) do
+  def init(_transport, _req, _opts) do
     {:upgrade, :protocol, :cowboy_rest}
   end
 

@@ -9,7 +9,7 @@ defmodule Poxa.UsersHandler do
   alias Poxa.AuthorizationHelper
   alias Poxa.PresenceSubscription
 
-  def init(_transport, req, _opts) do
+  def init(_transport, _req, _opts) do
     {:upgrade, :protocol, :cowboy_rest}
   end
 
@@ -17,7 +17,7 @@ defmodule Poxa.UsersHandler do
     {["GET"], req, state}
   end
 
-  def malformed_request(req, state) do
+  def malformed_request(req, _state) do
     {channel, req} = :cowboy_req.binding(:channel_name, req)
     {!PresenceSubscription.presence_channel?(channel), req, channel}
   end
@@ -39,7 +39,6 @@ defmodule Poxa.UsersHandler do
           { "id": "user2" }
         ]
       }
-
 
   """
   def get_json(req, channel) do
