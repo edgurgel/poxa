@@ -79,10 +79,10 @@ defmodule Poxa.AuthenticationTest do
 
   test "a valid signature" do
     expect(:application, :get_env, 2, {:ok, :app_secret})
-    expect(:hmac, :hmac256, 2, "auth_signature")
+    expected = "method\npath\nk1=v1&k2=v2"
+    expect(:hmac, :hmac256, [{[:app_secret, expected], "auth_signature"}])
     expect(:hmac, :hexlify, 1, 'auth_signature')
-    assert check_signature("method", "path", "auth_key", "auth_timestamp",
-                                          "auth_version", "body_md5", "auth_signature") == :ok
+    assert check_signature("method", "path", [{"k1", "v1"}, {"k2", "v2"}], "auth_signature") == :ok
     assert validate :hmac
     assert validate :application
   end
@@ -91,8 +91,7 @@ defmodule Poxa.AuthenticationTest do
     expect(:application, :get_env, 2, {:ok, :app_secret})
     expect(:hmac, :hmac256, 2, "auth_signature")
     expect(:hmac, :hexlify, 1, 'invalid_auth_signature')
-    {return, _} = check_signature("method", "path", "auth_key", "auth_timestamp",
-                                          "auth_version", "body_md5", "auth_signature")
+    {return, _} = check_signature("method", "path", [], "auth_signature")
     assert return == :error
     assert validate :hmac
     assert validate :application

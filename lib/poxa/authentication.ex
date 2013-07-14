@@ -16,17 +16,16 @@ defmodule Poxa.Authentication do
       auth_timestamp = qs_vals["auth_timestamp"]
       auth_version = qs_vals["auth_version"]
       body_md5 = qs_vals["body_md5"]
-      auth_signature = qs_vals["auth_signature"]
+      {auth_signature, qs_vals} = ListDict.pop(qs_vals, "auth_signature")
 
       :ok = check_key(auth_key)
       :ok = check_timestamp(auth_timestamp)
       :ok = check_version(auth_version)
       :ok = check_body(body, body_md5)
-      :ok = check_signature(method, path, auth_key, auth_timestamp,
-                           auth_version, body_md5, auth_signature)
+      :ok = check_signature(method, path, qs_vals, auth_signature)
     rescue
-      MatchError ->
-        Lager.info("Error during authentication")
+      error in [MatchError] ->
+        Lager.info("Error during authentication #{error.message}")
         {:badauth, "Error during authentication"}
     end
   end
@@ -83,21 +82,19 @@ defmodule Poxa.Authentication do
       http_verb + path + auth_key + auth_timestamp + auth_version + body_md5
   More info at: https://github.com/mloughran/signature
   """
-  @spec check_signature(binary, binary, binary, binary, binary, binary, binary) :: :ok | error_reason
-  def check_signature(method, path, auth_key, auth_timestamp,
-                      auth_version, body_md5, auth_signature) do
-   to_sign = method <> "\n" <> path <>
-             "\nauth_key=" <> auth_key <>
-             "&auth_timestamp=" <> auth_timestamp <>
-             "&auth_version=" <> auth_version
-   to_sign = if body_md5 do
-     to_sign <> "&body_md5=" <> body_md5
-   else
-    to_sign
-   end
+  @spec check_signature(binary, binary, ListDict.t, binary) :: :ok | error_reason
+  def check_signature(method, path, qs_vals, auth_signature) do
+   to_sign = method <> "\n" <> path <> "\n" <> build_qs(qs_vals)
    {:ok, app_secret} = :application.get_env(:poxa, :app_secret)
    signed_data = CryptoHelper.hmac256_to_binary(app_secret, to_sign)
    if signed_data == auth_signature, do: :ok,
    else: {:error, "auth_signature does not match"}
+  end
+
+  defp build_qs(qs_vals) do
+    Enum.sort(qs_vals, fn({k1, _}, {k2, _}) -> k1 < k2 end)
+      |> Enum.reduce("", fn({k, v}, acc) -> acc <> "&#{k}=#{v}"
+         end)
+      |> String.lstrip ?& # Remove the first &
   end
 end
