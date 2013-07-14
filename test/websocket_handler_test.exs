@@ -39,7 +39,6 @@ defmodule Poxa.WebsocketHandlerTest do
   end
 
   test "special start process message" do
-    expect(JSEX, :encode!, 1, :encoded_data)
     expect(:uuid, :uuid1, fn -> passthrough([]) end)
     expect(:uuid, :to_string, 1, 'uuid')
     expect(:gproc, :reg, 1, :registered)
