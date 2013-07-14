@@ -30,10 +30,22 @@ defmodule Poxa.UsersHandler do
     {[{{"application", "json", []}, :get_json}], req, state}
   end
 
+  @doc """
+  Fetch user ids currently subscribed to a presence channel
+
+      {
+        "users": [
+          { "id": "user1" },
+          { "id": "user2" }
+        ]
+      }
+
+
+  """
   def get_json(req, channel) do
     response = PresenceSubscription.users(channel)
-      |> Enum.map(fn(id) -> [{"id", id}] end)
-    {JSEX.encode!(users: response), req, response}
+      |> Enum.map(fn(id) -> [id: id] end)
+    {JSEX.encode!(users: response), req, nil}
   end
 end
 

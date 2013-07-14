@@ -1,6 +1,6 @@
 Code.require_file "test_helper.exs", __DIR__
 
-defmodule Poxa.UsersHandlerTest do
+defmodule Poxa.ChannelsHandlerTest do
   use ExUnit.Case
   alias Poxa.PresenceSubscription
   alias Poxa.Subscription
