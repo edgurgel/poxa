@@ -107,6 +107,10 @@ defmodule Poxa.Subscription do
     :gproc.select(:all, [{match, [], [true]}], 1) != :'$end_of_table'
   end
 
+  @doc """
+  Returns the list of channels with at least 1 subscription
+  """
+  @spec all_channels :: [binary]
   def all_channels do
     match = {{:p, :l, {:pusher, :'$1'}}, :_, :_}
     :gproc.select([{match, [], [:'$1']}])

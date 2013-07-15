@@ -123,4 +123,12 @@ defmodule Poxa.SubscriptionTest do
     assert validate PresenceSubscription
     assert validate :gproc
   end
+
+  test "list all channels" do
+    expect(:gproc, :select, 1, ["channel1", "channel2", "channel3", "channel1"])
+
+    assert all_channels == ["channel1", "channel2", "channel3"]
+
+    assert validate :gproc
+  end
 end
