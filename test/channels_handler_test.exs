@@ -35,7 +35,7 @@ defmodule Poxa.ChannelsHandlerTest do
     expect(:cowboy_req, :binding, 3, {"channel", :req})
     expect(PresenceSubscription, :presence_channel?, 1, false)
 
-    assert malformed_request(:req, :state) == {true, :req, "channel"}
+    assert malformed_request(:req, :state) == {true, :req, {"channel", ["subscription_count", "message_count"]}}
 
     assert validate PresenceSubscription
     assert validate :cowboy_req
@@ -46,7 +46,7 @@ defmodule Poxa.ChannelsHandlerTest do
     expect(:cowboy_req, :binding, 3, {"channel", :req})
     expect(PresenceSubscription, :presence_channel?, 1, false)
 
-    assert malformed_request(:req, :state) == {true, :req, "channel"}
+    assert malformed_request(:req, :state) == {true, :req, {"channel", ["message_count"]}}
 
     assert validate PresenceSubscription
     assert validate :cowboy_req
@@ -57,7 +57,7 @@ defmodule Poxa.ChannelsHandlerTest do
     expect(:cowboy_req, :binding, 3, {"channel", :req})
     expect(PresenceSubscription, :presence_channel?, 1, false)
 
-    assert malformed_request(:req, :state) == {false, :req, "channel"}
+    assert malformed_request(:req, :state) == {false, :req, {"channel", ["subscription_count"]}}
 
     assert validate PresenceSubscription
     assert validate :cowboy_req
@@ -68,7 +68,7 @@ defmodule Poxa.ChannelsHandlerTest do
     expect(:cowboy_req, :binding, 3, {"channel", :req})
     expect(PresenceSubscription, :presence_channel?, 1, false)
 
-    assert malformed_request(:req, :state) == {true, :req, "channel"}
+    assert malformed_request(:req, :state) == {true, :req, {"channel", ["user_count"]}}
 
     assert validate PresenceSubscription
     assert validate :cowboy_req
@@ -79,21 +79,49 @@ defmodule Poxa.ChannelsHandlerTest do
     expect(:cowboy_req, :binding, 3, {"presence-channel", :req})
     expect(PresenceSubscription, :presence_channel?, 1, true)
 
-    assert malformed_request(:req, :state) == {false, :req, "presence-channel"}
+    assert malformed_request(:req, :state) == {false, :req, {"presence-channel", ["user_count", "subscription_count"]}}
 
     assert validate PresenceSubscription
     assert validate :cowboy_req
   end
 
-  test "get_json on a specific channel" do
+  test "get_json on a specific channel with subscription_count attribute" do
+    expect(Subscription, :occupied?, 1, true)
     expect(Subscription, :subscription_count, 1, 5)
     expected = [occupied: true, subscription_count: 5]
     expect(JSEX, :encode!, [{[expected], :encoded_json}])
 
-    assert get_json(:req, :state) == {:encoded_json, :req, nil}
+    assert get_json(:req, {:channel, ["subscription_count"]}) == {:encoded_json, :req, nil}
 
     assert validate JSEX
     assert validate Subscription
+  end
+
+  test "get_json on a specific channel with user_count attribute" do
+    expect(Subscription, :occupied?, 1, true)
+    expect(PresenceSubscription, :user_count, 1, 3)
+    expected = [occupied: true, user_count: 3]
+    expect(JSEX, :encode!, [{[expected], :encoded_json}])
+
+    assert get_json(:req, {:channel, ["user_count"]}) == {:encoded_json, :req, nil}
+
+    assert validate JSEX
+    assert validate Subscription
+    assert validate PresenceSubscription
+  end
+
+  test "get_json on a specific channel with user_count and subscription_count attributes" do
+    expect(Subscription, :occupied?, 1, true)
+    expect(Subscription, :subscription_count, 1, 5)
+    expect(PresenceSubscription, :user_count, 1, 3)
+    expected = [occupied: true, subscription_count: 5, user_count: 3]
+    expect(JSEX, :encode!, [{[expected], :encoded_json}])
+
+    assert get_json(:req, {:channel, ["subscription_count", "user_count"]}) == {:encoded_json, :req, nil}
+
+    assert validate JSEX
+    assert validate Subscription
+    assert validate PresenceSubscription
   end
 
   test "get_json on every single channel" do
@@ -104,7 +132,7 @@ defmodule Poxa.ChannelsHandlerTest do
     expected = [channels: [{"presence-channel", user_count: 3}]]
     expect(JSEX, :encode!, [{[expected], :encoded_json}])
 
-    assert get_json(:req, nil) == {:encoded_json, :req, nil}
+    assert get_json(:req, {nil, nil}) == {:encoded_json, :req, nil}
 
     assert validate JSEX
     assert validate Subscription
