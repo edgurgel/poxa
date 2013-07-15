@@ -98,6 +98,15 @@ defmodule Poxa.Subscription do
     :gproc.select_count([{match, [], [true]}])
   end
 
+  @doc """
+  Returns true if the channel has at least 1 subscription
+  """
+  @spec occupied?(binary) :: boolean
+  def occupied?(channel) do
+    match = {{:p, :l, {:pusher, channel}}, :_, :_}
+    :gproc.select(:all, [{match, [], [true]}], 1) != :'$end_of_table'
+  end
+
   def all_channels do
     match = {{:p, :l, {:pusher, :'$1'}}, :_, :_}
     :gproc.select([{match, [], [:'$1']}])
