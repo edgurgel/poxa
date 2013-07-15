@@ -84,11 +84,11 @@ defmodule Poxa.Authentication do
   """
   @spec check_signature(binary, binary, ListDict.t, binary) :: :ok | error_reason
   def check_signature(method, path, qs_vals, auth_signature) do
-   to_sign = method <> "\n" <> path <> "\n" <> build_qs(qs_vals)
-   {:ok, app_secret} = :application.get_env(:poxa, :app_secret)
-   signed_data = CryptoHelper.hmac256_to_binary(app_secret, to_sign)
-   if signed_data == auth_signature, do: :ok,
-   else: {:error, "auth_signature does not match"}
+    to_sign = method <> "\n" <> path <> "\n" <> build_qs(qs_vals)
+    {:ok, app_secret} = :application.get_env(:poxa, :app_secret)
+    signed_data = CryptoHelper.hmac256_to_binary(app_secret, to_sign)
+    if signed_data == auth_signature, do: :ok,
+    else: {:error, "auth_signature does not match"}
   end
 
   defp build_qs(qs_vals) do
