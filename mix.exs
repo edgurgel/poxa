@@ -5,7 +5,7 @@ defmodule Poxa.Mixfile do
     [ app: :poxa,
       version: "0.0.3",
       name: "Poxa",
-      elixir: "~> 0.9.3",
+      elixir: "~> 0.10.0",
       deps: deps(Mix.env),
       dialyzer: [ plt_apps: ["erts","kernel", "stdlib", "crypto", "public_key", "mnesia"],
                   flags: ["-Wunmatched_returns","-Werror_handling","-Wrace_conditions"]],
@@ -32,7 +32,7 @@ defmodule Poxa.Mixfile do
 
   defp deps(:dev) do
     [ {:cowboy, github: "extend/cowboy", tag: "0.8.4" },
-      {:exlager, %r".*", github: "khia/exlager"},
+      {:exlager, github: "khia/exlager"},
       {:jsex, github: "talentdeficit/jsex"},
       {:gproc, github: "uwiger/gproc", ref: "3b32300125c491f03b728733d4b6ea9e32730ea0" },
       {:uuid, github: "avtobiff/erlang-uuid", tag: "v0.4.3" },
