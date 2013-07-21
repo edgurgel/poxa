@@ -132,7 +132,7 @@ defmodule Poxa.ChannelsHandlerTest do
     expected = [channels: [{"presence-channel", user_count: 3}]]
     expect(JSEX, :encode!, [{[expected], :encoded_json}])
 
-    assert get_json(:req, {nil, nil}) == {:encoded_json, :req, nil}
+    assert get_json(:req, nil) == {:encoded_json, :req, nil}
 
     assert validate JSEX
     assert validate Subscription

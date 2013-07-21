@@ -48,11 +48,10 @@ defmodule Poxa.ChannelsHandler do
   end
 
   def get_json(req, {channel, attributes}) do
-    if channel do
       show(channel, attributes, req, nil)
-    else
-      index(req, nil)
-    end
+  end
+  def get_json(req, nil) do
+    index(req, nil)
   end
 
   defp show(channel, attributes, req, state) do
