@@ -19,6 +19,8 @@ defmodule Poxa.Mixfile do
                       :crypto,
                       :gproc,
                       :cowboy,
+                      :jsex,
+                      :uuid,
                       :erlsha2 ],
       mod: { Poxa, [] },
       env: [ port: 8080,
