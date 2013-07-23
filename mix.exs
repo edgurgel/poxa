@@ -1,3 +1,4 @@
+Code.append_path "deps/relex/ebin"
 defmodule Poxa.Mixfile do
   use Mix.Project
 
@@ -49,6 +50,11 @@ defmodule Poxa.Mixfile do
     [ {:ex_doc, github: "elixir-lang/ex_doc" } ]
   end
 
+  defp deps(:prod) do
+    deps(:dev) ++
+    [ {:relex, github: "yrashk/relex"} ]
+  end
+
   defp options(:dev) do
     [exlager_level: :debug, exlager_truncation_size: 8096]
   end
@@ -60,4 +66,14 @@ defmodule Poxa.Mixfile do
   defp options(_) do
   end
 
+  if Code.ensure_loaded?(Relex.Release) do
+    defmodule Release do
+      use Relex.Release
+
+      def name, do: "poxa"
+      def version, do: Mix.project[:version]
+      def applications, do: [ Mix.project[:app] ]
+      def lib_dirs, do: ["deps"]
+    end
+  end
 end
