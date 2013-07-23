@@ -83,9 +83,19 @@ And if you want SSL, try something like this on your configuration file:
 
 ## Release
 
-If you just want to run an executable, follow these instructions:
+If you just want to run a release, follow these instructions:
 
-TODO
+First download dependencies and generate the release (or download it [here](https://github.com/edgurgel/poxa/releases))
+
+```console
+MIX_ENV=prod mix do deps.get, relex.assemble
+```
+
+Then you can run it using your own Erlang binaries:
+
+```console
+erl -env ERL_LIBS ./poxa/lib -boot ./poxa/releases/0.0.X/poxa
+```
 
 ## Your application
 
