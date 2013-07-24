@@ -3,7 +3,7 @@
   "exlager": {:git, "git://github.com/khia/exlager.git", "09ccd691a41a84ab546d1f53dd561ce11de03eaa", []},
   "goldrush": {:git, "git://github.com/DeadZen/goldrush.git", "879c69874a555b2c13498aa4a3da6f6bbbb6a031", [{:tag, "879c69874a"}]},
   "gproc": {:git, "git://github.com/uwiger/gproc.git", "3b32300125c491f03b728733d4b6ea9e32730ea0", [{:ref, "3b32300125c491f03b728733d4b6ea9e32730ea0"}]},
-  "jsex": {:git, "git://github.com/talentdeficit/jsex.git", "e2f5ea277e3112692746a9f79c4b98fef83f4f62", []},
+  "jsex": {:git, "git://github.com/talentdeficit/jsex.git", "922a08673d28871d99880880da5d334d167a9720", []},
   "jsx": {:git, "git://github.com/talentdeficit/jsx.git", "352d6b21cbec4fe1b66bc7ce3ded67a3b32add2c", [{:tag, "v1.4.2"}]},
   "lager": {:git, "https://github.com/basho/lager.git", "9b9e53f81c3659e86c99fdc0e5e56ade5d67cb58", []},
   "meck": {:git, "git://github.com/eproxus/meck.git", "4b085043972dee845fc3dd6f3a1926df4e39ed3d", [{:branch, "develop"}]},
