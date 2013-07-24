@@ -13,6 +13,7 @@ Open Pusher implementation compatible with Pusher libraries. It's designed to be
 * REST API
   * /users on presence channels
   * /channels/:channel_name (Partial support)
+  * /channels (Partial support)
 
 ## TODO
 
