@@ -132,7 +132,14 @@ Compile:
 mix compile
 ```
 
-The test suite used is the ExUnit and [meck](http://github.com/eproxus/meck) to mock stuff. You can run the tests:
+The test suite used is the ExUnit and [meck](http://github.com/eproxus/meck) to mock stuff. First download test dependencies:
+
+```console
+MIX_ENV=test mix deps.get
+```
+
+
+Now you can run the tests:
 
 ```console
 mix test
