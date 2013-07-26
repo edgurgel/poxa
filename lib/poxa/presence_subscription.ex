@@ -127,9 +127,13 @@ defmodule Poxa.PresenceSubscription do
   end
 
   defp only_one_connection_on_user_id?(channel, user_id) do
-    case :gproc.get_value({:c, :l, {:presence, channel, user_id}}, :shared) do
-      1 -> true
-      _ -> false
+    try do
+      case :gproc.get_value({:c, :l, {:presence, channel, user_id}}, :shared) do
+        1 -> true
+        _ -> false
+      end
+    rescue
+      ArgumentError -> false
     end
   end
 end
