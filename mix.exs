@@ -35,7 +35,7 @@ defmodule Poxa.Mixfile do
     [ {:cowboy, github: "extend/cowboy", tag: "0.8.4" },
       {:exlager, github: "khia/exlager"},
       {:jsex, github: "talentdeficit/jsex"},
-      {:gproc, github: "uwiger/gproc", ref: "3b32300125c491f03b728733d4b6ea9e32730ea0" },
+      {:gproc, github: "uwiger/gproc", ref: "6e6cd7fab087edfaf7eb8a92a84d3c91cffe797c" },
       {:uuid, github: "avtobiff/erlang-uuid", tag: "v0.4.3" },
       {:erlsha2, github: "vinoski/erlsha2" } ]
   end
