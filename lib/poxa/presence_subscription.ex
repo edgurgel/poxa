@@ -30,8 +30,7 @@ defmodule Poxa.PresenceSubscription do
         message = PusherEvent.presence_member_added(channel, user_id, user_info)
         :gproc.send({:p, :l, {:pusher, channel}}, {self, message})
       end
-      :gproc.mreg(:p, :l, [{{:pusher, channel}, {user_id, user_info}},
-                           {{:presence, channel, user_id}, user_info}])
+      :gproc.reg({:p, :l, {:pusher, channel}}, {user_id, user_info})
     end
     {:presence, channel, :gproc.lookup_values({:p, :l, {:pusher, channel}})}
   end
@@ -43,7 +42,7 @@ defmodule Poxa.PresenceSubscription do
   end
 
   defp user_id_already_on_presence_channel(user_id, channel) do
-    match = {{:p, :l, {:presence, channel, user_id}}, :_, :_}
+    match = {{:p, :l, {:pusher, channel}}, :_, {user_id, :_}}
     :gproc.select_count([{match, [], [true]}]) != 0
   end
 
@@ -106,7 +105,7 @@ defmodule Poxa.PresenceSubscription do
   end
 
   defp only_one_connection_on_user_id?(channel, user_id) do
-    match = {{:p, :l, {:presence, channel, user_id}}, :_, :_}
+    match = {{:p, :l, {:pusher, channel}}, :_, {user_id, :_}}
     :gproc.select_count([{match, [], [true]}]) == 1
   end
 

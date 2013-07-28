@@ -23,7 +23,7 @@ defmodule Poxa.PresenceSubscriptionTest do
     expect(Subscription, :subscribed?, 1, false)
     expect(:gproc, :select_count, 1, 0)
     expect(:gproc, :send, 2, :sent)
-    expect(:gproc, :mreg, 3, :registered)
+    expect(:gproc, :reg, 2, :registered)
     expect(PusherEvent, :presence_member_added, 3, :event_message)
     expect(:gproc, :lookup_values, 1, :values)
     assert subscribe!("presence-channel", "{ \"user_id\" : \"id123\", \"user_info\" : \"info456\" }") == {:presence, "presence-channel", :values}
@@ -44,8 +44,7 @@ defmodule Poxa.PresenceSubscriptionTest do
   test "subscribe to a presence channel having the same userid" do
     expect(Subscription, :subscribed?, 1, false)
     expect(:gproc, :select_count, 1, 1) # true for user_id_already_on_presence_channel/2
-    expect(:gproc, :update_shared_counter, 2, :ok)
-    expect(:gproc, :mreg, 3, :registered)
+    expect(:gproc, :reg, 2, :registered)
     expect(:gproc, :lookup_values, 1, :values)
     assert subscribe!("presence-channel", "{ \"user_id\" : \"id123\", \"user_info\" : \"info456\" }") == {:presence, "presence-channel", :values}
     assert validate Subscription
