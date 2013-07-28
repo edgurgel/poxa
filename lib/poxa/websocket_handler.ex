@@ -98,6 +98,7 @@ defmodule Poxa.WebsocketHandler do
 
   def websocket_terminate(_reason, _req, _state) do
     PresenceSubscription.check_and_remove
+    :gproc.goodbye
     :ok
   end
 end

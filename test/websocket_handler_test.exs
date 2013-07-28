@@ -197,7 +197,6 @@ defmodule Poxa.WebsocketHandlerTest do
     assert validate PusherEvent
   end
 
-
   test "websocket init using wrong app_key" do
     expect(:application, :get_env, 2, {:ok, "app_key"})
     expect(:cowboy_req, :binding, 2, {"different_app_key", :req})
@@ -208,8 +207,10 @@ defmodule Poxa.WebsocketHandlerTest do
 
   test "websocket termination" do
     expect(PresenceSubscription, :check_and_remove, 0, :ok)
+    expect(:gproc, :goodbye, 0, :ok)
     assert websocket_terminate(:reason, :req, :state) == :ok
-    validate PresenceSubscription
+    assert validate PresenceSubscription
+    assert validate :gproc
   end
 
 end
