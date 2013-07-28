@@ -90,7 +90,7 @@ defmodule Poxa.PusherEvent do
     # This may be too slow in the future...let's wait and see :)
     ids_hash = lc {_pid, {user_id, user_info}} inlist presence_data do
       {user_id, user_info}
-    end
+    end |> Enum.uniq(fn {user_id, _} -> user_id end)
     [ids, _Hash] = List.unzip(ids_hash)
     count = Enum.count(ids)
     JSEX.encode!([ event: "pusher_internal:subscription_succeeded",
