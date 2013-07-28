@@ -21,10 +21,9 @@ defmodule Poxa.PresenceSubscriptionTest do
 
   test "subscribe to a presence channel" do
     expect(Subscription, :subscribed?, 1, false)
-    expect(:gproc, :select, 1, []) # false for user_id_already_on_presence_channel/2
-    expect(:gproc, :add_shared_local_counter, 2, :ok)
+    expect(:gproc, :select_count, 1, 0)
     expect(:gproc, :send, 2, :sent)
-    expect(:gproc, :reg, 2, :registered)
+    expect(:gproc, :mreg, 3, :registered)
     expect(PusherEvent, :presence_member_added, 3, :event_message)
     expect(:gproc, :lookup_values, 1, :values)
     assert subscribe!("presence-channel", "{ \"user_id\" : \"id123\", \"user_info\" : \"info456\" }") == {:presence, "presence-channel", :values}
@@ -44,9 +43,9 @@ defmodule Poxa.PresenceSubscriptionTest do
 
   test "subscribe to a presence channel having the same userid" do
     expect(Subscription, :subscribed?, 1, false)
-    expect(:gproc, :select, 1, [:something]) # true for user_id_already_on_presence_channel/2
+    expect(:gproc, :select_count, 1, 1) # true for user_id_already_on_presence_channel/2
     expect(:gproc, :update_shared_counter, 2, :ok)
-    expect(:gproc, :reg, 2, :registered)
+    expect(:gproc, :mreg, 3, :registered)
     expect(:gproc, :lookup_values, 1, :values)
     assert subscribe!("presence-channel", "{ \"user_id\" : \"id123\", \"user_info\" : \"info456\" }") == {:presence, "presence-channel", :values}
     assert validate Subscription
@@ -71,8 +70,7 @@ defmodule Poxa.PresenceSubscriptionTest do
 
   test "check subscribed presence channels and remove having only one connection on userid" do
     expect(:gproc, :select, 1, [["presence-channel", :userid]])
-    expect(:gproc, :get_value, 2, 1)
-    expect(:gproc, :unreg_shared, 1, :ok)
+    expect(:gproc, :select_count, 1, 1)
     expect(PusherEvent, :presence_member_removed, 2, :msg)
     expect(:gproc, :send, 2, :ok)
     assert check_and_remove == :ok
@@ -82,8 +80,7 @@ defmodule Poxa.PresenceSubscriptionTest do
 
   test "check subscribed presence channels and remove having more than one connection on userid" do
     expect(:gproc, :select, 1, [["presence-channel", :userid]])
-    expect(:gproc, :get_value, 2, 5)
-    expect(:gproc, :update_shared_counter, 2, :ok)
+    expect(:gproc, :select_count, 1, 5)
     assert check_and_remove == :ok
     assert validate PusherEvent
     assert validate :gproc

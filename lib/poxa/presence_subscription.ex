@@ -26,14 +26,12 @@ defmodule Poxa.PresenceSubscription do
     else
       Lager.info('Registering ~p to channel ~p', [self, channel])
       {user_id, user_info} = extract_userid_and_userinfo(decoded_channel_data)
-      if user_id_already_on_presence_channel(user_id, channel) do
-        :gproc.update_shared_counter({:c, :l, {:presence, channel, user_id}}, 1)
-      else
+      unless user_id_already_on_presence_channel(user_id, channel) do
         message = PusherEvent.presence_member_added(channel, user_id, user_info)
-        :gproc.add_shared_local_counter({:presence, channel, user_id}, 1)
         :gproc.send({:p, :l, {:pusher, channel}}, {self, message})
       end
-      :gproc.reg({:p, :l, {:pusher, channel}}, {user_id, user_info})
+      :gproc.mreg(:p, :l, [{{:pusher, channel}, {user_id, user_info}},
+                           {{:presence, channel, user_id}, user_info}])
     end
     {:presence, channel, :gproc.lookup_values({:p, :l, {:pusher, channel}})}
   end
@@ -42,6 +40,11 @@ defmodule Poxa.PresenceSubscription do
     user_id = sanitize_user_id(channel_data["user_id"])
     user_info = channel_data["user_info"]
     {user_id, user_info}
+  end
+
+  defp user_id_already_on_presence_channel(user_id, channel) do
+    match = {{:p, :l, {:presence, channel, user_id}}, :_, :_}
+    :gproc.select_count([{match, [], [true]}]) != 0
   end
 
   @spec unsubscribe!(binary) :: :ok
@@ -93,11 +96,8 @@ defmodule Poxa.PresenceSubscription do
     member_remove_fun = fn([channel, user_id]) ->
       if presence_channel?(channel) do
         if only_one_connection_on_user_id?(channel, user_id) do
-          :gproc.unreg_shared({:c, :l, {:presence, channel, user_id}})
           message = PusherEvent.presence_member_removed(channel, user_id)
           :gproc.send({:p, :l, {:pusher, channel}}, {self, message})
-        else
-          :gproc.update_shared_counter({:c, :l, {:presence, channel, user_id}}, -1)
         end
       end
     end
@@ -105,35 +105,19 @@ defmodule Poxa.PresenceSubscription do
     :ok
   end
 
-  @spec presence_channel?(any) :: boolean
-  def presence_channel?("presence-" <> _presence_channel  = _channel) do
-    true
+  defp only_one_connection_on_user_id?(channel, user_id) do
+    match = {{:p, :l, {:presence, channel, user_id}}, :_, :_}
+    :gproc.select_count([{match, [], [true]}]) == 1
   end
+
+  @spec presence_channel?(any) :: boolean
+  def presence_channel?("presence-" <> _  = _channel), do:  true
   def presence_channel?(_), do: false
 
   defp sanitize_user_id(user_id) do
     case JSEX.is_term?(user_id) do
       true -> JSEX.encode!(user_id)
       false -> user_id
-    end
-  end
-
-  defp user_id_already_on_presence_channel(user_id, channel) do
-    match = {{:p, :l, {:pusher, channel}}, :_, {user_id, :_}}
-    case :gproc.select([{match, [], [:'$$']}]) do
-      [] -> false
-      _ -> true
-    end
-  end
-
-  defp only_one_connection_on_user_id?(channel, user_id) do
-    try do
-      case :gproc.get_value({:c, :l, {:presence, channel, user_id}}, :shared) do
-        1 -> true
-        _ -> false
-      end
-    rescue
-      ArgumentError -> false
     end
   end
 end
