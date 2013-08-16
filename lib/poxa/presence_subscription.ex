@@ -41,6 +41,9 @@ defmodule Poxa.PresenceSubscription do
     {user_id, user_info}
   end
 
+  defp sanitize_user_id(user_id) when is_binary(user_id), do: user_id
+  defp sanitize_user_id(user_id), do: JSEX.encode!(user_id)
+
   defp user_id_already_on_presence_channel(user_id, channel) do
     match = {{:p, :l, {:pusher, channel}}, :_, {user_id, :_}}
     :gproc.select_count([{match, [], [true]}]) != 0
@@ -113,10 +116,4 @@ defmodule Poxa.PresenceSubscription do
   def presence_channel?("presence-" <> _  = _channel), do:  true
   def presence_channel?(_), do: false
 
-  defp sanitize_user_id(user_id) do
-    case JSEX.is_term?(user_id) do
-      true -> JSEX.encode!(user_id)
-      false -> user_id
-    end
-  end
 end
