@@ -6,7 +6,7 @@ defmodule Poxa.Mixfile do
     [ app: :poxa,
       version: "0.0.6",
       name: "Poxa",
-      elixir: "~> 0.10.0",
+      elixir: "~> 0.10.1",
       deps: deps(Mix.env),
       dialyzer: [ plt_apps: ["erts","kernel", "stdlib", "crypto", "public_key", "mnesia"],
                   flags: ["-Wunmatched_returns","-Werror_handling","-Wrace_conditions"]],
