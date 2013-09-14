@@ -63,7 +63,7 @@ defmodule Poxa.EventHandler do
   # Remove name and add event to the response
   defp prepare_message(message) do
     {event, message} = ListDict.pop(message, "name")
-    List.concat(message, [{"event", event}])
+    Enum.concat(message, [{"event", event}])
   end
 
 end

@@ -19,7 +19,7 @@ defmodule Poxa.AuthSignatureTest do
   test "a valid signature" do
     expect(:application, :get_env, 2, {:ok, "secret"})
     app_key = "app_key"
-    signature = Poxa.CryptoHelper.hmac256_to_binary("secret", "SocketId:private-channel")
+    signature = Poxa.CryptoHelper.hmac256_to_string("secret", "SocketId:private-channel")
     auth = <<app_key :: binary, ":", signature :: binary>>
     expect(Authentication, :check_key, 1, :ok)
     assert validate("SocketId:private-channel", auth) == :ok

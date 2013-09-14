@@ -13,7 +13,7 @@ defmodule Poxa.AuthSignature do
         case Poxa.Authentication.check_key(app_key) do
           :ok ->
             {:ok, app_secret} = :application.get_env(:poxa, :app_secret)
-            signed_data = CryptoHelper.hmac256_to_binary(app_secret, to_sign)
+            signed_data = CryptoHelper.hmac256_to_string(app_secret, to_sign)
             if signed_data == remote_signed_data do
               :ok
             else

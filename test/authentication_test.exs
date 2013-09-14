@@ -32,7 +32,7 @@ defmodule Poxa.AuthenticationTest do
     {mega,sec,_micro} = :os.timestamp
     timestamp = (mega * 1000000 + sec)
                 |> integer_to_list
-                |> list_to_binary
+                |> String.from_char_list!
     assert check_timestamp(timestamp) == :ok
   end
 
@@ -40,7 +40,7 @@ defmodule Poxa.AuthenticationTest do
     {mega,sec,_micro} = :os.timestamp
     timestamp = (mega * 1000000 + sec) - 600001
                 |> integer_to_list
-                |> list_to_binary
+                |> String.from_char_list!
     {return, _} = check_timestamp(timestamp)
     assert return == :error
   end

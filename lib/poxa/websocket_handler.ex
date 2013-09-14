@@ -93,7 +93,7 @@ defmodule Poxa.WebsocketHandler do
   defp generate_uuid do
     :uuid.uuid1
     |> :uuid.to_string
-    |> list_to_binary
+    |> String.from_char_list!
   end
 
   def websocket_terminate(_reason, _req, _state) do

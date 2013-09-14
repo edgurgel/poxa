@@ -47,7 +47,7 @@ defmodule Poxa.Authentication do
   """
   @spec check_timestamp(binary) :: :ok | error_reason
   def check_timestamp(auth_timestamp) do
-    int_auth_timestamp = list_to_integer(binary_to_list(auth_timestamp))
+    int_auth_timestamp = auth_timestamp |> String.to_char_list! |> list_to_integer
     {mega,sec,_micro} = :os.timestamp()
     timestamp = mega * 1000000 + sec
     case timestamp - int_auth_timestamp do
@@ -71,7 +71,7 @@ defmodule Poxa.Authentication do
   @spec check_body(binary, binary) :: :ok | error_reason
   def check_body("", nil), do: :ok
   def check_body(body, body_md5) do
-    md5 = CryptoHelper.md5_to_binary(body)
+    md5 = CryptoHelper.md5_to_string(body)
     if md5 == body_md5, do: :ok,
     else: {:error, "body_md5 does not match"}
   end
@@ -86,7 +86,7 @@ defmodule Poxa.Authentication do
   def check_signature(method, path, qs_vals, auth_signature) do
     to_sign = method <> "\n" <> path <> "\n" <> build_qs(qs_vals)
     {:ok, app_secret} = :application.get_env(:poxa, :app_secret)
-    signed_data = CryptoHelper.hmac256_to_binary(app_secret, to_sign)
+    signed_data = CryptoHelper.hmac256_to_string(app_secret, to_sign)
     if signed_data == auth_signature, do: :ok,
     else: {:error, "auth_signature does not match"}
   end
