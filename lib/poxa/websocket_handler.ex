@@ -22,7 +22,7 @@ defmodule Poxa.WebsocketHandler do
       _ ->
         Lager.error('Invalid app_key, expected ~p, found ~p',
           [:application.get_env(:poxa, :app_key), app_key])
-        {:shutdown, req, nil}
+        {:shutdown, req}
     end
   end
 

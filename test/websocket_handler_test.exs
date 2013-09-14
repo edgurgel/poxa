@@ -200,7 +200,7 @@ defmodule Poxa.WebsocketHandlerTest do
   test "websocket init using wrong app_key" do
     expect(:application, :get_env, 2, {:ok, "app_key"})
     expect(:cowboy_req, :binding, 2, {"different_app_key", :req})
-    assert websocket_init(:transport, :req, :opts) == {:shutdown, :req, nil}
+    assert websocket_init(:transport, :req, :opts) == {:shutdown, :req}
     assert validate :application
     assert validate :cowboy_req
   end
