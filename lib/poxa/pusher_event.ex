@@ -7,7 +7,7 @@ defmodule Poxa.PusherEvent do
   require Lager
 
   def valid?(event) do
-    Enum.all?(["name", "data"], ListDict.has_key?(event, &1))
+    Enum.all?(["name", "data"], &ListDict.has_key?(event, &1))
   end
 
   @doc """

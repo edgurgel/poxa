@@ -47,7 +47,7 @@ defmodule Poxa do
   defp run_ssl(dispatch) do
     case :application.get_env(:poxa, :ssl) do
       {:ok, ssl_config} ->
-        if Enum.all?([:port, :cacertfile, :certfile, :keyfile], Keyword.has_key?(ssl_config, &1)) do
+        if Enum.all?([:port, :cacertfile, :certfile, :keyfile], &Keyword.has_key?(ssl_config, &1)) do
           {:ok, _} = :cowboy.start_https(:https, 100,
                                          ssl_config,
                                          [env: [dispatch: dispatch] ])
