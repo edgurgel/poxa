@@ -29,7 +29,7 @@ Open Pusher implementation compatible with Pusher libraries. It's designed to be
 
 Poxa is a standalone elixir server implementation of the Pusher protocol.
 
-You need [Elixir](http://elixir-lang.org) 0.10.1 at least and Erlang R16B.
+You need [Elixir](http://elixir-lang.org) 0.10.3 at least and Erlang R16B.
 
 Clone this repository
 
