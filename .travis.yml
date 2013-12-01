@@ -4,6 +4,8 @@ notifications:
     - eduardo@gurgel.me
 otp_release:
   - R16B
+  - R16B01
+  - R16B02
 before_install:
   - git clone https://github.com/elixir-lang/elixir
   - cd elixir && git checkout v0.11.2 && make && cd ..
