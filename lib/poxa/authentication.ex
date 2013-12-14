@@ -93,8 +93,6 @@ defmodule Poxa.Authentication do
 
   defp build_qs(qs_vals) do
     Enum.sort(qs_vals, fn({k1, _}, {k2, _}) -> k1 < k2 end)
-      |> Enum.reduce("", fn({k, v}, acc) -> acc <> "&#{k}=#{v}"
-         end)
-      |> String.lstrip ?& # Remove the first &
+      |> URI.encode_query
   end
 end
