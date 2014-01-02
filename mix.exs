@@ -36,7 +36,7 @@ defmodule Poxa.Mixfile do
       {:exlager, github: "khia/exlager"},
       {:jsex, github: "talentdeficit/jsex", ref: "c9df36f07b2089a73ab6b32074c01728f1e5a2e1" },
       {:gproc, github: "uwiger/gproc", ref: "6e6cd7fab087edfaf7eb8a92a84d3c91cffe797c" },
-      {:uuid, github: "avtobiff/erlang-uuid", tag: "v0.4.3" },
+      {:uuid, github: "avtobiff/erlang-uuid", tag: "v0.4.5" },
       {:erlsha2, github: "vinoski/erlsha2" } ]
   end
 

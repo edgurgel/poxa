@@ -9,4 +9,4 @@
   "meck": {:git, "git://github.com/eproxus/meck.git", "62265e4a89297b3415502351a35082933225d1af", [{:tag, "0.8"}]},
   "ranch": {:git, "git://github.com/extend/ranch.git", "aeceeae9b2df201a20d201cc7c23341ffdc170f3", [{:ref, "0.8.1"}]},
   "relex": {:git, "git://github.com/yrashk/relex.git", "4185e760d07c86ba6cae016d1e846ce39ec191a9", []},
-  "uuid": {:git, "git://github.com/avtobiff/erlang-uuid.git", "1c84001651ef411b3fd6076b9376708925d6c00f", [{:tag, "v0.4.3"}]} ]
+  "uuid": {:git, "git://github.com/avtobiff/erlang-uuid.git", "2056ad3717fedccf3634757401f77272bccb4554", [{:tag, "v0.4.5"}]} ]
