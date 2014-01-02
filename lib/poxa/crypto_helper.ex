@@ -10,10 +10,11 @@ defmodule Poxa.CryptoHelper do
   @spec md5_to_string(binary) :: binary
   def md5_to_string(data) do
     data
-    |> :crypto.md5
+    |> md5
     |> :hmac.hexlify
     |> :string.to_lower
     |> String.from_char_list!
   end
 
+  defp md5(data), do: :crypto.hash(:md5, data)
 end
