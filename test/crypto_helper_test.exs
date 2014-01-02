@@ -1,4 +1,4 @@
-defmodule Poxa.AuthenticationTest do
+defmodule Poxa.CryptoHelperTest do
   use ExUnit.Case
   import Poxa.CryptoHelper
 
