@@ -1,4 +1,5 @@
-[ "cowboy": {:git, "git://github.com/extend/cowboy.git", "46b2ea0aaa7fe891bfdf3f8a0c47357393e72cf6", [{:tag, "0.8.4"}]},
+[ "cowboy": {:git, "git://github.com/extend/cowboy.git", "db52494371ea249f38d51108c7d79cf487ff6374", [{:tag, "0.9.0"}]},
+  "cowlib": {:git, "git://github.com/extend/cowlib.git", "63298e8e160031a70efff86a1acde7e7db1fcda6", [{:ref, "0.4.0"}]},
   "erlsha2": {:git, "git://github.com/vinoski/erlsha2.git", "79e2564c81ee94718711d48516aac3cab7794c35", []},
   "exlager": {:git, "git://github.com/khia/exlager.git", "0b840aae773e6eb6de7cdbb703b47031b6608bfb", []},
   "goldrush": {:git, "git://github.com/DeadZen/goldrush.git", "879c69874a555b2c13498aa4a3da6f6bbbb6a031", [{:tag, "879c69874a"}]},
@@ -7,6 +8,6 @@
   "jsx": {:git, "git://github.com/talentdeficit/jsx.git", "e50af6e109cb03bd26acf715cbc77de746507d1d", [{:tag, "v1.4.3"}]},
   "lager": {:git, "https://github.com/basho/lager.git", "2965c23f46301afeb7d62f6fbac99b3ab367f6b2", []},
   "meck": {:git, "git://github.com/eproxus/meck.git", "62265e4a89297b3415502351a35082933225d1af", [{:tag, "0.8"}]},
-  "ranch": {:git, "git://github.com/extend/ranch.git", "aeceeae9b2df201a20d201cc7c23341ffdc170f3", [{:ref, "0.8.1"}]},
+  "ranch": {:git, "git://github.com/extend/ranch.git", "5df1f222f94e08abdcab7084f5e13027143cc222", [{:ref, "0.9.0"}]},
   "relex": {:git, "git://github.com/yrashk/relex.git", "4185e760d07c86ba6cae016d1e846ce39ec191a9", []},
   "uuid": {:git, "git://github.com/avtobiff/erlang-uuid.git", "2056ad3717fedccf3634757401f77272bccb4554", [{:tag, "v0.4.5"}]} ]

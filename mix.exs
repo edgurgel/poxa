@@ -32,7 +32,7 @@ defmodule Poxa.Mixfile do
   end
 
   defp deps(:dev) do
-    [ {:cowboy, github: "extend/cowboy", tag: "0.8.4" },
+    [ {:cowboy, github: "extend/cowboy", tag: "0.9.0" },
       {:exlager, github: "khia/exlager"},
       {:jsex, github: "talentdeficit/jsex", ref: "c9df36f07b2089a73ab6b32074c01728f1e5a2e1" },
       {:gproc, github: "uwiger/gproc", ref: "6e6cd7fab087edfaf7eb8a92a84d3c91cffe797c" },
