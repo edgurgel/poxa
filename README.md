@@ -112,6 +112,41 @@ Pusher.host    = 'localhost'
 Pusher.ws_port = 8080
 ```
 
+## Deploying on Heroku
+
+Add the file `Procfile`:
+
+```
+web: elixir --erl "-poxa port $PORT" -S mix run --no-halt
+```
+
+Add the file `.preferred_otp_version `
+
+```
+OTP_R16B
+```
+
+Configure the buildpack using:
+
+```console
+heroku config:set BUILDPACK_URL=https://github.com/goshakkk/heroku-buildpack-elixir.git
+```
+
+And finally enable websocket on Heroku (for now it's on Heroku Labs)
+
+```console
+heroku labs:enable websockets
+```
+
+And this is it!
+
+A working deploy is on http://poxa.herokuapp.com, with:
+
+* App key: "app_key"
+* App id: "app_id"
+* App secret: "secret"
+* Port: 80
+
 ## Implementation
 
 Poxa uses [gproc](https://github.com/uwiger/gproc) extensively to register websocket connections as channels. So, when a client subscribes for channel 'example-channel', the websocket connection (which is a elixir process) is "tagged" as **{pusher, example-channel}**. When a pusher event is triggered on the 'example-channel', every websocket matching the tag receives the event.
