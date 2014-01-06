@@ -33,8 +33,8 @@ defmodule Poxa.PusherEventTest do
   end
 
   test "subscription established output" do
-    json = "{\"event\":\"pusher_internal:subscription_succeeded\",\"data\":[]}"
-    assert subscription_succeeded == json
+    json = "{\"event\":\"pusher_internal:subscription_succeeded\",\"channel\":\"channel\",\"data\":[]}"
+    assert subscription_succeeded("channel") == json
   end
 
   test "subscription error output" do

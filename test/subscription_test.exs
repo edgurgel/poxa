@@ -34,7 +34,7 @@ defmodule Poxa.SubscriptionTest do
   test "subscription to a public channel" do
     expect(:gproc, :select, 1, []) # subscribed? returns false
     expect(:gproc, :reg, 1, :registered)
-    assert subscribe!([{"channel", "public-channel"}], nil) == :ok
+    assert subscribe!([{"channel", "public-channel"}], nil) == {:ok, "public-channel"}
     assert validate :gproc
   end
 
@@ -44,7 +44,7 @@ defmodule Poxa.SubscriptionTest do
 
   test "subscription to a public channel but already subscribed" do
     expect(:gproc, :select, 1, [:something]) # subscribed? returns false
-    assert subscribe!([{"channel", "public-channel"}], nil) == :ok
+    assert subscribe!([{"channel", "public-channel"}], nil) == {:ok, "public-channel"}
     assert validate :gproc
   end
 
@@ -53,7 +53,7 @@ defmodule Poxa.SubscriptionTest do
     expect(:gproc, :reg, 1, :registered)
     expect(AuthSignature, :validate, 2, :ok)
     assert subscribe!([ {"channel", "private-channel"},
-                                    {"auth", "signeddata"} ], "SocketId") == :ok
+                                    {"auth", "signeddata"} ], "SocketId") == {:ok, "private-channel"}
     assert validate AuthSignature
     assert validate :gproc
   end
@@ -65,7 +65,7 @@ defmodule Poxa.SubscriptionTest do
     assert subscribe!([ {"channel", "private-channel"},
                                     {"auth", "signeddata"},
                                     {"channel_data", "{\"user_id\" : \"id123\", \"user_info\" : \"info456\" }"} ],
-                                    "SocketId") == :ok
+                                    "SocketId") == {:ok, "private-channel"}
     assert validate AuthSignature
     assert validate :gproc
   end

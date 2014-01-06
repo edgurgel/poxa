@@ -23,17 +23,19 @@ defmodule Poxa.PusherEvent do
                    data: [ socket_id: socket_id ] ])
   end
 
-  @subscription_succeeded JSEX.encode!([ event: "pusher_internal:subscription_succeeded",
-                                        data: [] ])
   @doc """
   Return a JSON for a succeeded subscription
 
       "{ "event" : "pusher_internal:subscription_succeeded",
+         "channel" : "public-channel",
          "data" : [] }"
   """
-  @spec subscription_succeeded :: <<_ :: 480>>
-  def subscription_succeeded do
-    @subscription_succeeded
+  @spec subscription_succeeded(binary) :: binary
+  def subscription_succeeded(channel) do
+    JSEX.encode!([ event: "pusher_internal:subscription_succeeded",
+                   channel: channel,
+                   data: [] ])
+
   end
 
   @subscription_error JSEX.encode!([ event: "pusher:subscription_error",

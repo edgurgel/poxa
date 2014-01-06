@@ -38,7 +38,7 @@ defmodule Poxa.WebsocketHandler do
   defp handle_pusher_event("pusher:subscribe", decoded_json, req, state) do
     data = decoded_json["data"]
     reply = case Subscription.subscribe!(data, state) do
-      :ok -> PusherEvent.subscription_succeeded
+      {:ok, channel} -> PusherEvent.subscription_succeeded(channel)
       {:presence, channel, presence_data} -> PusherEvent.presence_subscription_succeeded(channel, presence_data)
       :error -> PusherEvent.subscription_error
     end

@@ -47,13 +47,13 @@ defmodule Poxa.Subscription do
 
   defp subscribe_channel(channel) do
     Lager.info("Subscribing to channel ~p", [channel])
-    case subscribed?(channel) do
-      true -> Lager.info("Already subscribed ~p on channel ~p", [self, channel])
-      false ->
-        Lager.info("Registering ~p to channel ~p", [self, channel])
-        :gproc.reg({:p, :l, {:pusher, channel}})
+    if subscribed?(channel) do
+      Lager.info("Already subscribed ~p on channel ~p", [self, channel])
+    else
+      Lager.info("Registering ~p to channel ~p", [self, channel])
+      :gproc.reg({:p, :l, {:pusher, channel}})
     end
-    :ok
+    {:ok, channel}
   end
 
   @doc """
