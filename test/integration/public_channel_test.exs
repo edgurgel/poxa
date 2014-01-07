@@ -33,11 +33,12 @@ defmodule Poxa.Integration.PublicChannelTest do
 
     :gen_event.add_handler(gen_event_pid, EchoHandler, self)
     PusherClient.subscribe!(pid, "channel")
-    Pusher.trigger("message1", [text: "Hello World!"], "channel")
-    Pusher.trigger("message2", [text: "Hi There!"], "channel")
 
-    assert_receive {"channel", "pusher:subscription_succeeded", []}
-    assert_receive {"channel", "message1", [{"text", "Hello World!"}]}
-    assert_receive {"channel", "message2", [{"text", "Hi There!"}]}
+    assert Pusher.trigger("message1", [text: "Hello World!"], "channel") == 200
+    assert Pusher.trigger("message2", [text: "Hi There!"], "channel") == 200
+
+    assert_receive {"channel", "pusher:subscription_succeeded", []}, 1_000
+    assert_receive {"channel", "message1", [{"text", "Hello World!"}]}, 1_000
+    assert_receive {"channel", "message2", [{"text", "Hi There!"}]}, 1_000
   end
 end
