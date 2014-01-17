@@ -28,7 +28,7 @@ defmodule Poxa.PusherEventTest do
   end
 
   test "connection established output" do
-    json = "{\"event\":\"pusher:connection_established\",\"data\":{\"socket_id\":\"SocketId\",\"activity_timeout\":12}}"
+    json = "{\"event\":\"pusher:connection_established\",\"data\":{\"socket_id\":\"SocketId\",\"activity_timeout\":120}}"
     assert connection_established("SocketId") == json
   end
 
