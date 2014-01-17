@@ -7,12 +7,10 @@ defmodule Poxa.AuthenticationTest do
 
   setup do
     new :application, [:unstick]
-    new :hmac
   end
 
   teardown do
     unload :application
-    unload :hmac
   end
 
   test "a valid auth_key" do
@@ -56,21 +54,17 @@ defmodule Poxa.AuthenticationTest do
 
   test "a valid body" do
     body = 'md5'
-    md5 = "md5"
+    md5 = "1bc29b36f623ba82aaf6724fd3b16718"
     # Impossible to mock crypto module
-    expect(:hmac, :hexlify, 1, 'md5')
     assert check_body(body, md5) == :ok
-    assert validate :hmac
   end
 
   test "an invalid body" do
     body = 'wrong-md5'
     md5 = "md5"
     # Impossible to mock crypto module
-    expect(:hmac, :hexlify, 1, 'WRONGMD5')
     {return, _} = check_body(body, md5)
     assert return == :error
-    assert validate :hmac
   end
 
   test "an empty  body" do
@@ -78,22 +72,16 @@ defmodule Poxa.AuthenticationTest do
   end
 
   test "a valid signature" do
-    expect(:application, :get_env, 2, {:ok, :app_secret})
-    expected = "method\npath\nk1=v1&k2=v2"
-    expect(:hmac, :hmac256, [{[:app_secret, expected], "auth_signature"}])
-    expect(:hmac, :hexlify, 1, 'auth_signature')
-    assert check_signature("method", "path", [{"k1", "v1"}, {"k2", "v2"}], "auth_signature") == :ok
-    assert validate :hmac
+    expect(:application, :get_env, 2, {:ok, "app_secret"})
+    signature = "7d3deaf17d0df9af22263e52cf1899e966136a04456c67938b0d01e147d58c48"
+    assert check_signature("method", "path", [{"k1", "v1"}, {"k2", "v2"}], signature) == :ok
     assert validate :application
   end
 
   test "an invalid signature" do
-    expect(:application, :get_env, 2, {:ok, :app_secret})
-    expect(:hmac, :hmac256, 2, "auth_signature")
-    expect(:hmac, :hexlify, 1, 'invalid_auth_signature')
+    expect(:application, :get_env, 2, {:ok, "app_secret"})
     {return, _} = check_signature("method", "path", [], "auth_signature")
     assert return == :error
-    assert validate :hmac
     assert validate :application
   end
 end

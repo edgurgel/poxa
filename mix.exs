@@ -21,8 +21,7 @@ defmodule Poxa.Mixfile do
                       :gproc,
                       :cowboy,
                       :jsex,
-                      :uuid,
-                      :erlsha2 ],
+                      :uuid ],
       mod: { Poxa, [] },
       env: [ port: 8080,
              app_key: "app_key",
@@ -36,8 +35,7 @@ defmodule Poxa.Mixfile do
       {:exlager, github: "khia/exlager"},
       {:jsex, github: "talentdeficit/jsex", ref: "c9df36f07b2089a73ab6b32074c01728f1e5a2e1" },
       {:gproc, github: "uwiger/gproc", ref: "6e6cd7fab087edfaf7eb8a92a84d3c91cffe797c" },
-      {:uuid, github: "avtobiff/erlang-uuid", tag: "v0.4.5" },
-      {:erlsha2, github: "vinoski/erlsha2" } ]
+      {:uuid, github: "avtobiff/erlang-uuid", tag: "v0.4.5" } ]
   end
 
   defp deps(:test) do
