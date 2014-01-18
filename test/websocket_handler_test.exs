@@ -190,6 +190,7 @@ defmodule Poxa.WebsocketHandlerTest do
   test "websocket init" do
     expect(:application, :get_env, 2, {:ok, "app_key"})
     expect(:cowboy_req, :binding, 2, {"app_key", :req})
+    expect(:cowboy_req, :qs_val, 3, {"7", :req})
     expect(PusherEvent, :connection_established, 1, :connection_established)
     assert websocket_init(:transport, :req, :opts) == {:ok, :req, nil}
     assert validate :application
@@ -200,6 +201,16 @@ defmodule Poxa.WebsocketHandlerTest do
   test "websocket init using wrong app_key" do
     expect(:application, :get_env, 2, {:ok, "app_key"})
     expect(:cowboy_req, :binding, 2, {"different_app_key", :req})
+    expect(:cowboy_req, :qs_val, 3, {"7", :req})
+    assert websocket_init(:transport, :req, :opts) == {:shutdown, :req}
+    assert validate :application
+    assert validate :cowboy_req
+  end
+
+  test "websocket init using protocol different than 7" do
+    expect(:application, :get_env, 2, {:ok, "app_key"})
+    expect(:cowboy_req, :binding, 2, {"different_app_key", :req})
+    expect(:cowboy_req, :qs_val, 3, {"8", :req})
     assert websocket_init(:transport, :req, :opts) == {:shutdown, :req}
     assert validate :application
     assert validate :cowboy_req

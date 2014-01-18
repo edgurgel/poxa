@@ -11,14 +11,22 @@ defmodule Poxa.WebsocketHandler do
   alias Poxa.PresenceSubscription
   alias Poxa.Subscription
 
+  @protocol "7"
+
   def init(_transport, _req, _opts), do: {:upgrade, :protocol, :cowboy_websocket}
 
   def websocket_init(_transport_name, req, _opts) do
     {app_key, req} = :cowboy_req.binding(:app_key, req)
+    {protocol, req} = :cowboy_req.qs_val("protocol", req, @protocol)
     case :application.get_env(:poxa, :app_key) do
       {:ok, ^app_key} ->
-        self <- :start
-        {:ok, req, nil}
+        if protocol == @protocol do
+          self <- :start
+          {:ok, req, nil}
+        else
+          Lager.error('Protocol ~p not supported', [protocol])
+          {:shutdown, req}
+        end
       _ ->
         Lager.error('Invalid app_key, expected ~p, found ~p',
           [:application.get_env(:poxa, :app_key), app_key])
