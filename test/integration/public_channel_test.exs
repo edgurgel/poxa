@@ -27,18 +27,13 @@ defmodule Poxa.Integration.PublicChannelTest do
     end
   end
 
-  test "subscribe and receive events on a public channel", context do
+  test "subscribe on a public channel", context do
     gen_event_pid = context[:gen_event_pid]
     pid = context[:pid]
 
     :gen_event.add_handler(gen_event_pid, EchoHandler, self)
     PusherClient.subscribe!(pid, "channel")
 
-    assert Pusher.trigger("message1", [text: "Hello World!"], "channel") == 200
-    assert Pusher.trigger("message2", [text: "Hi There!"], "channel") == 200
-
-    assert_receive {"channel", "pusher:subscription_succeeded", []}, 1_000
-    assert_receive {"channel", "message1", [{"text", "Hello World!"}]}, 1_000
-    assert_receive {"channel", "message2", [{"text", "Hi There!"}]}, 1_000
+    assert_receive {"channel", "pusher:subscription_succeeded", []}
   end
 end
