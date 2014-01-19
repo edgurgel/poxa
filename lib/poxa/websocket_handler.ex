@@ -21,7 +21,7 @@ defmodule Poxa.WebsocketHandler do
     case :application.get_env(:poxa, :app_key) do
       {:ok, ^app_key} ->
         if protocol == @protocol do
-          self <- :start
+          send self, :start
           {:ok, req, nil}
         else
           Lager.error('Protocol ~p not supported', [protocol])

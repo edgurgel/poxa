@@ -193,7 +193,7 @@ defmodule Poxa.PusherEvent do
     pids = pids -- pid_to_exclude
 
     lc pid inlist pids do
-      pid <- {self, JSEX.encode!(message)}
+      send pid, {self, JSEX.encode!(message)}
     end
     :ok
   end

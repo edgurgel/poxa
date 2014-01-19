@@ -22,7 +22,7 @@ defmodule Poxa.Integration.PublicChannelTest do
     use GenEvent.Behaviour
     def init(pid), do: { :ok, pid }
     def handle_event(event, pid) do
-      pid <- event
+      send pid, event
       { :ok, pid }
     end
   end
