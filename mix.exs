@@ -71,7 +71,7 @@ defmodule Poxa.Mixfile do
       use Relex.Release
 
       def include_erts?, do: false
-      def include_elixir?, do: false
+      def include_elixir?, do: true
       def name, do: "poxa"
       def version, do: Mix.project[:version]
       def applications, do: [ Mix.project[:app] ]
