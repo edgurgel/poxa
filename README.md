@@ -2,6 +2,12 @@
 
 Open Pusher implementation compatible with Pusher libraries. It's designed to be used as a single registered app with id, secret and key defined on start.
 
+How do I speak 'poxa'? 
+
+['poʃa] - Phonetic notation
+
+[posha] : po ( potion ), sha ( shall )
+
 ## Features
 
 * Public channels;
