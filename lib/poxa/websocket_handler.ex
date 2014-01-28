@@ -1,4 +1,5 @@
 defmodule Poxa.WebsocketHandler do
+  @behaviour :cowboy_websocket_handler
   @moduledoc """
   This module contains Cowboy Websocket handler callbacks to requests on /apps/:app_key
 
