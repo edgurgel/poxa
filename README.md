@@ -8,6 +8,21 @@ How do I speak 'poxa'?
 
 [posha] : po ( potion ), sha ( shall )
 
+## Table of Contents
+
+- [Poxa ](#poxa-)
+	- [Features](#features)
+	- [TODO](#todo)
+	- [Typical usage](#typical-usage)
+	- [Release](#release)
+	- [Your application](#your-application)
+	- [Deploying on Heroku](#deploying-on-heroku)
+	- [Implementation](#implementation)
+	- [Contributing](#contributing)
+	- [Pusher](#pusher)
+
+**Table of Contents**  *generated with [DocToc](http://doctoc.herokuapp.com/)*
+
 ## Features
 
 * Public channels;
