@@ -12,16 +12,17 @@ defmodule Poxa.WebsocketHandler do
   alias Poxa.PresenceSubscription
   alias Poxa.Subscription
 
-  @protocol "7"
+  @max_protocol 7
+  @min_protocol 5
 
   def init(_transport, _req, _opts), do: {:upgrade, :protocol, :cowboy_websocket}
 
   def websocket_init(_transport_name, req, _opts) do
     {app_key, req} = :cowboy_req.binding(:app_key, req)
-    {protocol, req} = :cowboy_req.qs_val("protocol", req, @protocol)
+    {protocol, req} = :cowboy_req.qs_val("protocol", req, to_string(@max_protocol))
     case :application.get_env(:poxa, :app_key) do
       {:ok, ^app_key} ->
-        if protocol == @protocol do
+        if supported_protocol?(protocol) do
           send self, :start
           {:ok, req, nil}
         else
@@ -32,6 +33,16 @@ defmodule Poxa.WebsocketHandler do
         Lager.error('Invalid app_key, expected ~p, found ~p',
           [:application.get_env(:poxa, :app_key), app_key])
         {:shutdown, req}
+    end
+  end
+
+  defp supported_protocol?(protocol) do
+    try do
+      protocol = binary_to_integer(protocol)
+      if protocol>= @min_protocol && protocol <= @max_protocol, do: true,
+      else: false
+    rescue
+      ArgumentError -> false
     end
   end
 
