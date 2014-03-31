@@ -15,8 +15,11 @@ defmodule Poxa.PusherEvent do
   identify this connection
 
       { "event" : "pusher:connection_established",
-        "activity_timeout" : 12,
-        "data" : { "socket_id" : "129319" } }"
+        "data" : {
+          "socket_id" : "129319",
+          "activity_timeout" : 12
+        }
+      }"
   """
   @spec connection_established(binary) :: binary
   def connection_established(socket_id) do
