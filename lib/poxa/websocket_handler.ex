@@ -95,7 +95,7 @@ defmodule Poxa.WebsocketHandler do
     {:reply, {:text, msg}, req, state}
   end
 
-  def websocket_info(info, req, state) do
+  def websocket_info(_info, req, state) do
     {:ok, req, state}
   end
 
