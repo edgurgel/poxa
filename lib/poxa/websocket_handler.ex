@@ -27,12 +27,14 @@ defmodule Poxa.WebsocketHandler do
           {:ok, req, nil}
         else
           Lager.error('Protocol ~p not supported', [protocol])
-          {:shutdown, req}
+          send self, :start_error
+          {:ok, req, {4007, "Unsupported protocol version"}}
         end
       _ ->
         Lager.error('Invalid app_key, expected ~p, found ~p',
           [:application.get_env(:poxa, :app_key), app_key])
-        {:shutdown, req}
+          send self, :start_error
+          {:ok, req, {4001, "Application does not exist"}}
     end
   end
 
@@ -93,13 +95,17 @@ defmodule Poxa.WebsocketHandler do
     end
   end
 
-  def websocket_info(:start, req, _State) do
+  def websocket_info(:start, req, _state) do
     # Unique identifier for the connection
     socket_id = generate_uuid
     # Register the name of the connection as SocketId
     :gproc.reg({:n, :l, socket_id})
     reply = PusherEvent.connection_established(socket_id)
     {:reply, {:text, reply}, req, socket_id}
+  end
+
+  def websocket_info(:start_error, req, {code, message}) do
+    {:reply, {:close, code, message}, req, nil}
   end
 
   def websocket_info({_pid, msg}, req, state) do

@@ -202,7 +202,7 @@ defmodule Poxa.WebsocketHandlerTest do
     expect(:application, :get_env, 2, {:ok, "app_key"})
     expect(:cowboy_req, :binding, 2, {"different_app_key", :req})
     expect(:cowboy_req, :qs_val, 3, {"7", :req})
-    assert websocket_init(:transport, :req, :opts) == {:shutdown, :req}
+    assert websocket_init(:transport, :req, :opts) == {:ok, :req, {4001, "Application does not exist"}}
     assert validate :application
     assert validate :cowboy_req
   end
@@ -211,7 +211,7 @@ defmodule Poxa.WebsocketHandlerTest do
     expect(:application, :get_env, 2, {:ok, "app_key"})
     expect(:cowboy_req, :binding, 2, {"app_key", :req})
     expect(:cowboy_req, :qs_val, 3, {"8", :req})
-    assert websocket_init(:transport, :req, :opts) == {:shutdown, :req}
+    assert websocket_init(:transport, :req, :opts) == {:ok, :req, {4007, "Unsupported protocol version"}}
     assert validate :application
     assert validate :cowboy_req
   end
@@ -220,7 +220,7 @@ defmodule Poxa.WebsocketHandlerTest do
     expect(:application, :get_env, 2, {:ok, "app_key"})
     expect(:cowboy_req, :binding, 2, {"app_key", :req})
     expect(:cowboy_req, :qs_val, 3, {"4", :req})
-    assert websocket_init(:transport, :req, :opts) == {:shutdown, :req}
+    assert websocket_init(:transport, :req, :opts) == {:ok, :req, {4007, "Unsupported protocol version"}}
     assert validate :application
     assert validate :cowboy_req
   end
