@@ -2,12 +2,6 @@ defmodule Poxa.Integration.PublicChannelTest do
   use ExUnit.Case
 
   setup_all do
-    :ok = Pusher.start
-    :application.set_env(:pusher, :host, "http://localhost")
-    :application.set_env(:pusher, :port, "8080")
-    :application.set_env(:pusher, :app_id, "app_id")
-    :application.set_env(:pusher, :app_key, "app_key")
-    :application.set_env(:pusher, :app_secret, "secret")
     {:ok, pid} = PusherClient.connect!('ws://localhost:8080/app/app_key')
     info = PusherClient.client_info(pid)
     {:ok, [gen_event_pid: info.gen_event_pid, pid: pid]}
