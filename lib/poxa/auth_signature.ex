@@ -17,7 +17,7 @@ defmodule Poxa.AuthSignature do
             if signed_data == remote_signed_data do
               :ok
             else
-              Lager.info("Authentication failed.")
+              Lager.info "Authentication failed"
               :error
             end
           { :error, _reason } -> :error

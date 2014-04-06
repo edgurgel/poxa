@@ -22,9 +22,9 @@ defmodule Poxa.PresenceSubscription do
   def subscribe!(channel, channel_data) do
     decoded_channel_data = JSEX.decode!(channel_data)
     if Subscription.subscribed?(channel) do
-      Lager.info('Already subscribed ~p on channel ~p', [self, channel])
+      Lager.info "Already subscribed #{inspect self} on channel #{channel}"
     else
-      Lager.info('Registering ~p to channel ~p', [self, channel])
+      Lager.info "Registering #{inspect self} to channel #{channel}"
       {user_id, user_info} = extract_userid_and_userinfo(decoded_channel_data)
       unless user_id_already_on_presence_channel(user_id, channel) do
         message = PusherEvent.presence_member_added(channel, user_id, user_info)

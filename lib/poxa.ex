@@ -8,15 +8,15 @@ defmodule Poxa do
 
   def start(_type, _args) do
     dispatch = :cowboy_router.compile([
-      {:_, [ {'/ping', Poxa.PingHandler, []},
-             { '/apps/:app_id/events', Poxa.EventHandler, []},
-             { '/apps/:app_id/channels[/:channel_name]', Poxa.ChannelsHandler, []},
-             { '/apps/:app_id/channels/:channel_name/users', Poxa.UsersHandler, []},
-             {'/app/:app_key', Poxa.WebsocketHandler, []} ] }
+      {:_, [ { '/ping', Poxa.PingHandler, [] },
+             { '/apps/:app_id/events', Poxa.EventHandler, [] },
+             { '/apps/:app_id/channels[/:channel_name]', Poxa.ChannelsHandler, [] },
+             { '/apps/:app_id/channels/:channel_name/users', Poxa.UsersHandler, [] },
+             { '/app/:app_key', Poxa.WebsocketHandler, [] } ] }
     ])
     case load_config do
       {:ok, config} ->
-        Lager.info('Starting Poxa using app_key: ~p, app_id: ~p, app_secret: ~p on port ~p', config)
+        Lager.info 'Starting Poxa using app_key: ~p, app_id: ~p, app_secret: ~p on port ~p', config
         port = List.last(config)
         {:ok, _} = :cowboy.start_http(:http, 100,
                                       [port: port],
@@ -24,7 +24,7 @@ defmodule Poxa do
         run_ssl(dispatch)
         Poxa.Supervisor.start_link
       :invalid_configuration ->
-        Lager.error('Error on start, set app_key, app_id and app_secret')
+        Lager.error "Error on start, set app_key, app_id and app_secret"
         exit(:invalid_configuration)
     end
 
@@ -51,11 +51,12 @@ defmodule Poxa do
           {:ok, _} = :cowboy.start_https(:https, 100,
                                          ssl_config,
                                          [env: [dispatch: dispatch] ])
-            Lager.info('Starting Poxa using SSL on port ~p', [Keyword.get(ssl_config, :port)])
+          ssl_port = Keyword.get(ssl_config, :port)
+          Lager.info "Starting Poxa using SSL on port #{ssl_port}"
         else
-          Lager.error('Please specify port, cacertfile, certfile and keyfile')
+          Lager.error "Please specify port, cacertfile, certfile and keyfile"
         end
-      :undefined -> Lager.info('SSL not configured/started')
+      :undefined -> Lager.info "SSL not configured/started"
     end
   end
 

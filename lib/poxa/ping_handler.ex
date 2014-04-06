@@ -4,7 +4,7 @@ defmodule Poxa.PingHandler do
 
   def handle(req, state) do
     {:ok, req} = :cowboy_req.reply(200, [], "Pong!", req)
-    Lager.info('Ping requested')
+    Lager.info "Ping requested"
     {:ok, req, state}
   end
 

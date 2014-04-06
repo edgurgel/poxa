@@ -25,7 +25,7 @@ defmodule Poxa.Authentication do
       :ok = check_signature(method, path, qs_vals, auth_signature)
     rescue
       error in [MatchError] ->
-        Lager.info("Error during authentication #{error.message}")
+        Lager.info "Error during authentication #{error.message}"
         {:badauth, "Error during authentication"}
     end
   end

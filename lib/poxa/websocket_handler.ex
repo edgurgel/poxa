@@ -26,13 +26,12 @@ defmodule Poxa.WebsocketHandler do
           send self, :start
           {:ok, req, nil}
         else
-          Lager.error('Protocol ~p not supported', [protocol])
+          Lager.error "Protocol #{protocol} not supported"
           send self, :start_error
           {:ok, req, {4007, "Unsupported protocol version"}}
         end
-      _ ->
-        Lager.error('Invalid app_key, expected ~p, found ~p',
-          [:application.get_env(:poxa, :app_key), app_key])
+      {:ok, expected_app_key} ->
+        Lager.error "Invalid app_key, expected #{expected_app_key}, found #{app_key}"
           send self, :start_error
           {:ok, req, {4001, "Application does not exist"}}
     end
@@ -83,7 +82,7 @@ defmodule Poxa.WebsocketHandler do
     {:ok, req, state}
   end
   defp handle_pusher_event(_, _data, req, state) do
-    Lager.info("Undefined event")
+    Lager.error "Undefined event"
     {:ok, req, state}
   end
 

@@ -34,23 +34,23 @@ defmodule Poxa.Subscription do
           :error -> subscribe_error(channel)
         end
       nil ->
-        Lager.info("Missing channel")
+        Lager.info "Missing channel"
         :error
       _ -> subscribe_channel(channel)
     end
   end
 
   defp subscribe_error(channel) do
-    Lager.info("Error while subscribing to channel ~p", [channel])
+    Lager.info "Error while subscribing to channel #{channel}"
     :error
   end
 
   defp subscribe_channel(channel) do
-    Lager.info("Subscribing to channel ~p", [channel])
+    Lager.info "Subscribing to channel #{channel}"
     if subscribed?(channel) do
-      Lager.info("Already subscribed ~p on channel ~p", [self, channel])
+      Lager.info "Already subscribed #{inspect self} on channel #{channel}"
     else
-      Lager.info("Registering ~p to channel ~p", [self, channel])
+      Lager.info "Registering #{inspect self} to channel #{channel}"
       :gproc.reg({:p, :l, {:pusher, channel}})
     end
     {:ok, channel}
@@ -69,10 +69,10 @@ defmodule Poxa.Subscription do
   end
 
   defp unsubscribe_channel(channel) do
-    Lager.info("Unsubscribing to channel ~p", [channel])
+    Lager.info "Unsubscribing to channel #{channel}"
     case subscribed?(channel) do
       true -> :gproc.unreg({:p, :l, {:pusher, channel}});
-      false -> Lager.debug("Already subscribed")
+      false -> Lager.debug "Already subscribed"
     end
     :ok
   end

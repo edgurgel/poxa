@@ -175,7 +175,6 @@ defmodule Poxa.PusherEvent do
   """
   @spec send_message_to_channels([binary], :jsx.json_term, binary) :: :ok
   def send_message_to_channels(channels, message, exclude) do
-    Lager.debug("Sending message to channels ~p", [channels])
     pid_to_exclude = if exclude, do: :gproc.lookup_pids({:n, :l, exclude}),
     else: []
     lc channel inlist channels do
