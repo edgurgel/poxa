@@ -12,6 +12,7 @@ defmodule Poxa.WebsocketHandlerTest do
     new Authentication
     new Subscription
     new PresenceSubscription
+    new Console
     new :application, [:unstick]
     new JSEX
     new :gproc
@@ -24,6 +25,7 @@ defmodule Poxa.WebsocketHandlerTest do
     unload Authentication
     unload Subscription
     unload PresenceSubscription
+    unload Console
     unload :application
     unload JSEX
     unload :gproc
@@ -40,10 +42,15 @@ defmodule Poxa.WebsocketHandlerTest do
     expect(:uuid, :uuid1, fn -> passthrough([]) end)
     expect(:uuid, :to_string, 1, 'uuid')
     expect(:gproc, :reg, 1, :registered)
+    expect(:cowboy_req, :host_url, 1, {:host_url, :req2})
     expect(PusherEvent, :connection_established, 1, :connection_established)
+    expect(Console, :connected, 2, :ok)
+
     assert websocket_info(:start, :req, :state) ==
-      {:reply, {:text, :connection_established}, :req, "uuid"}
+      {:reply, {:text, :connection_established}, :req2, "uuid"}
+
     assert validate PusherEvent
+    assert validate Console
     assert validate :uuid
     assert validate :gproc
     assert validate JSEX

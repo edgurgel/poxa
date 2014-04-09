@@ -99,6 +99,10 @@ defmodule Poxa.WebsocketHandler do
     socket_id = generate_uuid
     # Register the name of the connection as SocketId
     :gproc.reg({:n, :l, socket_id})
+
+    {origin, req} = :cowboy_req.host_url(req)
+    Console.connected(socket_id, origin)
+
     reply = PusherEvent.connection_established(socket_id)
     {:reply, {:text, reply}, req, socket_id}
   end

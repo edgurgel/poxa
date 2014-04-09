@@ -1,0 +1,122 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Poxa Console</title>
+<script src="/static/jquery.min.js"></script>
+<link rel="stylesheet" type="text/css" href="/static/css/bootstrap.min.css"/>
+<link rel="stylesheet" type="text/css" href="/static/css/bootstrap-theme.min.css"/>
+<script type="text/javascript">
+
+var websocket;
+var counter = 0;
+$(document).ready(init);
+
+function init() {
+  if(!("WebSocket" in window)){
+    $('#status').append('<p><span style="color: red;">websockets are not supported </span></p>');
+  } else {
+    connect();
+  };
+  $("#connected").hide();
+  $("#content").hide();
+};
+
+function connect()
+{
+  websocket = new WebSocket("ws://localhost:8080/console");
+  websocket.onopen = function(evt) { onOpen(evt) };
+  websocket.onclose = function(evt) { onClose(evt) };
+  websocket.onmessage = function(evt) { onMessage(evt) };
+  websocket.onerror = function(evt) { onError(evt) };
+};
+
+function disconnect() {
+  websocket.close();
+};
+
+function toggle_connection(){
+  if(websocket.readyState == websocket.OPEN){
+    disconnect();
+  } else {
+    connect();
+  };
+};
+
+function onOpen(evt) {
+  console.log("Websocket connected");
+};
+
+function onClose(evt) {
+  console.log("Websocket closed");
+};
+
+function onMessage(evt) {
+  incrementCounter();
+  var data = JSON.parse(evt.data);
+  addEvent(data.type, data.socket, data.details, data.time);
+};
+
+function onError(evt) {
+  console.log("Error: " + evt);
+};
+
+function incrementCounter() {
+  counter++;
+  $('#counter').text(counter);
+};
+
+function addEvent(type, socket, details, time) {
+  var label = '<td class="' + labelClass(type) + '">' + type + '</td>';
+  var row = label +
+            '<td>' + socket + '</td>' +
+            '<td>' + details + '</td>' +
+            '<td>' + time + '</td>';
+  $('#events > tbody:last').prepend('<tr>' + row + '</tr>');
+};
+
+function labelClass(type) {
+  switch (type) {
+    case 'Connection':
+      return 'success';
+    case 'Disconnection':
+      return 'danger';
+    case 'Subscribed':
+      return 'info';
+    case 'Unsubscribed':
+      return 'info';
+    case 'Occupied':
+      return 'info';
+    case 'Vacated':
+      return 'info';
+    default:
+      return 'warning';
+  }
+};
+
+</script>
+</head>
+
+<body>
+<div class="panel panel-default">
+  <div id="status"></div>
+  <div class="panel-heading">
+    <span class="panel-title">Poxa Console</span>
+  </div>
+  <div class="panel-body col-md-8">
+    <h3>Events <span class="badge" id="counter"></span></h3>
+    <table id="events" class="table table-striped table-hover">
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Socket</th>
+          <th>Details</th>
+          <th>Time</th>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+  </div>
+</div>
+</body>
+</html>
