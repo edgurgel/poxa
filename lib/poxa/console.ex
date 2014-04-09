@@ -1,8 +1,15 @@
-defmodule Console do
+defmodule Poxa.Console do
   import JSEX, only: [encode!: 1]
 
   def connected(socket_id, origin) do
-    message = message("Connection", socket_id, "Origin: #{origin}")
+    message("Connection", socket_id, "Origin: #{origin}") |> send
+  end
+
+  def disconnected(socket_id, channels) do
+    message("Disconnection", socket_id, "Channels: #{inspect channels}") |> send
+  end
+
+  defp send(message) do
     :gproc.send({:p, :l, :console}, {self, message |> encode!})
   end
 
