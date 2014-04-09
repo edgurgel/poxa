@@ -4,6 +4,7 @@ defmodule Poxa.WebsocketHandlerTest do
   alias Poxa.PresenceSubscription
   alias Poxa.PusherEvent
   alias Poxa.Subscription
+  alias Poxa.Console
   import :meck
   import Poxa.WebsocketHandler
 
@@ -240,9 +241,15 @@ defmodule Poxa.WebsocketHandlerTest do
   end
 
   test "websocket termination" do
+    expect(Subscription, :channels, 1, :channels)
+    expect(Console, :disconnected, [{[:socket_id, :channels], :ok}])
     expect(PresenceSubscription, :check_and_remove, 0, :ok)
     expect(:gproc, :goodbye, 0, :ok)
-    assert websocket_terminate(:reason, :req, :state) == :ok
+
+    assert websocket_terminate(:reason, :req, :socket_id) == :ok
+
+    assert validate Subscription
+    assert validate Console
     assert validate PresenceSubscription
     assert validate :gproc
   end
