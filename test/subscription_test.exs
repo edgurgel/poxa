@@ -129,4 +129,12 @@ defmodule Poxa.SubscriptionTest do
 
     assert validate :gproc
   end
+
+  test "list channels of a pid" do
+    expect(:gproc, :select, 1, ["channel1", "channel2", "channel3", "channel1"])
+
+    assert channels(self) == ["channel1", "channel2", "channel3"]
+
+    assert validate :gproc
+  end
 end

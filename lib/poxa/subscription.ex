@@ -117,4 +117,14 @@ defmodule Poxa.Subscription do
     |> Enum.uniq
   end
 
+  @doc """
+  Returns the list of channels the `pid` is subscribed
+  """
+  @spec channels(pid) :: [binary]
+  def channels(pid) do
+    match = {{:p, :l, {:pusher, :'$1'}}, self, :_}
+    :gproc.select([{match, [], [:'$1']}])
+    |> Enum.uniq
+  end
+
 end
