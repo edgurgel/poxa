@@ -1,6 +1,8 @@
 defmodule Poxa.Integration.PublicChannelTest do
   use ExUnit.Case
 
+  @moduletag :integration
+
   setup_all do
     {:ok, pid} = PusherClient.connect!('ws://localhost:8080/app/app_key')
     info = PusherClient.client_info(pid)
