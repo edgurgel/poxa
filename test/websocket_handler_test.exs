@@ -82,12 +82,16 @@ defmodule Poxa.WebsocketHandlerTest do
     expect(JSEX, :decode!, 1, [{"event", "pusher:subscribe"}])
     expect(Subscription, :subscribe!, 2, {:ok, :channel})
     expect(PusherEvent, :subscription_succeeded, 1, :subscription_succeeded)
+    expect(Console, :subscribed, 2, :ok)
+
     assert websocket_handle({:text, :subscribe_json}, :req, :socket_id) ==
       {:reply, {:text, :subscription_succeeded}, :req, :socket_id}
+
     assert validate JSEX
     assert validate :application
     assert validate PusherEvent
     assert validate Subscription
+    assert validate Console
   end
 
   test "subscribe private channel event failing for bad authentication" do
@@ -95,8 +99,10 @@ defmodule Poxa.WebsocketHandlerTest do
     expect(JSEX, :decode!, 1, [{"event", "pusher:subscribe"}])
     expect(Subscription, :subscribe!, 2, :error)
     expect(PusherEvent, :subscription_error, 0, :subscription_error)
+
     assert websocket_handle({:text, :subscription_json}, :req, :state) ==
       {:reply, {:text, :subscription_error}, :req, :state}
+
     assert validate JSEX
     assert validate :application
     assert validate PusherEvent
@@ -108,12 +114,16 @@ defmodule Poxa.WebsocketHandlerTest do
     expect(JSEX, :decode!, 1, [{"event", "pusher:subscribe"}])
     expect(Subscription, :subscribe!, 2, {:presence, :channel, :data})
     expect(PusherEvent, :presence_subscription_succeeded, 2, :subscription_succeeded)
+    expect(Console, :subscribed, 2, :ok)
+
     assert websocket_handle({:text, :subscribe_json}, :req, :socket_id) ==
       {:reply, {:text, :subscription_succeeded}, :req, :socket_id}
+
     assert validate JSEX
     assert validate :application
     assert validate PusherEvent
     assert validate Subscription
+    assert validate Console
   end
 
   test "subscribe presence channel event failing for bad authentication" do
@@ -121,8 +131,10 @@ defmodule Poxa.WebsocketHandlerTest do
     expect(JSEX, :decode!, 1, [{"event", "pusher:subscribe"}])
     expect(Subscription, :subscribe!, 2, :error)
     expect(PusherEvent, :subscription_error, 0, :subscription_error)
+
     assert websocket_handle({:text, :subscription_json}, :req, :state) ==
       {:reply, {:text, :subscription_error}, :req, :state}
+
     assert validate JSEX
     assert validate :application
     assert validate PusherEvent
@@ -133,29 +145,39 @@ defmodule Poxa.WebsocketHandlerTest do
     expect(JSEX, :decode!, 1, [{"event", "pusher:subscribe"}])
     expect(Subscription, :subscribe!, 2, {:ok, :channel})
     expect(PusherEvent, :subscription_succeeded, 1, :subscription_succeeded)
+    expect(Console, :subscribed, 2, :ok)
+
     assert websocket_handle({:text, :subscribe_json}, :req, :socket_id) ==
       {:reply, {:text, :subscription_succeeded}, :req, :socket_id}
+
     assert validate JSEX
     assert validate PusherEvent
     assert validate Subscription
+    assert validate Console
   end
 
   test "subscribe event on an already subscribed channel" do
     expect(JSEX, :decode!, 1, [{"event", "pusher:subscribe"}])
     expect(Subscription, :subscribe!, 2, {:ok, :channel})
     expect(PusherEvent, :subscription_succeeded, 1, :subscription_succeeded)
+    expect(Console, :subscribed, 2, :ok)
+
     assert websocket_handle({:text, :subscribe_json}, :req, :socket_id) ==
       {:reply, {:text, :subscription_succeeded}, :req, :socket_id}
+
     assert validate JSEX
     assert validate PusherEvent
     assert validate Subscription
+    assert validate Console
   end
 
   test "unsubscribe event" do
     expect(JSEX, :decode!, 1, [{"event", "pusher:unsubscribe"}])
     expect(Subscription, :unsubscribe!, 1, :ok)
+
     assert websocket_handle({:text, :unsubscribe_json}, :req, :socket_id) ==
       {:ok, :req, :socket_id}
+
     assert validate JSEX
     assert validate Subscription
   end
@@ -165,8 +187,10 @@ defmodule Poxa.WebsocketHandlerTest do
     expect(PusherEvent, :parse_channels, 1, {:message, ["presence-channel"], nil})
     expect(PusherEvent, :send_message_to_channel, 3, :ok)
     expect(Subscription, :subscribed?, 1, true)
+
     assert websocket_handle({:text, :client_event_json}, :req, :socket_id) ==
       {:ok, :req, :socket_id}
+
     assert validate JSEX
     assert validate PusherEvent
     assert validate Subscription
@@ -177,8 +201,10 @@ defmodule Poxa.WebsocketHandlerTest do
     expect(PusherEvent, :parse_channels, 1, {:message, ["private-channel"], nil})
     expect(PusherEvent, :send_message_to_channel, 3, :ok)
     expect(Subscription, :subscribed?, 1, true)
+
     assert websocket_handle({:text, :client_event_json}, :req, :socket_id) ==
       {:ok, :req, :socket_id}
+
     assert validate JSEX
     assert validate PusherEvent
     assert validate Subscription
@@ -187,8 +213,10 @@ defmodule Poxa.WebsocketHandlerTest do
   test "client event on public channel" do
     expect(JSEX, :decode!, 1, [{"event", "client-event"}])
     expect(PusherEvent, :parse_channels, 1, {:message, ["public-channel"], nil})
+
     assert websocket_handle({:text, :client_event_json}, :req, :socket_id) ==
       {:ok, :req, :socket_id}
+
     assert validate JSEX
     assert validate PusherEvent
   end
@@ -198,7 +226,9 @@ defmodule Poxa.WebsocketHandlerTest do
     expect(:cowboy_req, :binding, 2, {"app_key", :req})
     expect(:cowboy_req, :qs_val, 3, {"7", :req})
     expect(PusherEvent, :connection_established, 1, :connection_established)
+
     assert websocket_init(:transport, :req, :opts) == {:ok, :req, nil}
+
     assert validate :application
     assert validate :cowboy_req
     assert validate PusherEvent
@@ -208,7 +238,9 @@ defmodule Poxa.WebsocketHandlerTest do
     expect(:application, :get_env, 2, {:ok, "app_key"})
     expect(:cowboy_req, :binding, 2, {"different_app_key", :req})
     expect(:cowboy_req, :qs_val, 3, {"7", :req})
+
     assert websocket_init(:transport, :req, :opts) == {:ok, :req, {4001, "Application does not exist"}}
+
     assert validate :application
     assert validate :cowboy_req
   end
@@ -217,7 +249,9 @@ defmodule Poxa.WebsocketHandlerTest do
     expect(:application, :get_env, 2, {:ok, "app_key"})
     expect(:cowboy_req, :binding, 2, {"app_key", :req})
     expect(:cowboy_req, :qs_val, 3, {"8", :req})
+
     assert websocket_init(:transport, :req, :opts) == {:ok, :req, {4007, "Unsupported protocol version"}}
+
     assert validate :application
     assert validate :cowboy_req
   end
@@ -226,7 +260,9 @@ defmodule Poxa.WebsocketHandlerTest do
     expect(:application, :get_env, 2, {:ok, "app_key"})
     expect(:cowboy_req, :binding, 2, {"app_key", :req})
     expect(:cowboy_req, :qs_val, 3, {"4", :req})
+
     assert websocket_init(:transport, :req, :opts) == {:ok, :req, {4007, "Unsupported protocol version"}}
+
     assert validate :application
     assert validate :cowboy_req
   end
@@ -235,7 +271,9 @@ defmodule Poxa.WebsocketHandlerTest do
     expect(:application, :get_env, 2, {:ok, "app_key"})
     expect(:cowboy_req, :binding, 2, {"app_key", :req})
     expect(:cowboy_req, :qs_val, 3, {"6", :req})
+
     assert websocket_init(:transport, :req, :opts) == {:ok, :req, nil}
+
     assert validate :application
     assert validate :cowboy_req
   end

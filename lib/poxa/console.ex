@@ -5,8 +5,12 @@ defmodule Poxa.Console do
     message("Connection", socket_id, "Origin: #{origin}") |> send
   end
 
-  def disconnected(socket_id, channels) do
+  def disconnected(socket_id, channels) when is_list(channels) do
     message("Disconnection", socket_id, "Channels: #{inspect channels}") |> send
+  end
+
+  def subscribed(socket_id, channel) do
+    message("Subscribed", socket_id, "Channel: #{channel}") |> send
   end
 
   defp send(message) do
