@@ -1,5 +1,3 @@
-Code.require_file "test_helper.exs", __DIR__
-
 defmodule Poxa.AuthSignatureTest do
   use ExUnit.Case
   alias Poxa.Authentication
