@@ -53,4 +53,14 @@ defmodule Poxa.ConsoleTest do
     assert validate :gproc
   end
 
+  test "api_message" do
+    expect(JSEX, :encode!, 1, :encoded_json)
+    expect(:gproc, :send, 2, :ok)
+
+    assert api_message("channel", [{"event", "event-name"}]) == :ok
+
+    assert validate JSEX
+    assert validate :gproc
+  end
+
 end

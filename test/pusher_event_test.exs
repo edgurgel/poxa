@@ -2,13 +2,16 @@ defmodule Poxa.PusherEventTest do
   use ExUnit.Case
   import :meck
   import Poxa.PusherEvent
+  alias Poxa.Console
 
   setup do
     new :gproc
+    new Console
   end
 
   teardown do
     unload :gproc
+    unload Console
   end
 
   doctest Poxa.PusherEvent
@@ -93,10 +96,14 @@ defmodule Poxa.PusherEventTest do
     expect(:gproc, :lookup_pids, 1, [pid])
     expected = [{"channel", "channel123"}]
     expect(JSEX, :encode!, [{[expected], :msg}])
+    expect(Console, :api_message, 2, :ok)
+
     assert send_message_to_channel("channel123", [], []) == :ok
     assert_receive { ^pid, :msg }
+
     assert validate :gproc
     assert validate JSEX
+    assert validate Console
     unload JSEX
   end
 
@@ -105,9 +112,13 @@ defmodule Poxa.PusherEventTest do
     expect(:gproc, :lookup_pids, 1, [self])
     expected = [{"channel", "channel123"}]
     expect(JSEX, :encode!, [{[expected], :msg}])
+    expect(Console, :api_message, 2, :ok)
+
     assert send_message_to_channel("channel123", [], [self]) == :ok
+
     assert validate :gproc
     assert validate JSEX
+    assert validate Console
     unload JSEX
   end
 
@@ -117,10 +128,14 @@ defmodule Poxa.PusherEventTest do
     expect(:gproc, :lookup_pids, 1, [pid])
     expected = [{"channel", "channel123"}]
     expect(JSEX, :encode!, [{[expected], :msg}])
+    expect(Console, :api_message, 2, :ok)
+
     assert send_message_to_channels(["channel123"], [], nil) == :ok
     assert_receive { ^pid, :msg }
+
     assert validate :gproc
     assert validate JSEX
+    assert validate Console
     unload JSEX
   end
 
@@ -129,9 +144,13 @@ defmodule Poxa.PusherEventTest do
     expect(:gproc, :lookup_pids, 1, [self])
     expected = [{"channel", "channel123"}]
     expect(JSEX, :encode!, [{[expected], :msg}])
+    expect(Console, :api_message, 2, :ok)
+
     assert send_message_to_channels(["channel123"], [], "SocketId") == :ok
+
     assert validate :gproc
     assert validate JSEX
+    assert validate Console
     unload JSEX
   end
 end
