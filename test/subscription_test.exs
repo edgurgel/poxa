@@ -73,9 +73,11 @@ defmodule Poxa.SubscriptionTest do
     expect(:gproc, :lookup_values, 1, :values) # subscribed? returns false
     expect(AuthSignature, :validate, 2, :ok)
     expect(PresenceSubscription, :subscribe!, 2, :ok)
+
     assert subscribe!([ {"channel", "presence-channel"},
                                     {"auth", "signeddata"},
                                     {"channel_data", "{\"user_id\" : \"id123\", \"user_info\" : \"info456\" "}], "SocketId") == :ok
+
     assert validate AuthSignature
     assert validate PresenceSubscription
     assert validate :gproc
@@ -83,15 +85,19 @@ defmodule Poxa.SubscriptionTest do
 
   test "subscription to a private-channel having bad authentication" do
     expect(AuthSignature, :validate, 2, :error)
+
     assert subscribe!([ {"channel", "private-channel"},
                                     {"auth", "signeddate"} ], "SocketId") == :error
+
     assert validate AuthSignature
   end
 
   test "subscription to a presence-channel having bad authentication" do
     expect(AuthSignature, :validate, 2, :error)
+
     assert subscribe!([ {"channel", "presence-channel"},
                                     {"auth", "signeddate"} ], "SocketId") == :error
+
     assert validate AuthSignature
   end
 
@@ -99,7 +105,9 @@ defmodule Poxa.SubscriptionTest do
     expect(:gproc, :select, 1, [:something]) # subscribed? returns false
     expect(:gproc, :unreg, 1, :ok)
     expect(PresenceSubscription, :presence_channel?, 1, false)
-    assert unsubscribe!([{"channel", "a_channel"}]) == :ok
+
+    assert unsubscribe!([{"channel", "a_channel"}]) == {:ok, "a_channel"}
+
     assert validate :gproc
     assert validate PresenceSubscription
   end
@@ -107,7 +115,9 @@ defmodule Poxa.SubscriptionTest do
   test "unsubscribe channel being not subscribed" do
     expect(:gproc, :select, 1, []) # subscribed? returns true
     expect(PresenceSubscription, :presence_channel?, 1, false)
-    assert unsubscribe!([{"channel", "a_channel"}]) == :ok
+
+    assert unsubscribe!([{"channel", "a_channel"}]) == {:ok, "a_channel"}
+
     assert validate :gproc
     assert validate PresenceSubscription
   end
@@ -116,8 +126,10 @@ defmodule Poxa.SubscriptionTest do
     expect(:gproc, :select, 1, [:something]) # subscribed? returns false
     expect(:gproc, :unreg, 1, :ok)
     expect(PresenceSubscription, :presence_channel?, 1, true)
-    expect(PresenceSubscription, :unsubscribe!, 1, :ok)
-    assert unsubscribe!([{"channel", "presence-channel"}]) == :ok
+    expect(PresenceSubscription, :unsubscribe!, 1, {:ok, "presence-channel"})
+
+    assert unsubscribe!([{"channel", "presence-channel"}]) == {:ok, "presence-channel"}
+
     assert validate PresenceSubscription
     assert validate :gproc
   end

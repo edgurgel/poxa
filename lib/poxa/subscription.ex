@@ -59,7 +59,7 @@ defmodule Poxa.Subscription do
   @doc """
   Unsubscribe to a channel always returning :ok
   """
-  @spec unsubscribe!(:jsx.json_term) :: :ok
+  @spec unsubscribe!(:jsx.json_term) :: {:ok, binary}
   def unsubscribe!(data) do
     channel = data["channel"]
     if PresenceSubscription.presence_channel?(channel) do
@@ -74,7 +74,7 @@ defmodule Poxa.Subscription do
       true -> :gproc.unreg({:p, :l, {:pusher, channel}});
       false -> Lager.debug "Already subscribed"
     end
-    :ok
+    {:ok, channel}
   end
 
   @doc """

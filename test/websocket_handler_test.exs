@@ -173,13 +173,15 @@ defmodule Poxa.WebsocketHandlerTest do
 
   test "unsubscribe event" do
     expect(JSEX, :decode!, 1, [{"event", "pusher:unsubscribe"}])
-    expect(Subscription, :unsubscribe!, 1, :ok)
+    expect(Subscription, :unsubscribe!, 1, {:ok, :channel})
+    expect(Console, :unsubscribed, 2, :ok)
 
     assert websocket_handle({:text, :unsubscribe_json}, :req, :socket_id) ==
       {:ok, :req, :socket_id}
 
     assert validate JSEX
     assert validate Subscription
+    assert validate Console
   end
 
   test "client event on presence channel" do

@@ -70,7 +70,8 @@ defmodule Poxa.WebsocketHandler do
     {:reply, {:text, reply}, req, socket_id}
   end
   defp handle_pusher_event("pusher:unsubscribe", decoded_json, req, socket_id) do
-    :ok = Subscription.unsubscribe! decoded_json["data"]
+    {:ok, channel} = Subscription.unsubscribe! decoded_json["data"]
+    Console.unsubscribed(socket_id, channel)
     {:ok, req, socket_id}
   end
   defp handle_pusher_event("pusher:ping", _decoded_json, req, socket_id) do

@@ -13,6 +13,10 @@ defmodule Poxa.Console do
     message("Subscribed", socket_id, "Channel: #{channel}") |> send
   end
 
+  def unsubscribed(socket_id, channel) do
+    message("Unsubscribed", socket_id, "Channel: #{channel}") |> send
+  end
+
   defp send(message) do
     :gproc.send({:p, :l, :console}, {self, message |> encode!})
   end

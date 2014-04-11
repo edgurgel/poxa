@@ -54,14 +54,14 @@ defmodule Poxa.PresenceSubscriptionTest do
     expect(:gproc, :get_value, 1, {:userid, :userinfo})
     expect(:gproc, :send, 2, :sent)
     expect(PusherEvent, :presence_member_removed, 2, :event_message)
-    assert unsubscribe!("presence-channel") == :ok
+    assert unsubscribe!("presence-channel") == {:ok, "presence-channel"}
     assert validate PusherEvent
     assert validate :gproc
   end
 
   test "unsubscribe to presence channel being not subscribed" do
     expect(:gproc, :get_value, 1, nil)
-    assert unsubscribe!("presence-channel") == :ok
+    assert unsubscribe!("presence-channel") == {:ok, "presence-channel"}
     assert validate :gproc
   end
 

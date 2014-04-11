@@ -49,7 +49,7 @@ defmodule Poxa.PresenceSubscription do
     :gproc.select_count([{match, [], [true]}]) != 0
   end
 
-  @spec unsubscribe!(binary) :: :ok
+  @spec unsubscribe!(binary) :: {:ok, binary}
   def unsubscribe!(channel) do
     case :gproc.get_value({:p, :l, {:pusher, channel}}) do
       {user_id, _} ->
@@ -57,7 +57,7 @@ defmodule Poxa.PresenceSubscription do
         :gproc.send({:p, :l, {:pusher, channel}}, {self, message})
       _ -> nil
     end
-    :ok
+    {:ok, channel}
   end
 
   @doc """
