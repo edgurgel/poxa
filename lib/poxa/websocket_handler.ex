@@ -130,6 +130,7 @@ defmodule Poxa.WebsocketHandler do
     |> String.from_char_list!
   end
 
+  def websocket_terminate(_reason, _req, nil), do: :ok
   def websocket_terminate(_reason, _req, socket_id) do
     channels = Subscription.channels(self)
     Console.disconnected(socket_id, channels)

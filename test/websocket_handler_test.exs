@@ -294,4 +294,8 @@ defmodule Poxa.WebsocketHandlerTest do
     assert validate :gproc
   end
 
+  test "websocket termination without a socket_id" do
+    assert websocket_terminate(:reason, :req, nil) == :ok
+  end
+
 end
