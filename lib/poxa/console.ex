@@ -17,8 +17,12 @@ defmodule Poxa.Console do
     send_message("Unsubscribed", socket_id, "Channel: #{channel}")
   end
 
-  def api_message(channel, message) do
-    send_message("API Message", "", "Channel: #{channel}, Event: #{message["event"]}")
+  def api_message(channels, message) do
+    send_message("API Message", "", "Channels: #{inspect channels}, Event: #{message["event"]}")
+  end
+
+  def client_event_message(socket_id, channels, message) do
+    send_message("Client Event Message", socket_id, "Channels: #{inspect channels}, Event: #{message["event"]}")
   end
 
   defp send_message(type, socket_id, details) do

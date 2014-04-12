@@ -189,6 +189,7 @@ defmodule Poxa.WebsocketHandlerTest do
     expect(PusherEvent, :parse_channels, 1, {:message, ["presence-channel"], nil})
     expect(PusherEvent, :send_message_to_channel, 3, :ok)
     expect(Subscription, :subscribed?, 1, true)
+    expect(Console, :client_event_message, 3, :ok)
 
     assert websocket_handle({:text, :client_event_json}, :req, :socket_id) ==
       {:ok, :req, :socket_id}
@@ -196,6 +197,7 @@ defmodule Poxa.WebsocketHandlerTest do
     assert validate JSEX
     assert validate PusherEvent
     assert validate Subscription
+    assert Console
   end
 
   test "client event on private channel" do
@@ -203,6 +205,7 @@ defmodule Poxa.WebsocketHandlerTest do
     expect(PusherEvent, :parse_channels, 1, {:message, ["private-channel"], nil})
     expect(PusherEvent, :send_message_to_channel, 3, :ok)
     expect(Subscription, :subscribed?, 1, true)
+    expect(Console, :client_event_message, 3, :ok)
 
     assert websocket_handle({:text, :client_event_json}, :req, :socket_id) ==
       {:ok, :req, :socket_id}
@@ -210,6 +213,7 @@ defmodule Poxa.WebsocketHandlerTest do
     assert validate JSEX
     assert validate PusherEvent
     assert validate Subscription
+    assert validate Console
   end
 
   test "client event on public channel" do

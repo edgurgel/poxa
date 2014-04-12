@@ -5,7 +5,6 @@ defmodule Poxa.PusherEvent do
   Take a look at http://pusher.com/docs/pusher_protocol#events for more info
   """
   require Lager
-  alias Poxa.Console
 
   def valid?(event) do
     Enum.all?(["name", "data"], &ListDict.has_key?(event, &1))
@@ -196,7 +195,6 @@ defmodule Poxa.PusherEvent do
     pids = pids -- pid_to_exclude
 
     lc pid inlist pids do
-      Console.api_message(channel, message)
       send pid, {self, JSEX.encode!(message)}
     end
     :ok

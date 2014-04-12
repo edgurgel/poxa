@@ -2,6 +2,7 @@ defmodule Poxa.EventHandlerTest do
   use ExUnit.Case
   alias Poxa.PusherEvent
   alias Poxa.Authentication
+  alias Poxa.Console
   import :meck
   import Poxa.EventHandler
 
@@ -9,6 +10,7 @@ defmodule Poxa.EventHandlerTest do
     new PusherEvent
     new Authentication
     new JSEX
+    new Console
     new :cowboy_req
   end
 
@@ -16,6 +18,7 @@ defmodule Poxa.EventHandlerTest do
     unload PusherEvent
     unload Authentication
     unload JSEX
+    unload Console
     unload :cowboy_req
   end
 
@@ -56,6 +59,7 @@ defmodule Poxa.EventHandlerTest do
                 {[{"name", "event_etc"}], :channels, nil})
     expect(PusherEvent, :valid?, 1, true)
     expect(PusherEvent, :send_message_to_channels, 3, :ok)
+    expect(Console, :api_message, 2, :ok)
 
     assert handle(:req, :state) == {:ok, :req4, nil}
 
@@ -63,6 +67,7 @@ defmodule Poxa.EventHandlerTest do
     assert validate Authentication
     assert validate :cowboy_req
     assert validate JSEX
+    assert validate Console
   end
 
   test "single channel event excluding socket_id" do
@@ -78,6 +83,7 @@ defmodule Poxa.EventHandlerTest do
                 {[{"name", "event_etc"}], :channels, :exclude})
     expect(PusherEvent, :valid?, 1, true)
     expect(PusherEvent, :send_message_to_channels, 3, :ok)
+    expect(Console, :api_message, 2, :ok)
     expect(:cowboy_req, :reply, 4, {:ok, :req4})
 
     assert handle(:req, :state) == {:ok, :req4, nil}
@@ -86,6 +92,7 @@ defmodule Poxa.EventHandlerTest do
     assert validate Authentication
     assert validate :cowboy_req
     assert validate JSEX
+    assert validate Console
   end
 
   test "multiple channel event" do
@@ -101,6 +108,7 @@ defmodule Poxa.EventHandlerTest do
                 {[{"name", "event_etc"}], :channels, nil})
     expect(PusherEvent, :send_message_to_channels, 3, :ok)
     expect(PusherEvent, :valid?, 1, true)
+    expect(Console, :api_message, 2, :ok)
     expect(:cowboy_req, :reply, 4, {:ok, :req4})
 
     assert handle(:req, :state) == {:ok, :req4, nil}
@@ -109,6 +117,7 @@ defmodule Poxa.EventHandlerTest do
     assert validate Authentication
     assert validate :cowboy_req
     assert validate JSEX
+    assert validate Console
   end
 
   test "invalid event" do
