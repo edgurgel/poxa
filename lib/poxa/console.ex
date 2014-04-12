@@ -2,23 +2,27 @@ defmodule Poxa.Console do
   import JSEX, only: [encode!: 1]
 
   def connected(socket_id, origin) do
-    message("Connection", socket_id, "Origin: #{origin}") |> send
+    send_message("Connection", socket_id, "Origin: #{origin}")
   end
 
   def disconnected(socket_id, channels) when is_list(channels) do
-    message("Disconnection", socket_id, "Channels: #{inspect channels}") |> send
+    send_message("Disconnection", socket_id, "Channels: #{inspect channels}")
   end
 
   def subscribed(socket_id, channel) do
-    message("Subscribed", socket_id, "Channel: #{channel}") |> send
+    send_message("Subscribed", socket_id, "Channel: #{channel}")
   end
 
   def unsubscribed(socket_id, channel) do
-    message("Unsubscribed", socket_id, "Channel: #{channel}") |> send
+    send_message("Unsubscribed", socket_id, "Channel: #{channel}")
   end
 
   def api_message(channel, message) do
-    message("API Message", "", "Channel: #{channel}, Event: #{message["event"]}") |> send
+    send_message("API Message", "", "Channel: #{channel}, Event: #{message["event"]}")
+  end
+
+  defp send_message(type, socket_id, details) do
+    message(type, socket_id, details) |> send
   end
 
   defp send(message) do
