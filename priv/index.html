@@ -26,7 +26,8 @@ function init() {
 
 function connect(appKey, secret) {
   var qs = authQS(appKey, secret);
-  websocket = new WebSocket("ws://localhost:8080/console?" + qs);
+  var host = window.location.host;
+  websocket = new WebSocket("ws://" + host  + "/console?" + qs);
   websocket.onopen = function(evt) { onOpen(evt) };
   websocket.onclose = function(evt) { onClose(evt) };
   websocket.onmessage = function(evt) { onMessage(evt) };
