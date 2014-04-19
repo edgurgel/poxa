@@ -186,10 +186,10 @@ defmodule Poxa.WebsocketHandlerTest do
 
   test "client event on presence channel" do
     expect(JSEX, :decode!, 1, [{"event", "client-event"}])
-    expect(PusherEvent, :parse_channels, 1, {:message, ["presence-channel"], nil})
+    expect(PusherEvent, :parse_channels, 1, {:message, ["presence-channel", "public-channel"], nil})
     expect(PusherEvent, :send_message_to_channel, 3, :ok)
     expect(Subscription, :subscribed?, 1, true)
-    expect(Console, :client_event_message, 3, :ok)
+    expect(Console, :client_event_message, [{[:socket_id, ["presence-channel"], :message], :ok}])
 
     assert websocket_handle({:text, :client_event_json}, :req, :socket_id) ==
       {:ok, :req, :socket_id}
@@ -205,7 +205,24 @@ defmodule Poxa.WebsocketHandlerTest do
     expect(PusherEvent, :parse_channels, 1, {:message, ["private-channel"], nil})
     expect(PusherEvent, :send_message_to_channel, 3, :ok)
     expect(Subscription, :subscribed?, 1, true)
-    expect(Console, :client_event_message, 3, :ok)
+    expect(Console, :client_event_message, [{[:socket_id, ["private-channel"], :message], :ok}])
+
+    assert websocket_handle({:text, :client_event_json}, :req, :socket_id) ==
+      {:ok, :req, :socket_id}
+
+    assert validate JSEX
+    assert validate PusherEvent
+    assert validate Subscription
+    assert validate Console
+  end
+
+  test "client event on not subscribed private channel" do
+    expect(JSEX, :decode!, 1, [{"event", "client-event"}])
+    expect(PusherEvent, :parse_channels, 1, {:message, ["private-subscribed-channel", "private-not-subscribed"], nil})
+    expect(PusherEvent, :send_message_to_channel, 3, :ok)
+    expect(Subscription, :subscribed?, [{["private-subscribed-channel"], true},
+                                        {["private-not-subscribed"], false}])
+    expect(Console, :client_event_message, [{[:socket_id, ["private-subscribed-channel"], :message], :ok}])
 
     assert websocket_handle({:text, :client_event_json}, :req, :socket_id) ==
       {:ok, :req, :socket_id}

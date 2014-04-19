@@ -83,6 +83,7 @@ defmodule Poxa.WebsocketHandler do
     {message, channels, _exclude} = PusherEvent.parse_channels(decoded_json)
     sent_channels = lc channel inlist channels, private_or_presence_channel(channel), Subscription.subscribed?(channel) do
       PusherEvent.send_message_to_channel(channel, message, [self])
+      channel
     end
     unless Enum.empty?(sent_channels) do
       Console.client_event_message(socket_id, sent_channels, message)
