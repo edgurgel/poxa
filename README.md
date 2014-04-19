@@ -30,6 +30,7 @@ How do I speak 'poxa'?
 * Presence channels;
 * Client events;
 * SSL on websocket and REST API;
+* Simple console;
 * REST API
   * /users on presence channels
   * /channels/:channel_name (Partial support)
@@ -40,10 +41,10 @@ How do I speak 'poxa'?
 * SockJS support;
 * Complete REST api;
 * Mimic pusher error codes;
-* Simple console;
 * Integration test using pusher-js or other client library;
 * Web hooks;
-* Specify types signature to functions and use dialyzer to check them;
+* Specify types signature to functions and use dialyzer to check them on Travis;
+* Add 'Vacated' and 'Occupied' events to Console.
 
 ## Typical usage
 
