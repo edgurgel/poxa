@@ -9,6 +9,7 @@ defmodule Poxa.WebsocketHandler do
   """
   require Lager
   alias Poxa.PusherEvent
+  alias Poxa.Console
   alias Poxa.PresenceSubscription
   alias Poxa.Subscription
 
@@ -47,43 +48,50 @@ defmodule Poxa.WebsocketHandler do
     end
   end
 
-  def websocket_handle({:text, json}, req, state) do
-    JSEX.decode!(json)
-      |> handle_pusher_event(req, state)
+  def websocket_handle({:text, json}, req, socket_id) do
+    JSEX.decode!(json) |> handle_pusher_event(req, socket_id)
   end
 
-  def handle_pusher_event(decoded_json, req, state) do
-    handle_pusher_event(decoded_json["event"], decoded_json, req, state)
+  def handle_pusher_event(decoded_json, req, socket_id) do
+    handle_pusher_event(decoded_json["event"], decoded_json, req, socket_id)
   end
 
-  defp handle_pusher_event("pusher:subscribe", decoded_json, req, state) do
+  defp handle_pusher_event("pusher:subscribe", decoded_json, req, socket_id) do
     data = decoded_json["data"]
-    reply = case Subscription.subscribe!(data, state) do
-      {:ok, channel} -> PusherEvent.subscription_succeeded(channel)
-      {:presence, channel, presence_data} -> PusherEvent.presence_subscription_succeeded(channel, presence_data)
+    reply = case Subscription.subscribe!(data, socket_id) do
+      {:ok, channel} ->
+        Console.subscribed(socket_id, channel)
+        PusherEvent.subscription_succeeded(channel)
+      {:presence, channel, presence_data} ->
+        Console.subscribed(socket_id, channel)
+        PusherEvent.presence_subscription_succeeded(channel, presence_data)
       :error -> PusherEvent.subscription_error
     end
-    {:reply, {:text, reply}, req, state}
+    {:reply, {:text, reply}, req, socket_id}
   end
-  defp handle_pusher_event("pusher:unsubscribe", decoded_json, req, state) do
-    :ok = Subscription.unsubscribe! decoded_json["data"]
-    {:ok, req, state}
+  defp handle_pusher_event("pusher:unsubscribe", decoded_json, req, socket_id) do
+    {:ok, channel} = Subscription.unsubscribe! decoded_json["data"]
+    Console.unsubscribed(socket_id, channel)
+    {:ok, req, socket_id}
   end
-  defp handle_pusher_event("pusher:ping", _decoded_json, req, state) do
+  defp handle_pusher_event("pusher:ping", _decoded_json, req, socket_id) do
     reply = PusherEvent.pong
-    {:reply, {:text, reply}, req, state}
+    {:reply, {:text, reply}, req, socket_id}
   end
   # Client Events
-  defp handle_pusher_event("client-" <> _event_name = _event, decoded_json, req, state) do
+  defp handle_pusher_event("client-" <> _event_name, decoded_json, req, socket_id) do
     {message, channels, _exclude} = PusherEvent.parse_channels(decoded_json)
-    lc channel inlist channels, private_or_presence_channel(channel), Subscription.subscribed?(channel) do
+    sent_channels = lc channel inlist channels, private_or_presence_channel(channel), Subscription.subscribed?(channel) do
       PusherEvent.send_message_to_channel(channel, message, [self])
     end
-    {:ok, req, state}
+    unless Enum.empty?(sent_channels) do
+      Console.client_event_message(socket_id, sent_channels, message)
+    end
+    {:ok, req, socket_id}
   end
-  defp handle_pusher_event(_, _data, req, state) do
+  defp handle_pusher_event(_, _data, req, socket_id) do
     Lager.error "Undefined event"
-    {:ok, req, state}
+    {:ok, req, socket_id}
   end
 
   defp private_or_presence_channel(channel) do
@@ -99,6 +107,10 @@ defmodule Poxa.WebsocketHandler do
     socket_id = generate_uuid
     # Register the name of the connection as SocketId
     :gproc.reg({:n, :l, socket_id})
+
+    {origin, req} = :cowboy_req.host_url(req)
+    Console.connected(socket_id, origin)
+
     reply = PusherEvent.connection_established(socket_id)
     {:reply, {:text, reply}, req, socket_id}
   end
@@ -107,12 +119,12 @@ defmodule Poxa.WebsocketHandler do
     {:reply, {:close, code, message}, req, nil}
   end
 
-  def websocket_info({_pid, msg}, req, state) do
-    {:reply, {:text, msg}, req, state}
+  def websocket_info({_pid, msg}, req, socket_id) do
+    {:reply, {:text, msg}, req, socket_id}
   end
 
-  def websocket_info(_info, req, state) do
-    {:ok, req, state}
+  def websocket_info(_info, req, socket_id) do
+    {:ok, req, socket_id}
   end
 
   defp generate_uuid do
@@ -121,7 +133,10 @@ defmodule Poxa.WebsocketHandler do
     |> String.from_char_list!
   end
 
-  def websocket_terminate(_reason, _req, _state) do
+  def websocket_terminate(_reason, _req, nil), do: :ok
+  def websocket_terminate(_reason, _req, socket_id) do
+    channels = Subscription.channels(self)
+    Console.disconnected(socket_id, channels)
     PresenceSubscription.check_and_remove
     :gproc.goodbye
     :ok

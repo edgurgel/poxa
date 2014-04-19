@@ -9,6 +9,9 @@ defmodule Poxa do
   def start(_type, _args) do
     dispatch = :cowboy_router.compile([
       {:_, [ { '/ping', Poxa.PingHandler, [] },
+             { '/console', Poxa.Console.WSHandler, [] },
+             { '/', :cowboy_static, {:priv_file, :poxa, 'index.html'} },
+             { '/static/[...]', :cowboy_static, {:priv_dir, :poxa, 'static'} },
              { '/apps/:app_id/events', Poxa.EventHandler, [] },
              { '/apps/:app_id/channels[/:channel_name]', Poxa.ChannelsHandler, [] },
              { '/apps/:app_id/channels/:channel_name/users', Poxa.UsersHandler, [] },
