@@ -13,23 +13,35 @@ var counter = 0;
 $(document).ready(init);
 
 function init() {
-  if(!("WebSocket" in window)){
+  if(!("WebSocket" in window)) {
     $('#status').append('<p><span style="color: red;">websockets are not supported </span></p>');
-  } else {
-    connect();
   };
-  $("#connected").hide();
-  $("#content").hide();
+  $('#connect').submit(function(event) {
+    var appKey = $('#appKey').val();
+    var secret = $('#secret').val();
+    connect(appKey, secret);
+    event.preventDefault();
+  });
 };
 
-function connect()
-{
-  websocket = new WebSocket("ws://localhost:8080/console");
+function connect(appKey, secret) {
+  var qs = authQS(appKey, secret);
+  websocket = new WebSocket("ws://localhost:8080/console?" + qs);
   websocket.onopen = function(evt) { onOpen(evt) };
   websocket.onclose = function(evt) { onClose(evt) };
   websocket.onmessage = function(evt) { onMessage(evt) };
   websocket.onerror = function(evt) { onError(evt) };
 };
+
+function authQS(appKey, secret) {
+  var auth_key = appKey;
+  var auth_timestamp = new Date().getTime();
+  var params = { auth_key:auth_key,
+                 auth_timestamp:auth_timestamp,
+                 auth_version:"1.0" } ;
+  var auth_signature = CryptoJS.HmacSHA256("GET\n/console\n" + $.param(params), secret).toString();
+  return $.param($.extend({ }, params, { auth_signature:auth_signature }));
+}
 
 function disconnect() {
   websocket.close();
@@ -44,11 +56,13 @@ function toggle_connection(){
 };
 
 function onOpen(evt) {
+  $("#connect").hide();
   console.log("Websocket connected");
 };
 
 function onClose(evt) {
   console.log("Websocket closed");
+  $("#connect").show();
 };
 
 function onMessage(evt) {
@@ -102,6 +116,17 @@ function labelClass(type) {
   <div id="status"></div>
   <div class="panel-heading">
     <span class="panel-title">Poxa Console</span>
+    <form id="connect" class="form-inline" role="form">
+      <div class="form-group">
+        <label class="sr-only" for="appKey">App Key</label>
+        <input class="form-control" id="appKey" placeholder="Enter App Key">
+      </div>
+      <div class="form-group">
+        <label class="sr-only" for="secret">Secret</label>
+        <input type="password" class="form-control" id="secret" placeholder="Secret">
+      </div>
+      <button type="submit" class="btn btn-default">Connect</button>
+    </form>
   </div>
   <div class="panel-body col-md-8">
     <h3>Events <span class="badge" id="counter"></span></h3>
