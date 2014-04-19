@@ -361,11 +361,27 @@
   },
   "css": [
     "type.less",
+    "code.less",
     "grid.less",
     "tables.less",
+    "forms.less",
+    "buttons.less",
     "badges.less",
     "alerts.less",
     "panels.less"
   ],
-  "js": []
+  "js": [
+    "alert.js",
+    "button.js",
+    "carousel.js",
+    "dropdown.js",
+    "modal.js",
+    "tooltip.js",
+    "popover.js",
+    "tab.js",
+    "affix.js",
+    "collapse.js",
+    "scrollspy.js",
+    "transition.js"
+  ]
 }
