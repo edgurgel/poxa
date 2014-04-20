@@ -17,6 +17,7 @@ How do I speak 'poxa'?
 	- [Release](#release)
 	- [Your application](#your-application)
 	- [Deploying on Heroku](#deploying-on-heroku)
+	- [Console](#console)
 	- [Implementation](#implementation)
 	- [Contributing](#contributing)
 	- [Pusher](#pusher)
@@ -169,6 +170,14 @@ A working deploy is on http://poxa.herokuapp.com, with:
 * Port: 80
 
 Also a pusher example(https://github.com/pusher/pusher-presence-demo) is running using poxa at: http://poxa-presence-chat.herokuapp.com/
+
+## Console
+
+A simple console is avaiable on index:
+
+![Console](http://i.imgur.com/zEbZZgN.png)
+
+You can see it in action on http://poxa.herokuapp.com using "app_key" and "secret" to connect. Now open the [poxa-presence-chat](http://poxa-presence-chat.herokuapp.com) and watch events happening!
 
 ## Implementation
 
