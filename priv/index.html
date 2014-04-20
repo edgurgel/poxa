@@ -23,7 +23,10 @@
         <label class="sr-only" for="secret">Secret</label>
         <input type="password" class="form-control" id="secret" placeholder="Secret">
       </div>
-      <button type="submit" class="btn btn-default">Connect</button>
+      <button type="submit" class="btn btn-primary" data-loading-text="Connecting...">Connect</button>
+    </form>
+    <form id="disconnect" class="form-inline" role="form">
+      <button type="submit" class="btn btn-danger">Disconnect</button>
     </form>
   </div>
   <div class="panel-body col-md-8">

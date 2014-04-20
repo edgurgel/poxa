@@ -3,13 +3,23 @@ var counter = 0;
 $(document).ready(init);
 
 function init() {
+  $("#disconnect").hide();
+
   if(!("WebSocket" in window)) {
     $('#status').append('<p><span style="color: red;">websockets are not supported </span></p>');
   };
+
   $('#connect').submit(function(event) {
     var appKey = $('#appKey').val();
     var secret = $('#secret').val();
     connect(appKey, secret);
+    event.preventDefault();
+  });
+
+  $('#disconnect').submit(function(event) {
+    disconnect();
+    var appKey = $('#appKey').val("");
+    var secret = $('#secret').val("");
     event.preventDefault();
   });
 };
@@ -38,22 +48,16 @@ function disconnect() {
   websocket.close();
 };
 
-function toggle_connection(){
-  if(websocket.readyState == websocket.OPEN){
-    disconnect();
-  } else {
-    connect();
-  };
-};
-
 function onOpen(evt) {
   $("#connect").hide();
+  $("#disconnect").show();
   console.log("Websocket connected");
 };
 
 function onClose(evt) {
   console.log("Websocket closed");
   $("#connect").show();
+  $("#disconnect").hide();
 };
 
 function onMessage(evt) {
