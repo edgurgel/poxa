@@ -1,4 +1,4 @@
-Code.append_path "deps/relex/ebin"
+Code.append_path "_build/#{Mix.env}/lib/relex/ebin/"
 defmodule Poxa.Mixfile do
   use Mix.Project
 
