@@ -39,13 +39,13 @@ How do I speak 'poxa'?
 
 ## TODO
 
-* SockJS support;
-* Complete REST api;
-* Mimic pusher error codes;
-* Integration test using pusher-js or other client library;
-* Web hooks;
-* Specify types signature to functions and use dialyzer to check them on Travis;
-* Add 'Vacated' and 'Occupied' events to Console.
+* [ ] SockJS support;
+* [ ] Complete REST api;
+* [ ] Mimic pusher error codes;
+* [ ] Integration test using pusher-js or other client library;
+* [ ] Web hooks;
+* [ ] Specify types signature to functions and use dialyzer to check them on Travis;
+* [ ] Add 'Vacated' and 'Occupied' events to Console.
 
 ## Typical usage
 
