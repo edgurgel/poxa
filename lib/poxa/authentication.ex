@@ -16,7 +16,7 @@ defmodule Poxa.Authentication do
       auth_timestamp = qs_vals["auth_timestamp"]
       auth_version = qs_vals["auth_version"]
       body_md5 = qs_vals["body_md5"]
-      {auth_signature, qs_vals} = ListDict.pop(qs_vals, "auth_signature")
+      {auth_signature, qs_vals} = Dict.pop(qs_vals, "auth_signature")
 
       :ok = check_key(auth_key)
       :ok = check_timestamp(auth_timestamp)
@@ -82,7 +82,7 @@ defmodule Poxa.Authentication do
       http_verb + path + auth_key + auth_timestamp + auth_version + body_md5
   More info at: https://github.com/mloughran/signature
   """
-  @spec check_signature(binary, binary, ListDict.t, binary) :: :ok | error_reason
+  @spec check_signature(binary, binary, Dict.t, binary) :: :ok | error_reason
   def check_signature(method, path, qs_vals, auth_signature) do
     to_sign = method <> "\n" <> path <> "\n" <> build_qs(qs_vals)
     {:ok, app_secret} = :application.get_env(:poxa, :app_secret)

@@ -30,6 +30,6 @@ defmodule Poxa.Integration.PublicChannelTest do
     :gen_event.add_handler(gen_event_pid, EchoHandler, self)
     PusherClient.subscribe!(pid, "channel")
 
-    assert_receive {"channel", "pusher:subscription_succeeded", []}, 1_000
+    assert_receive {"channel", "pusher:subscription_succeeded", %{}}, 1_000
   end
 end

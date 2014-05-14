@@ -52,11 +52,11 @@ defmodule Poxa.EventHandlerTest do
     expect(:cowboy_req, :method, 1, {:method, :req3})
     expect(:cowboy_req, :path, 1, {:path, :req3})
     expect(JSEX, :decode!, 1,
-                [{"channel", "channel_name"},
-                 {"name", "event_etc"} ])
+                %{"channel" => "channel_name",
+                  "name" => "event_etc" })
     expect(:cowboy_req, :reply, 4, {:ok, :req4})
     expect(PusherEvent, :parse_channels, 1,
-                {[{"name", "event_etc"}], :channels, nil})
+                {%{"name" => "event_etc"}, :channels, nil})
     expect(PusherEvent, :valid?, 1, true)
     expect(PusherEvent, :send_message_to_channels, 3, :ok)
     expect(Console, :api_message, 2, :ok)
@@ -80,7 +80,7 @@ defmodule Poxa.EventHandlerTest do
     expect(JSEX, :decode!, 1, :decoded_json)
     expect(:cowboy_req, :reply, 4, {:ok, :req4})
     expect(PusherEvent, :parse_channels, 1,
-                {[{"name", "event_etc"}], :channels, :exclude})
+                {%{"name" => "event_etc"}, :channels, :exclude})
     expect(PusherEvent, :valid?, 1, true)
     expect(PusherEvent, :send_message_to_channels, 3, :ok)
     expect(Console, :api_message, 2, :ok)
@@ -105,7 +105,7 @@ defmodule Poxa.EventHandlerTest do
     expect(JSEX, :decode!, 1, :decoded_json)
     expect(:cowboy_req, :reply, 4, {:ok, :req4})
     expect(PusherEvent, :parse_channels, 1,
-                {[{"name", "event_etc"}], :channels, nil})
+                {%{"name" => "event_etc"}, :channels, nil})
     expect(PusherEvent, :send_message_to_channels, 3, :ok)
     expect(PusherEvent, :valid?, 1, true)
     expect(Console, :api_message, 2, :ok)
@@ -131,7 +131,7 @@ defmodule Poxa.EventHandlerTest do
     expect(:cowboy_req, :reply, 4, {:ok, :req4})
     expect(PusherEvent, :valid?, 1, false)
     expect(PusherEvent, :parse_channels, 1,
-                {[{"name", "event_etc"}], :channels, nil})
+                {%{"name" => "event_etc"}, :channels, nil})
 
     assert handle(:req, :state) == {:ok, :req4, nil}
 
@@ -151,7 +151,7 @@ defmodule Poxa.EventHandlerTest do
     expect(JSEX, :decode!, 1, :decoded_json)
     expect(PusherEvent, :valid?, 1, true)
     expect(PusherEvent, :parse_channels, 1,
-                {[{"name", "event_etc"}], nil, nil})
+                {%{"name" => "event_etc"}, nil, nil})
     expect(:cowboy_req, :reply, 4, {:ok, :req4})
 
     assert handle(:req, :state) == {:ok, :req4, nil}

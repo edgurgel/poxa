@@ -4,10 +4,9 @@ defmodule Poxa.PusherEvent do
 
   Take a look at http://pusher.com/docs/pusher_protocol#events for more info
   """
-  require Lager
 
   def valid?(event) do
-    Enum.all?(["name", "data"], &ListDict.has_key?(event, &1))
+    Enum.all?(["name", "data"], &Dict.has_key?(event, &1))
   end
 
   @doc """
@@ -23,9 +22,9 @@ defmodule Poxa.PusherEvent do
   """
   @spec connection_established(binary) :: binary
   def connection_established(socket_id) do
-    JSEX.encode!([ event: "pusher:connection_established",
-                   data: [ socket_id: socket_id,
-                           activity_timeout: 120 ] ])
+    JSEX.encode!(%{event: "pusher:connection_established",
+                   data: %{socket_id: socket_id,
+                           activity_timeout: 120 }})
   end
 
   @doc """
@@ -33,36 +32,36 @@ defmodule Poxa.PusherEvent do
 
       "{ "event" : "pusher_internal:subscription_succeeded",
          "channel" : "public-channel",
-         "data" : [] }"
+         "data" : {} }"
   """
   @spec subscription_succeeded(binary) :: binary
   def subscription_succeeded(channel) do
-    JSEX.encode!([ event: "pusher_internal:subscription_succeeded",
+    JSEX.encode!(%{event: "pusher_internal:subscription_succeeded",
                    channel: channel,
-                   data: [] ])
+                   data: %{} })
 
   end
 
-  @subscription_error JSEX.encode!([ event: "pusher:subscription_error",
-                                    data: [] ])
+  @subscription_error JSEX.encode!(%{event: "pusher:subscription_error",
+                                     data: %{} })
   @doc """
   Return a JSON for a subscription error
 
       "{ "event" : "pusher:subscription_error",
-         "data" : [] }"
+         "data" : {} }"
   """
   @spec subscription_error :: <<_ :: 376>>
   def subscription_error do
     @subscription_error
   end
 
-  @pong JSEX.encode!([ event: "pusher:pong",
-                      data: [] ])
+  @pong JSEX.encode!(%{event: "pusher:pong",
+                       data: %{}})
   @doc """
   PING? PONG!
 
       "{ "event" : "pusher:pong",
-         "data" : [] }"
+         "data" : {} }"
   """
   @spec pong :: <<_ :: 264>>
   def pong do
@@ -100,13 +99,13 @@ defmodule Poxa.PusherEvent do
     end |> Enum.uniq(fn {user_id, _} -> user_id end)
     [ids, _Hash] = List.unzip(ids_hash)
     count = Enum.count(ids)
-    JSEX.encode!([ event: "pusher_internal:subscription_succeeded",
-                  channel: channel,
-                  data: [ presence: [ ids: ids,
-                                      hash: ids_hash,
-                                      count: count ]
-                        ]
-               ])
+    JSEX.encode!(%{event: "pusher_internal:subscription_succeeded",
+                   channel: channel,
+                   data: %{presence: %{ids: ids,
+                                       hash: ids_hash,
+                                       count: count }
+                          }
+                  })
   end
 
   @doc """
@@ -119,11 +118,10 @@ defmodule Poxa.PusherEvent do
   """
   @spec presence_member_added(binary, PresenceSubscription.user_id, PresenceSubscription.user_info) :: binary
   def presence_member_added(channel, user_id, user_info) do
-    JSEX.encode!([ event: "pusher_internal:member_added",
-                  channel: channel,
-                  data: [ user_id: user_id,
-                          user_info: user_info]
-                ])
+    JSEX.encode!(%{event: "pusher_internal:member_added",
+                   channel: channel,
+                   data: %{user_id: user_id,
+                           user_info: user_info}})
   end
 
   @doc """
@@ -136,10 +134,9 @@ defmodule Poxa.PusherEvent do
   """
   @spec presence_member_removed(binary, PresenceSubscription.user_id) :: binary
   def presence_member_removed(channel, user_id) do
-    JSEX.encode!([ event: "pusher_internal:member_removed",
-                  channel: channel,
-                  data: [ user_id: user_id]
-                ])
+    JSEX.encode!(%{event: "pusher_internal:member_removed",
+                   channel: channel,
+                   data: %{user_id: user_id}})
   end
 
   @doc """
@@ -147,22 +144,22 @@ defmodule Poxa.PusherEvent do
   possibly a socket_id to exclude.
 
   ## Examples
-      iex> Poxa.PusherEvent.parse_channels([{"channel", "private-channel"}])
-      {[],["private-channel"],nil}
-      iex> Poxa.PusherEvent.parse_channels([{"channels", ["private-channel", "public-channel"]}])
-      {[],["private-channel","public-channel"],nil}
-      iex> Poxa.PusherEvent.parse_channels([{"channel", "a-channel"}, {"socket_id", "to_exclude123" }])
-      {[{"socket_id","to_exclude123"}],["a-channel"],"to_exclude123"}
+      iex> Poxa.PusherEvent.parse_channels(%{"channel" => "private-channel"})
+      {%{}, ["private-channel"],nil}
+      iex> Poxa.PusherEvent.parse_channels(%{"channels" => ["private-channel", "public-channel"]})
+      {%{}, ["private-channel","public-channel"],nil}
+      iex> Poxa.PusherEvent.parse_channels(%{"channel" => "a-channel", "socket_id" => "to_exclude123" })
+      {%{"socket_id" => "to_exclude123"},["a-channel"],"to_exclude123"}
 
   """
-  @spec parse_channels([{binary, any}]) :: {:jsx.json_term,
-                                            [binary] | :undefined,
-                                            :undefined | binary}
+  @spec parse_channels(Map.t) :: {:jsx.json_term,
+                                  [binary] | :undefined,
+                                  :undefined | binary}
   def parse_channels(message) do
     exclude = message["socket_id"]
-    case ListDict.pop(message, "channels") do
+    case Dict.pop(message, "channels") do
       {nil, message} ->
-        case ListDict.pop(message, "channel") do
+        case Dict.pop(message, "channel") do
           {nil, message} -> {message, nil, exclude}
           {channel, message} -> {message, [channel], exclude}
         end
@@ -190,7 +187,7 @@ defmodule Poxa.PusherEvent do
   """
   @spec send_message_to_channel(binary, :jsx.json_term, [pid]) :: :ok
   def send_message_to_channel(channel, message, pid_to_exclude) do
-    message = message ++ [{"channel", channel}]
+    message = Dict.merge(message, %{"channel" => channel})
     pids = :gproc.lookup_pids({:p, :l, {:pusher, channel}})
     pids = pids -- pid_to_exclude
 

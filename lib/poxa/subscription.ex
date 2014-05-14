@@ -27,7 +27,7 @@ defmodule Poxa.Subscription do
           :error -> subscribe_error(channel)
         end
       "presence-" <> _presence_channel ->
-        channel_data = ListDict.get(data, "channel_data", "undefined")
+        channel_data = Dict.get(data, "channel_data", "undefined")
         to_sign = <<socket_id :: binary, ":", channel ::binary, ":", channel_data :: binary>>
         case AuthSignature.validate(to_sign, data["auth"]) do
           :ok -> PresenceSubscription.subscribe!(channel, channel_data)

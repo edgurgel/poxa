@@ -11,7 +11,7 @@ defmodule Poxa.EventHandler do
   alias Poxa.Console
   require Lager
 
-  @error_json JSEX.encode!([error: "invalid json"])
+  @error_json JSEX.encode!(%{error: "invalid json"})
   @doc """
   If the body is a valid JSON, the state of the handler will be the body
   Otherwise the response will be a 400 status code
@@ -27,8 +27,8 @@ defmodule Poxa.EventHandler do
     end
   end
 
-  @authentication_error_json JSEX.encode!([error: "Authentication error"])
-  @invalid_event_json JSEX.encode!([error: "Event must have channel(s), name, and data"])
+  @authentication_error_json JSEX.encode!(%{error: "Authentication error"})
+  @invalid_event_json JSEX.encode!(%{error: "Event must have channel(s), name, and data"})
 
   @doc """
   Decode the JSON and send events to channels if successful
@@ -64,8 +64,8 @@ defmodule Poxa.EventHandler do
 
   # Remove name and add event to the response
   defp prepare_message(message) do
-    {event, message} = ListDict.pop(message, "name")
-    Enum.concat(message, [{"event", event}])
+    {event, message} = Dict.pop(message, "name")
+    Dict.merge(message, %{"event" => event})
   end
 
 end
