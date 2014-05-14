@@ -145,7 +145,7 @@ web: elixir --erl "-poxa port $PORT" -S mix run --no-halt
 Add the file `.preferred_otp_version`
 
 ```
-OTP_17
+OTP-17.0
 ```
 
 Configure the buildpack using:
