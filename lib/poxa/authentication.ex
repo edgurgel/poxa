@@ -18,7 +18,7 @@ defmodule Poxa.Authentication do
       {:ok, secret} = :application.get_env(:poxa, :app_secret)
 
       :ok = check_body(body, body_md5)
-      Signaturex.validate!(app_key, secret, method, path, qs_vals, 600_000)
+      Signaturex.validate!(app_key, secret, method, path, qs_vals, 600)
       :ok
     rescue
       error in [MatchError, Signaturex.AuthenticationError] ->
