@@ -51,7 +51,7 @@ How do I speak 'poxa'?
 
 Poxa is a standalone elixir server implementation of the Pusher protocol.
 
-You need [Elixir](http://elixir-lang.org) 0.12.4 at least and Erlang R16B.
+You need [Elixir](http://elixir-lang.org) 0.13.1 at least and Erlang 17.0
 
 Clone this repository
 
@@ -142,10 +142,10 @@ Add the file `Procfile`:
 web: elixir --erl "-poxa port $PORT" -S mix run --no-halt
 ```
 
-Add the file `.preferred_otp_version `
+Add the file `.preferred_otp_version`
 
 ```
-OTP_R16B
+OTP_17
 ```
 
 Configure the buildpack using:
