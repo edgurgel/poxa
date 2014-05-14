@@ -12,5 +12,6 @@
   "pusher_client": {:git, "git://github.com/edgurgel/pusher_client.git", "0e7fa0f91d3e33fd1102d2b807491cfb04334852", []},
   "ranch": {:git, "git://github.com/extend/ranch.git", "5df1f222f94e08abdcab7084f5e13027143cc222", [ref: "0.9.0"]},
   "relex": {:git, "git://github.com/yrashk/relex.git", "2fc4619c05e5e3addeb199f4053f4c86b46c9e95", []},
+  "signaturex": {:package, "0.0.2"},
   "uuid": {:git, "git://github.com/avtobiff/erlang-uuid.git", "2056ad3717fedccf3634757401f77272bccb4554", [tag: "v0.4.5"]},
   "websocket_client": {:git, "git://github.com/jeremyong/websocket_client.git", "e2a9ea6017576e0316e90cc36ffad315a4888f67", []}}

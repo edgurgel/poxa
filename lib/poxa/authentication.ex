@@ -11,20 +11,17 @@ defmodule Poxa.Authentication do
   @spec check(binary, binary, binary, [{binary, binary}]) :: :ok | {:badauth, binary}
   def check(method, path, body, qs_vals) do
     try do
+      qs_vals = Enum.into(qs_vals, %{})
       #If any of these values are not avaiable -> MatchError
-      auth_key = qs_vals["auth_key"]
-      auth_timestamp = qs_vals["auth_timestamp"]
-      auth_version = qs_vals["auth_version"]
       body_md5 = qs_vals["body_md5"]
-      {auth_signature, qs_vals} = Dict.pop(qs_vals, "auth_signature")
+      {:ok, app_key} = :application.get_env(:poxa, :app_key)
+      {:ok, secret} = :application.get_env(:poxa, :app_secret)
 
-      :ok = check_key(auth_key)
-      :ok = check_timestamp(auth_timestamp)
-      :ok = check_version(auth_version)
       :ok = check_body(body, body_md5)
-      :ok = check_signature(method, path, qs_vals, auth_signature)
+      Signaturex.validate!(app_key, secret, method, path, qs_vals, 600_000)
+      :ok
     rescue
-      error in [MatchError] ->
+      error in [MatchError, Signaturex.AuthenticationError] ->
         Lager.info "Error during authentication #{error.message}"
         {:badauth, "Error during authentication"}
     end
@@ -42,30 +39,6 @@ defmodule Poxa.Authentication do
   end
 
   @doc """
-  Returns :ok if the timestamp is not bigger than 600s and
-  :error, reason tuple otherwise
-  """
-  @spec check_timestamp(binary) :: :ok | error_reason
-  def check_timestamp(auth_timestamp) do
-    int_auth_timestamp = auth_timestamp |> String.to_char_list! |> list_to_integer
-    {mega,sec,_micro} = :os.timestamp()
-    timestamp = mega * 1000000 + sec
-    case timestamp - int_auth_timestamp do
-      diff when diff < 600000 -> :ok
-      _ -> {:error, "Old event, timestamp bigger than 600 s"}
-    end
-  end
-
-  @doc """
-  Returns :ok if the version is 1.0 and :error, reason tuple otherwise
-  """
-  @spec check_version(binary) :: :ok | error_reason
-  def check_version(auth_version) do
-    if auth_version == "1.0", do: :ok,
-    else: {:error, "auth_version is not 1.0"}
-  end
-
-  @doc """
   Returns :ok if the body md5 matches and :error, reason tuple otherwise
   """
   @spec check_body(binary, binary) :: :ok | error_reason
@@ -74,25 +47,5 @@ defmodule Poxa.Authentication do
     md5 = CryptoHelper.md5_to_string(body)
     if md5 == body_md5, do: :ok,
     else: {:error, "body_md5 does not match"}
-  end
-
-  @doc """
-  This function uses `method`, `path`, `auth_key`, `auth_timetamp`, `auth_version` and `body_md5` to
-  check if the signature is correct applying on this order:
-      http_verb + path + auth_key + auth_timestamp + auth_version + body_md5
-  More info at: https://github.com/mloughran/signature
-  """
-  @spec check_signature(binary, binary, Dict.t, binary) :: :ok | error_reason
-  def check_signature(method, path, qs_vals, auth_signature) do
-    to_sign = method <> "\n" <> path <> "\n" <> build_qs(qs_vals)
-    {:ok, app_secret} = :application.get_env(:poxa, :app_secret)
-    signed_data = CryptoHelper.hmac256_to_string(app_secret, to_sign)
-    if signed_data == auth_signature, do: :ok,
-    else: {:error, "auth_signature does not match"}
-  end
-
-  defp build_qs(qs_vals) do
-    Enum.sort(qs_vals, fn({k1, _}, {k2, _}) -> k1 < k2 end)
-      |> URI.encode_query
   end
 end

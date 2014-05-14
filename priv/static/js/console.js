@@ -36,7 +36,7 @@ function connect(appKey, secret) {
 
 function authQS(appKey, secret) {
   var auth_key = appKey;
-  var auth_timestamp = new Date().getTime();
+  var auth_timestamp = Math.round(new Date().getTime() / 1000);
   var params = { auth_key:auth_key,
                  auth_timestamp:auth_timestamp,
                  auth_version:"1.0" } ;
