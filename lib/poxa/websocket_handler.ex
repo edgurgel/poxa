@@ -81,7 +81,7 @@ defmodule Poxa.WebsocketHandler do
   # Client Events
   defp handle_pusher_event("client-" <> _event_name, decoded_json, req, socket_id) do
     {message, channels, _exclude} = PusherEvent.parse_channels(decoded_json)
-    sent_channels = lc channel inlist channels, private_or_presence_channel(channel), Subscription.subscribed?(channel) do
+    sent_channels = for channel <- channels, private_or_presence_channel(channel), Subscription.subscribed?(channel) do
       PusherEvent.send_message_to_channel(channel, message, [self])
       channel
     end
@@ -131,7 +131,7 @@ defmodule Poxa.WebsocketHandler do
   defp generate_uuid do
     :uuid.uuid1
     |> :uuid.to_string
-    |> String.from_char_list!
+    |> String.from_char_data!
   end
 
   def websocket_terminate(_reason, _req, nil), do: :ok

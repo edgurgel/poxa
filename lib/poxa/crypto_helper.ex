@@ -7,7 +7,7 @@ defmodule Poxa.CryptoHelper do
     :crypto.hmac(:sha256, app_secret, to_sign)
     |> hexlify
     |> :string.to_lower
-    |> String.from_char_list!
+    |> String.from_char_data!
   end
 
   @doc """
@@ -19,11 +19,11 @@ defmodule Poxa.CryptoHelper do
     |> md5
     |> hexlify
     |> :string.to_lower
-    |> String.from_char_list!
+    |> String.from_char_data!
   end
 
   defp md5(data), do: :crypto.hash(:md5, data)
   defp hexlify(binary) do
-    :lists.flatten(lc b inlist :erlang.binary_to_list(binary), do: :io_lib.format("~2.16.0B", [b]))
+    :lists.flatten(for b <- :erlang.binary_to_list(binary), do: :io_lib.format("~2.16.0B", [b]))
   end
 end

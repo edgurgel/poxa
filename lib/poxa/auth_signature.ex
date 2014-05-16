@@ -8,7 +8,7 @@ defmodule Poxa.AuthSignature do
   """
   @spec validate(binary, binary) :: :ok | :error
   def validate(to_sign, auth) do
-    case String.split(auth, ":", global: false) do
+    case String.split(auth, ":", parts: 2) do
       [app_key, remote_signed_data] ->
         case Poxa.Authentication.check_key(app_key) do
           :ok ->
