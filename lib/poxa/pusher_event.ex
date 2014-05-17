@@ -94,7 +94,7 @@ defmodule Poxa.PusherEvent do
   @spec presence_subscription_succeeded(binary, [{pid, {PresenceSubscription.user_id, PresenceSubscription.user_info}}]) :: binary
   def presence_subscription_succeeded(channel, presence_data) do
     # This may be too slow in the future...let's wait and see :)
-    ids_hash = lc {_pid, {user_id, user_info}} inlist presence_data do
+    ids_hash = for {_pid, {user_id, user_info}} <- presence_data do
       {user_id, user_info}
     end |> Enum.uniq(fn {user_id, _} -> user_id end)
     [ids, _Hash] = List.unzip(ids_hash)
@@ -174,7 +174,7 @@ defmodule Poxa.PusherEvent do
   def send_message_to_channels(channels, message, exclude) do
     pid_to_exclude = if exclude, do: :gproc.lookup_pids({:n, :l, exclude}),
     else: []
-    lc channel inlist channels do
+    for channel <- channels do
       send_message_to_channel(channel, message, pid_to_exclude)
     end
     :ok
@@ -191,7 +191,7 @@ defmodule Poxa.PusherEvent do
     pids = :gproc.lookup_pids({:p, :l, {:pusher, channel}})
     pids = pids -- pid_to_exclude
 
-    lc pid inlist pids do
+    for pid <- pids do
       send pid, {self, JSEX.encode!(message)}
     end
     :ok
