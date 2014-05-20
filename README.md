@@ -145,16 +145,23 @@ Add the file `Procfile`:
 web: elixir --erl "-poxa port $PORT" -S mix run --no-halt
 ```
 
-Add the file `.preferred_otp_version`
+Add the file `elixir_buildpack.config`
 
 ```
-OTP-17.0
+# Erlang version
+erlang_version=17.0
+
+# Elixir version
+elixir_version=0.13.2
+
+# Do dependencies have to be built from scratch on every deploy?
+always_build_deps=false
 ```
 
 Configure the buildpack using:
 
 ```console
-heroku config:set BUILDPACK_URL=https://github.com/goshakkk/heroku-buildpack-elixir.git
+heroku config:set BUILDPACK_URL="https://github.com/HashNuke/heroku-buildpack-elixir.git"
 ```
 
 And finally enable websocket on Heroku (for now it's on Heroku Labs)
