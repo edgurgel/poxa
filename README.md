@@ -135,6 +135,12 @@ And pusher-js:
 ```javascript
 Pusher.host    = 'localhost'
 Pusher.ws_port = 8080
+
+// will only use WebSockets
+var pusher = new Pusher(API_KEY, {
+  enabledTransports: ["ws", "flash"],
+  disabledTransports: ["flash"]
+});
 ```
 
 ## Deploying on Heroku
