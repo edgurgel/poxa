@@ -5,8 +5,10 @@ defmodule Poxa.WebsocketHandlerTest do
   alias Poxa.PusherEvent
   alias Poxa.Subscription
   alias Poxa.Console
+  alias Poxa.Time
   import :meck
   import Poxa.WebsocketHandler
+  alias Poxa.WebsocketHandler.State
 
   setup do
     new PusherEvent
@@ -14,6 +16,7 @@ defmodule Poxa.WebsocketHandlerTest do
     new Subscription
     new PresenceSubscription
     new Console
+    new Time
     new :application, [:unstick]
     new JSEX
     new :gproc
@@ -27,6 +30,7 @@ defmodule Poxa.WebsocketHandlerTest do
     unload Subscription
     unload PresenceSubscription
     unload Console
+    unload Time
     unload :application
     unload JSEX
     unload :gproc
@@ -46,9 +50,10 @@ defmodule Poxa.WebsocketHandlerTest do
     expect(:cowboy_req, :host_url, 1, {:host_url, :req2})
     expect(PusherEvent, :connection_established, 1, :connection_established)
     expect(Console, :connected, 2, :ok)
+    expect(Time, :stamp, 0, 123)
 
     assert websocket_info(:start, :req, :state) ==
-      {:reply, {:text, :connection_established}, :req2, "uuid"}
+      {:reply, {:text, :connection_established}, :req2, %State{socket_id: "uuid", time: 123}}
 
     assert validate PusherEvent
     assert validate Console
@@ -84,8 +89,10 @@ defmodule Poxa.WebsocketHandlerTest do
     expect(PusherEvent, :subscription_succeeded, 1, :subscription_succeeded)
     expect(Console, :subscribed, 2, :ok)
 
-    assert websocket_handle({:text, :subscribe_json}, :req, :socket_id) ==
-      {:reply, {:text, :subscription_succeeded}, :req, :socket_id}
+    state = %State{socket_id: :socket_id, time: :time}
+
+    assert websocket_handle({:text, :subscribe_json}, :req, state) ==
+      {:reply, {:text, :subscription_succeeded}, :req, state}
 
     assert validate JSEX
     assert validate :application
@@ -100,8 +107,10 @@ defmodule Poxa.WebsocketHandlerTest do
     expect(Subscription, :subscribe!, 2, :error)
     expect(PusherEvent, :subscription_error, 0, :subscription_error)
 
-    assert websocket_handle({:text, :subscription_json}, :req, :state) ==
-      {:reply, {:text, :subscription_error}, :req, :state}
+    state = %State{socket_id: :socket_id, time: :time}
+
+    assert websocket_handle({:text, :subscription_json}, :req, state) ==
+      {:reply, {:text, :subscription_error}, :req, state}
 
     assert validate JSEX
     assert validate :application
@@ -116,8 +125,10 @@ defmodule Poxa.WebsocketHandlerTest do
     expect(PusherEvent, :presence_subscription_succeeded, 2, :subscription_succeeded)
     expect(Console, :subscribed, 2, :ok)
 
-    assert websocket_handle({:text, :subscribe_json}, :req, :socket_id) ==
-      {:reply, {:text, :subscription_succeeded}, :req, :socket_id}
+    state = %State{socket_id: :socket_id, time: :time}
+
+    assert websocket_handle({:text, :subscribe_json}, :req, state) ==
+      {:reply, {:text, :subscription_succeeded}, :req, state}
 
     assert validate JSEX
     assert validate :application
@@ -132,8 +143,10 @@ defmodule Poxa.WebsocketHandlerTest do
     expect(Subscription, :subscribe!, 2, :error)
     expect(PusherEvent, :subscription_error, 0, :subscription_error)
 
-    assert websocket_handle({:text, :subscription_json}, :req, :state) ==
-      {:reply, {:text, :subscription_error}, :req, :state}
+    state = %State{socket_id: :socket_id, time: :time}
+
+    assert websocket_handle({:text, :subscription_json}, :req, state) ==
+      {:reply, {:text, :subscription_error}, :req, state}
 
     assert validate JSEX
     assert validate :application
@@ -147,8 +160,10 @@ defmodule Poxa.WebsocketHandlerTest do
     expect(PusherEvent, :subscription_succeeded, 1, :subscription_succeeded)
     expect(Console, :subscribed, 2, :ok)
 
-    assert websocket_handle({:text, :subscribe_json}, :req, :socket_id) ==
-      {:reply, {:text, :subscription_succeeded}, :req, :socket_id}
+    state = %State{socket_id: :socket_id, time: :time}
+
+    assert websocket_handle({:text, :subscribe_json}, :req, state) ==
+      {:reply, {:text, :subscription_succeeded}, :req, state}
 
     assert validate JSEX
     assert validate PusherEvent
@@ -162,8 +177,10 @@ defmodule Poxa.WebsocketHandlerTest do
     expect(PusherEvent, :subscription_succeeded, 1, :subscription_succeeded)
     expect(Console, :subscribed, 2, :ok)
 
-    assert websocket_handle({:text, :subscribe_json}, :req, :socket_id) ==
-      {:reply, {:text, :subscription_succeeded}, :req, :socket_id}
+    state = %State{socket_id: :socket_id, time: :time}
+
+    assert websocket_handle({:text, :subscribe_json}, :req, state) ==
+      {:reply, {:text, :subscription_succeeded}, :req, state}
 
     assert validate JSEX
     assert validate PusherEvent
@@ -303,11 +320,14 @@ defmodule Poxa.WebsocketHandlerTest do
 
   test "websocket termination" do
     expect(Subscription, :channels, 1, :channels)
-    expect(Console, :disconnected, [{[:socket_id, :channels], :ok}])
+    expect(Time, :stamp, 0, 100)
+    expect(Console, :disconnected, [{[:socket_id, :channels, 90], :ok}])
     expect(PresenceSubscription, :check_and_remove, 0, :ok)
     expect(:gproc, :goodbye, 0, :ok)
 
-    assert websocket_terminate(:reason, :req, :socket_id) == :ok
+    state = %State{socket_id: :socket_id, time: 10}
+
+    assert websocket_terminate(:reason, :req, state) == :ok
 
     assert validate Subscription
     assert validate Console

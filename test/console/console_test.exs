@@ -27,7 +27,7 @@ defmodule Poxa.ConsoleTest do
     expect(JSEX, :encode!, 1, :encoded_json)
     expect(:gproc, :send, 2, :ok)
 
-    assert disconnected(:socket_id, ["channel"]) == :ok
+    assert disconnected(:socket_id, ["channel"], 120) == :ok
 
     assert validate JSEX
     assert validate :gproc
