@@ -1,4 +1,3 @@
-Code.append_path "_build/#{Mix.env}/lib/relex/ebin/"
 defmodule Poxa.Mixfile do
   use Mix.Project
 
@@ -8,8 +7,6 @@ defmodule Poxa.Mixfile do
       name: "Poxa",
       elixir: "~> 0.13.1",
       deps: deps,
-      dialyzer: [ plt_apps: ["erts","kernel", "stdlib", "crypto", "public_key", "mnesia"],
-                  flags: ["-Wunmatched_returns","-Werror_handling","-Wrace_conditions"]],
       elixirc_options: options(Mix.env)]
   end
 
@@ -18,6 +15,7 @@ defmodule Poxa.Mixfile do
                       :crypto,
                       :gproc,
                       :cowboy,
+                      :signaturex,
                       :jsex,
                       :uuid ],
       mod: { Poxa, [] },
@@ -37,7 +35,7 @@ defmodule Poxa.Mixfile do
       {:uuid, github: "avtobiff/erlang-uuid", tag: "v0.4.5" },
       {:meck, github: "eproxus/meck", tag: "0.8.2", only: :test},
       {:pusher_client, github: "edgurgel/pusher_client", only: :test},
-      {:relex, github: "yrashk/relex", only: :prod} ]
+      {:exrm, "0.6.4", only: :prod} ]
   end
 
   defp options(:dev) do
@@ -49,18 +47,5 @@ defmodule Poxa.Mixfile do
   end
 
   defp options(_) do
-  end
-
-  if Code.ensure_loaded?(Relex.Release) do
-    defmodule Release do
-      use Relex.Release
-
-      def include_erts?, do: false
-      def include_elixir?, do: true
-      def name, do: "poxa"
-      def version, do: Mix.project[:version]
-      def applications, do: [ Mix.project[:app] ]
-      def lib_dirs, do: ["deps"]
-    end
   end
 end
