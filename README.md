@@ -114,13 +114,13 @@ If you just want to run a release, follow these instructions:
 First download dependencies and generate the release (or download it [here](https://github.com/edgurgel/poxa/releases))
 
 ```console
-MIX_ENV=prod mix do deps.get, relex.assemble
+MIX_ENV=prod mix do deps.get, release
 ```
 
-Then you can run it using your own Erlang binaries:
+Then you can run it using:
 
 ```console
-erl -env ERL_LIBS ./poxa/lib -boot ./poxa/releases/0.0.X/poxa
+./rel/poxa/bin/poxa console
 ```
 
 ## Your application
