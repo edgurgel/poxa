@@ -57,7 +57,7 @@ defmodule Poxa do
           ssl_port = Keyword.get(ssl_config, :port)
           Lager.info "Starting Poxa using SSL on port #{ssl_port}"
         else
-          Lager.error "Please specify port, certfile and keyfile"
+          Lager.error "Must specify port, certfile and keyfile (cacertfile optional)"
         end
       :undefined -> Lager.info "SSL not configured/started"
     end
