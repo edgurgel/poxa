@@ -1,7 +1,7 @@
 %{"cowboy": {:git, "git://github.com/extend/cowboy.git", "db52494371ea249f38d51108c7d79cf487ff6374", [tag: "0.9.0"]},
   "cowlib": {:git, "git://github.com/extend/cowlib.git", "63298e8e160031a70efff86a1acde7e7db1fcda6", [ref: "0.4.0"]},
   "erlsha2": {:git, "git://github.com/vinoski/erlsha2.git", "c8cc57b1e2a5e92208a51c03aa1bae7eeb9b9338", []},
-  "exlager": {:git, "git://github.com/khia/exlager.git", "d3d73b2a3d0f7b8f3da11a02b5f9384da6c62110", []},
+  "exlager": {:git, "git://github.com/khia/exlager.git", "99eb3fb763ae546edfe2ac3dd181987a4872dfcc", []},
   "exrm": {:package, "0.6.4"},
   "goldrush": {:git, "git://github.com/DeadZen/goldrush.git", "71e63212f12c25827e0c1b4198d37d5d018a7fec", [tag: "0.1.6"]},
   "gproc": {:git, "git://github.com/uwiger/gproc.git", "6e6cd7fab087edfaf7eb8a92a84d3c91cffe797c", [ref: "6e6cd7fab087edfaf7eb8a92a84d3c91cffe797c"]},
