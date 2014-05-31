@@ -50,14 +50,14 @@ defmodule Poxa do
   defp run_ssl(dispatch) do
     case :application.get_env(:poxa, :ssl) do
       {:ok, ssl_config} ->
-        if Enum.all?([:port, :cacertfile, :certfile, :keyfile], &Keyword.has_key?(ssl_config, &1)) do
+        if Enum.all?([:port, :certfile, :keyfile], &Keyword.has_key?(ssl_config, &1)) do
           {:ok, _} = :cowboy.start_https(:https, 100,
                                          ssl_config,
                                          [env: [dispatch: dispatch] ])
           ssl_port = Keyword.get(ssl_config, :port)
           Lager.info "Starting Poxa using SSL on port #{ssl_port}"
         else
-          Lager.error "Please specify port, cacertfile, certfile and keyfile"
+          Lager.error "Must specify port, certfile and keyfile (cacertfile optional)"
         end
       :undefined -> Lager.info "SSL not configured/started"
     end
