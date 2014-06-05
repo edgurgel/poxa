@@ -95,7 +95,7 @@ defmodule Poxa.WebsocketHandler do
     end
     {:ok, req, state}
   end
-  defp handle_pusher_event(_, data, req, state) do
+  defp handle_pusher_event(_, _, req, state) do
     Lager.error "Undefined event"
     {:ok, req, state}
   end
