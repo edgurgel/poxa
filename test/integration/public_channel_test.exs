@@ -4,9 +4,8 @@ defmodule Poxa.Integration.PublicChannelTest do
   @moduletag :integration
 
   setup_all do
-    {:ok, pid} = PusherClient.connect!('ws://localhost:8080/app/app_key')
-    info = PusherClient.client_info(pid)
-    {:ok, [gen_event_pid: info.gen_event_pid, pid: pid]}
+    {:ok, pid} = PusherClient.start_link('ws://localhost:8080/app/app_key')
+    {:ok, [pid: pid]}
   end
 
   teardown_all context do
@@ -15,7 +14,8 @@ defmodule Poxa.Integration.PublicChannelTest do
   end
 
   defmodule EchoHandler do
-    use GenEvent.Behaviour
+    use GenEvent
+
     def init(pid), do: { :ok, pid }
     def handle_event(event, pid) do
       send pid, event
@@ -24,12 +24,11 @@ defmodule Poxa.Integration.PublicChannelTest do
   end
 
   test "subscribe on a public channel", context do
-    gen_event_pid = context[:gen_event_pid]
     pid = context[:pid]
 
-    :gen_event.add_handler(gen_event_pid, EchoHandler, self)
+    PusherClient.add_handler(pid, EchoHandler)
     PusherClient.subscribe!(pid, "channel")
 
-    assert_receive {"channel", "pusher:subscription_succeeded", %{}}, 1_000
+    assert_receive {"channel", "pusher:subscription_succeeded", %{}}, 5_000
   end
 end
