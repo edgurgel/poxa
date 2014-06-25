@@ -68,16 +68,22 @@ defmodule Poxa.WebsocketHandlerTest do
 
   test "undefined pusher event websocket message" do
     expect(JSEX, :decode!, 1, %{"event" => "pushernil"})
-    assert websocket_handle({:text, :undefined_event_jon}, :req, :state) ==
+
+    assert websocket_handle({:text, :undefined_event_json}, :req, :state) ==
       {:ok, :req, :state}
+
     assert validate JSEX
   end
 
   test "pusher ping event" do
     expect(JSEX, :decode!, 1, %{"event" => "pusher:ping"})
     expect(PusherEvent, :pong, 0, :pong)
-    assert websocket_handle({:text, :ping_json}, :req, :state) ==
-      {:reply, {:text, :pong}, :req, :state}
+
+    state = %State{socket_id: :socket_id}
+
+    assert websocket_handle({:text, :ping_json}, :req, state) ==
+      {:reply, {:text, :pong}, :req, state}
+
     assert validate JSEX
     assert validate PusherEvent
   end
@@ -89,7 +95,7 @@ defmodule Poxa.WebsocketHandlerTest do
     expect(PusherEvent, :subscription_succeeded, 1, :subscription_succeeded)
     expect(Console, :subscribed, 2, :ok)
 
-    state = %State{socket_id: :socket_id, time: :time}
+    state = %State{socket_id: :socket_id}
 
     assert websocket_handle({:text, :subscribe_json}, :req, state) ==
       {:reply, {:text, :subscription_succeeded}, :req, state}
@@ -107,7 +113,7 @@ defmodule Poxa.WebsocketHandlerTest do
     expect(Subscription, :subscribe!, 2, :error)
     expect(PusherEvent, :subscription_error, 0, :subscription_error)
 
-    state = %State{socket_id: :socket_id, time: :time}
+    state = %State{socket_id: :socket_id}
 
     assert websocket_handle({:text, :subscription_json}, :req, state) ==
       {:reply, {:text, :subscription_error}, :req, state}
@@ -125,7 +131,7 @@ defmodule Poxa.WebsocketHandlerTest do
     expect(PusherEvent, :presence_subscription_succeeded, 2, :subscription_succeeded)
     expect(Console, :subscribed, 2, :ok)
 
-    state = %State{socket_id: :socket_id, time: :time}
+    state = %State{socket_id: :socket_id}
 
     assert websocket_handle({:text, :subscribe_json}, :req, state) ==
       {:reply, {:text, :subscription_succeeded}, :req, state}
@@ -143,7 +149,7 @@ defmodule Poxa.WebsocketHandlerTest do
     expect(Subscription, :subscribe!, 2, :error)
     expect(PusherEvent, :subscription_error, 0, :subscription_error)
 
-    state = %State{socket_id: :socket_id, time: :time}
+    state = %State{socket_id: :socket_id}
 
     assert websocket_handle({:text, :subscription_json}, :req, state) ==
       {:reply, {:text, :subscription_error}, :req, state}
@@ -160,7 +166,7 @@ defmodule Poxa.WebsocketHandlerTest do
     expect(PusherEvent, :subscription_succeeded, 1, :subscription_succeeded)
     expect(Console, :subscribed, 2, :ok)
 
-    state = %State{socket_id: :socket_id, time: :time}
+    state = %State{socket_id: :socket_id}
 
     assert websocket_handle({:text, :subscribe_json}, :req, state) ==
       {:reply, {:text, :subscription_succeeded}, :req, state}
@@ -177,7 +183,7 @@ defmodule Poxa.WebsocketHandlerTest do
     expect(PusherEvent, :subscription_succeeded, 1, :subscription_succeeded)
     expect(Console, :subscribed, 2, :ok)
 
-    state = %State{socket_id: :socket_id, time: :time}
+    state = %State{socket_id: :socket_id}
 
     assert websocket_handle({:text, :subscribe_json}, :req, state) ==
       {:reply, {:text, :subscription_succeeded}, :req, state}
@@ -189,12 +195,14 @@ defmodule Poxa.WebsocketHandlerTest do
   end
 
   test "unsubscribe event" do
-    expect(JSEX, :decode!, 1, %{"event" => "pusher:unsubscribe"})
-    expect(Subscription, :unsubscribe!, 1, {:ok, :channel})
+    expect(JSEX, :decode!, 1, %{"event" => "pusher:unsubscribe", "data" => :data})
+    expect(Subscription, :unsubscribe!, [{[:data], {:ok, :channel}}])
     expect(Console, :unsubscribed, 2, :ok)
 
-    assert websocket_handle({:text, :unsubscribe_json}, :req, :socket_id) ==
-      {:ok, :req, :socket_id}
+    state = %State{socket_id: :socket_id}
+
+    assert websocket_handle({:text, :unsubscribe_json}, :req, state) ==
+      {:ok, :req, state}
 
     assert validate JSEX
     assert validate Subscription
@@ -202,14 +210,17 @@ defmodule Poxa.WebsocketHandlerTest do
   end
 
   test "client event on presence channel" do
-    expect(JSEX, :decode!, 1, %{"event" => "client-event"})
-    expect(PusherEvent, :parse_channels, 1, {:message, ["presence-channel", "public-channel"], nil})
+    decoded_json = %{"event" => "client-event"}
+    expect(JSEX, :decode!, [{[:client_event_json], decoded_json}])
+    expect(PusherEvent, :parse_channels, [{[decoded_json], {:message, ["presence-channel", "public-channel"], nil}}])
     expect(PusherEvent, :send_message_to_channel, 3, :ok)
     expect(Subscription, :subscribed?, 1, true)
     expect(Console, :client_event_message, [{[:socket_id, ["presence-channel"], :message], :ok}])
 
-    assert websocket_handle({:text, :client_event_json}, :req, :socket_id) ==
-      {:ok, :req, :socket_id}
+    state = %State{socket_id: :socket_id}
+
+    assert websocket_handle({:text, :client_event_json}, :req, state) ==
+      {:ok, :req, state}
 
     assert validate JSEX
     assert validate PusherEvent
@@ -218,14 +229,17 @@ defmodule Poxa.WebsocketHandlerTest do
   end
 
   test "client event on private channel" do
-    expect(JSEX, :decode!, 1, %{"event" => "client-event"})
-    expect(PusherEvent, :parse_channels, 1, {:message, ["private-channel"], nil})
+    decoded_json = %{"event" => "client-event"}
+    expect(JSEX, :decode!, [{[:client_event_json], decoded_json}])
+    expect(PusherEvent, :parse_channels, [{[decoded_json], {:message, ["private-channel"], nil}}])
     expect(PusherEvent, :send_message_to_channel, 3, :ok)
     expect(Subscription, :subscribed?, 1, true)
     expect(Console, :client_event_message, [{[:socket_id, ["private-channel"], :message], :ok}])
 
-    assert websocket_handle({:text, :client_event_json}, :req, :socket_id) ==
-      {:ok, :req, :socket_id}
+    state = %State{socket_id: :socket_id}
+
+    assert websocket_handle({:text, :client_event_json}, :req, state) ==
+      {:ok, :req, state}
 
     assert validate JSEX
     assert validate PusherEvent
@@ -241,8 +255,10 @@ defmodule Poxa.WebsocketHandlerTest do
                                         {["private-not-subscribed"], false}])
     expect(Console, :client_event_message, [{[:socket_id, ["private-subscribed-channel"], :message], :ok}])
 
-    assert websocket_handle({:text, :client_event_json}, :req, :socket_id) ==
-      {:ok, :req, :socket_id}
+    state = %State{socket_id: :socket_id}
+
+    assert websocket_handle({:text, :client_event_json}, :req, state) ==
+      {:ok, :req, state}
 
     assert validate JSEX
     assert validate PusherEvent
@@ -254,8 +270,10 @@ defmodule Poxa.WebsocketHandlerTest do
     expect(JSEX, :decode!, 1, %{"event" => "client-event"})
     expect(PusherEvent, :parse_channels, 1, {:message, ["public-channel"], nil})
 
-    assert websocket_handle({:text, :client_event_json}, :req, :socket_id) ==
-      {:ok, :req, :socket_id}
+    state = %State{socket_id: :socket_id}
+
+    assert websocket_handle({:text, :client_event_json}, :req, state) ==
+      {:ok, :req, state}
 
     assert validate JSEX
     assert validate PusherEvent
