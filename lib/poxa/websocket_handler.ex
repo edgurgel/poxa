@@ -45,7 +45,7 @@ defmodule Poxa.WebsocketHandler do
 
   defp supported_protocol?(protocol) do
     try do
-      protocol = binary_to_integer(protocol)
+      protocol = String.to_integer(protocol)
       if protocol>= @min_protocol && protocol <= @max_protocol, do: true,
       else: false
     rescue
@@ -136,7 +136,7 @@ defmodule Poxa.WebsocketHandler do
   defp generate_uuid do
     :uuid.uuid1
     |> :uuid.to_string
-    |> String.from_char_data!
+    |> List.to_string
   end
 
   def websocket_terminate(_reason, _req, nil), do: :ok

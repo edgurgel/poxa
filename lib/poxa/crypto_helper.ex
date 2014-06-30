@@ -7,7 +7,7 @@ defmodule Poxa.CryptoHelper do
     :crypto.hmac(:sha256, app_secret, to_sign)
     |> hexlify
     |> :string.to_lower
-    |> String.from_char_data!
+    |> List.to_string
   end
 
   @doc """
@@ -19,7 +19,7 @@ defmodule Poxa.CryptoHelper do
     |> md5
     |> hexlify
     |> :string.to_lower
-    |> String.from_char_data!
+    |> List.to_string
   end
 
   defp md5(data), do: :crypto.hash(:md5, data)

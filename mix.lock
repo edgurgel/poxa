@@ -11,7 +11,7 @@
   "lager": {:git, "https://github.com/basho/lager.git", "4d8291edb72a25ac0efde907e2ecaa115108ff90", []},
   "meck": {:git, "git://github.com/eproxus/meck.git", "dde759050eff19a1a80fd854d7375174b191665d", [tag: "0.8.2"]},
   "mimetypes": {:git, "git://github.com/spawngrid/mimetypes.git", "47d37a977a7d633199822bf6b08353007483d00f", [ref: "master"]},
-  "pusher_client": {:git, "git://github.com/edgurgel/pusher_client.git", "748a2f0795851a11b363f7c303008c01152e6a68", []},
+  "pusher_client": {:git, "git://github.com/edgurgel/pusher_client.git", "dc35fb0bf45d7a26b3ce177e0e0db985e5f9e9ab", []},
   "ranch": {:git, "git://github.com/extend/ranch.git", "5df1f222f94e08abdcab7084f5e13027143cc222", [ref: "0.9.0"]},
   "signaturex": {:package, "0.0.4"},
   "uuid": {:git, "git://github.com/avtobiff/erlang-uuid.git", "2056ad3717fedccf3634757401f77272bccb4554", [tag: "v0.4.5"]},

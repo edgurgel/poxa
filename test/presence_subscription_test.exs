@@ -9,12 +9,8 @@ defmodule Poxa.PresenceSubscriptionTest do
     new PusherEvent
     new Subscription
     new :gproc
-  end
-
-  teardown do
-    unload PusherEvent
-    unload Subscription
-    unload :gproc
+    on_exit fn -> unload end
+    :ok
   end
 
   test "subscribe to a presence channel" do

@@ -7,11 +7,8 @@ defmodule Poxa.AuthorizarionHelperTest do
   setup do
     new Authentication
     new :cowboy_req
-  end
-
-  teardown do
-    unload Authentication
-    unload :cowboy_req
+    on_exit fn -> unload end
+    :ok
   end
 
   test "is_authorized returns true if Authentication is ok" do

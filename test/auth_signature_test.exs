@@ -5,13 +5,10 @@ defmodule Poxa.AuthSignatureTest do
   import Poxa.AuthSignature
 
   setup do
-    new(Authentication)
-    new(:application, [:unstick])
-  end
-
-  teardown do
-    unload(Authentication)
-    unload(:application)
+    new Authentication
+    new :application, [:unstick]
+    on_exit fn -> unload end
+    :ok
   end
 
   test "a valid signature" do

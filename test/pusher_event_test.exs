@@ -5,10 +5,8 @@ defmodule Poxa.PusherEventTest do
 
   setup do
     new :gproc
-  end
-
-  teardown do
-    unload :gproc
+    on_exit fn -> unload end
+    :ok
   end
 
   doctest Poxa.PusherEvent

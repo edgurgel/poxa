@@ -6,11 +6,8 @@ defmodule Poxa.ConsoleTest do
   setup do
     new :gproc
     new JSEX
-  end
-
-  teardown do
-    unload :gproc
-    unload JSEX
+    on_exit fn -> unload end
+    :ok
   end
 
   test "connected" do

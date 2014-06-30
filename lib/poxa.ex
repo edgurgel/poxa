@@ -3,7 +3,7 @@ defmodule Poxa do
   This application is a server that understands the Pusher Protocol
   More info at: http://pusher.com/docs/pusher_protocol
   """
-  use Application.Behaviour
+  use Application
   require Lager
 
   def start(_type, _args) do

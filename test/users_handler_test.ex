@@ -8,12 +8,8 @@ defmodule Poxa.UsersHandlerTest do
     new JSEX
     new PresenceSubscription
     new :cowboy_req
-  end
-
-  teardown do
-    unload JSEX
-    unload PresenceSubscription
-    unload :cowboy_req
+    on_exit fn -> unload end
+    :ok
   end
 
   test "malformed_request returns false and the channel if we have a presence channel" do

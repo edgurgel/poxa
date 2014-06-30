@@ -9,12 +9,8 @@ defmodule Poxa.SubscriptionTest do
     new PresenceSubscription
     new AuthSignature
     new :gproc
-  end
-
-  teardown do
-    unload PresenceSubscription
-    unload AuthSignature
-    unload :gproc
+    on_exit fn -> unload end
+    :ok
   end
 
   test "channel is subscribed returning true" do

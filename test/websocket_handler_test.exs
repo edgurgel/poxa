@@ -22,20 +22,8 @@ defmodule Poxa.WebsocketHandlerTest do
     new :gproc
     new :uuid
     new :cowboy_req
-  end
-
-  teardown do
-    unload PusherEvent
-    unload Authentication
-    unload Subscription
-    unload PresenceSubscription
-    unload Console
-    unload Time
-    unload :application
-    unload JSEX
-    unload :gproc
-    unload :uuid
-    unload :cowboy_req
+    on_exit fn -> unload end
+    :ok
   end
 
   test "normal process message" do

@@ -12,14 +12,8 @@ defmodule Poxa.EventHandlerTest do
     new JSEX
     new Console
     new :cowboy_req
-  end
-
-  teardown do
-    unload PusherEvent
-    unload Authentication
-    unload JSEX
-    unload Console
-    unload :cowboy_req
+    on_exit fn -> unload end
+    :ok
   end
 
   test "init with a valid json" do

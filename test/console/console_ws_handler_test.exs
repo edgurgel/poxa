@@ -8,12 +8,8 @@ defmodule Poxa.Console.WSHandlerTest do
     new Authentication
     new :cowboy_req
     new :gproc
-  end
-
-  teardown do
-    unload Authentication
-    unload :cowboy_req
-    unload :gproc
+    on_exit fn -> unload end
+    :ok
   end
 
   test "websocket_init with correct signature" do

@@ -10,13 +10,8 @@ defmodule Poxa.ChannelsHandlerTest do
     new PresenceSubscription
     new Subscription
     new :cowboy_req
-  end
-
-  teardown do
-    unload JSEX
-    unload PresenceSubscription
-    unload Subscription
-    unload :cowboy_req
+    on_exit fn -> unload end
+    :ok
   end
 
   test "malformed_request on multiple channels" do

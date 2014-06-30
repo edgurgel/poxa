@@ -5,12 +5,10 @@ defmodule Poxa.Integration.PublicChannelTest do
 
   setup_all do
     {:ok, pid} = PusherClient.start_link('ws://localhost:8080/app/app_key')
+    on_exit fn ->
+      PusherClient.disconnect! pid
+    end
     {:ok, [pid: pid]}
-  end
-
-  teardown_all context do
-    PusherClient.disconnect!(context[:pid])
-    :ok
   end
 
   defmodule EchoHandler do

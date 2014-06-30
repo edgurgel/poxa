@@ -5,10 +5,8 @@ defmodule Poxa.AuthenticationTest do
 
   setup do
     new :application, [:unstick]
-  end
-
-  teardown do
-    unload :application
+    on_exit fn -> unload end
+    :ok
   end
 
   test "a valid auth_key" do
