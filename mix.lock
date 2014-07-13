@@ -13,6 +13,6 @@
   "mimetypes": {:git, "git://github.com/spawngrid/mimetypes.git", "47d37a977a7d633199822bf6b08353007483d00f", [ref: "master"]},
   "pusher_client": {:git, "git://github.com/edgurgel/pusher_client.git", "dc35fb0bf45d7a26b3ce177e0e0db985e5f9e9ab", []},
   "ranch": {:git, "git://github.com/extend/ranch.git", "5df1f222f94e08abdcab7084f5e13027143cc222", [ref: "0.9.0"]},
-  "signaturex": {:package, "0.0.4"},
+  "signaturex": {:package, "0.0.6"},
   "uuid": {:git, "git://github.com/avtobiff/erlang-uuid.git", "2056ad3717fedccf3634757401f77272bccb4554", [tag: "v0.4.5"]},
   "websocket_client": {:git, "git://github.com/jeremyong/websocket_client.git", "e2a9ea6017576e0316e90cc36ffad315a4888f67", []}}
