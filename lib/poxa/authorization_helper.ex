@@ -1,7 +1,7 @@
 defmodule Poxa.AuthorizationHelper do
   alias Poxa.Authentication
 
-  @spec is_authorized(:cowboy.req, any) :: {true, :cowboy.req, any} | {{false, binary}, :cowboy.req, nil}
+  @spec is_authorized(:cowboy_req.req, any) :: {true, :cowboy_req.req, any} | {{false, binary}, :cowboy_req.req, nil}
   def is_authorized(req, state) do
     {:ok, body, req} = :cowboy_req.body(req)
     {method, req} = :cowboy_req.method(req)

@@ -5,6 +5,8 @@ defmodule Poxa.PusherEvent do
   Take a look at http://pusher.com/docs/pusher_protocol#events for more info
   """
 
+  alias Poxa.PresenceSubscription
+
   def valid?(event) do
     Enum.all?(["name", "data"], &Dict.has_key?(event, &1))
   end
@@ -152,7 +154,7 @@ defmodule Poxa.PusherEvent do
       {%{"socket_id" => "to_exclude123"},["a-channel"],"to_exclude123"}
 
   """
-  @spec parse_channels(Map.t) :: {:jsx.json_term,
+  @spec parse_channels(map) :: {:jsx.json_term,
                                   [binary] | :undefined,
                                   :undefined | binary}
   def parse_channels(message) do

@@ -12,8 +12,9 @@ defmodule Poxa.Subscription do
   Returns :ok to public and private channels and
   {:presence, channel, channel_data} to presence channel
   """
-  @spec subscribe!(:jsx.json_term, binary) :: :ok | {:presence, binary, {PresenceSubscription.user_id,
-                                                                          :jsx.json_term}} | :error
+  @spec subscribe!(:jsx.json_term, binary) :: {:ok, binary}
+    | {:presence, binary, {PresenceSubscription.user_id, :jsx.json_term}}
+    | :error
   def subscribe!(data, socket_id) do
     channel = data["channel"]
     case channel do

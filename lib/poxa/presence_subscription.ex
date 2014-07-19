@@ -10,6 +10,7 @@ defmodule Poxa.PresenceSubscription do
   More info at: http://pusher.com/docs/client_api_guide/client_presence_channels
   """
   @type user_id :: integer | binary # Maybe a json_term too?
+  @type user_info :: :jsx.json_term # Not sure
 
   alias Poxa.PusherEvent
   alias Poxa.Subscription
