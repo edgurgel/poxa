@@ -5,7 +5,7 @@ defmodule Poxa.Mixfile do
     [ app: :poxa,
       version: "0.2.0",
       name: "Poxa",
-      elixir: "~> 0.14.1",
+      elixir: "~> 0.14.2",
       deps: deps ]
   end
 

@@ -1,11 +1,11 @@
 [![Build Status](https://travis-ci.org/edgurgel/poxa.png?branch=master)](https://travis-ci.org/edgurgel/poxa)
 [![Release](http://img.shields.io/github/release/edgurgel/poxa.svg)](https://github.com/edgurgel/poxa/releases/latest)
 
-# Poxa 
+# Poxa
 
 Open Pusher implementation compatible with Pusher libraries. It's designed to be used as a single registered app with id, secret and key defined on start.
 
-How do I speak 'poxa'? 
+How do I speak 'poxa'?
 
 ['poʃa] - Phonetic notation
 
@@ -54,7 +54,7 @@ How do I speak 'poxa'?
 
 Poxa is a standalone elixir server implementation of the Pusher protocol.
 
-You need [Elixir](http://elixir-lang.org) 0.14.1 at least and Erlang 17.0
+You need [Elixir](http://elixir-lang.org) 0.14.2 at least and Erlang 17.0
 
 Clone this repository
 
