@@ -4,6 +4,7 @@ notifications:
     - eduardo@gurgel.me
 otp_release:
   - 17.0
+  - 17.1
 env:
   - ELIXIR="v0.14.2"
   - ELIXIR="v0.14.3"
