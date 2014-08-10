@@ -3,9 +3,9 @@ defmodule Poxa.Mixfile do
 
   def project do
     [ app: :poxa,
-      version: "0.2.0",
+      version: "0.3.0",
       name: "Poxa",
-      elixir: "~> 0.14.2",
+      elixir: "~> 0.14.2 or ~> 0.15.0",
       deps: deps ]
   end
 
