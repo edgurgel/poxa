@@ -5,7 +5,6 @@ defmodule Poxa.ChannelsHandler do
   More info on Pusher REST API at: http://pusher.com/docs/rest_api#channels
   """
 
-  require Lager
   alias Poxa.AuthorizationHelper
   alias Poxa.PresenceSubscription
   alias Poxa.Subscription

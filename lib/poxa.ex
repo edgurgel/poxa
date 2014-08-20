@@ -4,7 +4,7 @@ defmodule Poxa do
   More info at: http://pusher.com/docs/pusher_protocol
   """
   use Application
-  require Lager
+  require Logger
 
   def start(_type, _args) do
     dispatch = :cowboy_router.compile([
@@ -19,15 +19,14 @@ defmodule Poxa do
     ])
     case load_config do
       {:ok, config} ->
-        Lager.info 'Starting Poxa using app_key: ~p, app_id: ~p, app_secret: ~p on port ~p', config
-        port = List.last(config)
+        Logger.info "Starting Poxa using app_key: #{config.app_key}, app_id: #{config.app_id}, app_secret: #{config.app_secret} on port #{config.port}"
         {:ok, _} = :cowboy.start_http(:http, 100,
-                                      [port: port],
+                                      [port: config.port],
                                       [env: [dispatch: dispatch]])
         run_ssl(dispatch)
         Poxa.Supervisor.start_link
       :invalid_configuration ->
-        Lager.error "Error on start, set app_key, app_id and app_secret"
+        Logger.error "Error on start, set app_key, app_id and app_secret"
         exit(:invalid_configuration)
     end
 
@@ -41,7 +40,8 @@ defmodule Poxa do
       {:ok, app_id} = :application.get_env(:poxa, :app_id)
       {:ok, app_secret} = :application.get_env(:poxa, :app_secret)
       {:ok, port} = :application.get_env(:poxa, :port)
-      {:ok, [app_key, app_id, app_secret, port]}
+      {:ok, %{app_key: app_key, app_id: app_id,
+              app_secret: app_secret, port: port}}
     rescue
       MatchError -> :invalid_configuration
     end
@@ -55,12 +55,11 @@ defmodule Poxa do
                                          ssl_config,
                                          [env: [dispatch: dispatch] ])
           ssl_port = Keyword.get(ssl_config, :port)
-          Lager.info "Starting Poxa using SSL on port #{ssl_port}"
+          Logger.info "Starting Poxa using SSL on port #{ssl_port}"
         else
-          Lager.error "Must specify port, certfile and keyfile (cacertfile optional)"
+          Logger.error "Must specify port, certfile and keyfile (cacertfile optional)"
         end
-      :undefined -> Lager.info "SSL not configured/started"
+      :undefined -> Logger.info "SSL not configured/started"
     end
   end
-
 end

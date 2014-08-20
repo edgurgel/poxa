@@ -1,6 +1,6 @@
 defmodule Poxa.Console.WSHandler do
   @behaviour :cowboy_websocket_handler
-  require Lager
+  require Logger
   alias Poxa.Authentication
 
   def init(_transport, _req, _opts), do: {:upgrade, :protocol, :cowboy_websocket}
@@ -14,7 +14,7 @@ defmodule Poxa.Console.WSHandler do
       :gproc.reg({:p, :l, :console})
       {:ok, req, nil}
     else
-      Lager.error "Failed to authenticate on Console Websocket"
+      Logger.error "Failed to authenticate on Console Websocket"
       {:shutdown, req}
     end
   end

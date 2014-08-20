@@ -7,7 +7,7 @@ defmodule Poxa.WebsocketHandler do
 
   More info on Pusher protocol at: http://pusher.com/docs/pusher_protocol
   """
-  require Lager
+  require Logger
   alias Poxa.PusherEvent
   alias Poxa.Console
   alias Poxa.PresenceSubscription
@@ -32,12 +32,12 @@ defmodule Poxa.WebsocketHandler do
           send self, :start
           {:ok, req, nil}
         else
-          Lager.error "Protocol #{protocol} not supported"
+          Logger.error "Protocol #{protocol} not supported"
           send self, :start_error
           {:ok, req, {4007, "Unsupported protocol version"}}
         end
       {:ok, expected_app_key} ->
-        Lager.error "Invalid app_key, expected #{expected_app_key}, found #{app_key}"
+        Logger.error "Invalid app_key, expected #{expected_app_key}, found #{app_key}"
           send self, :start_error
           {:ok, req, {4001, "Application does not exist"}}
     end
@@ -96,7 +96,7 @@ defmodule Poxa.WebsocketHandler do
     {:ok, req, state}
   end
   defp handle_pusher_event(_, _, req, state) do
-    Lager.error "Undefined event"
+    Logger.error "Undefined event"
     {:ok, req, state}
   end
 

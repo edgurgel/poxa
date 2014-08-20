@@ -5,7 +5,6 @@ defmodule Poxa.UsersHandler do
   More info on Pusher REST API at: http://pusher.com/docs/rest_api
   """
 
-  require Lager
   alias Poxa.AuthorizationHelper
   alias Poxa.PresenceSubscription
 

@@ -1,5 +1,5 @@
 defmodule Poxa.AuthSignature do
-  require Lager
+  require Logger
   alias Poxa.CryptoHelper
 
   @doc """
@@ -17,7 +17,7 @@ defmodule Poxa.AuthSignature do
             if signed_data == remote_signed_data do
               :ok
             else
-              Lager.info "Authentication failed"
+              Logger.info "Authentication failed"
               :error
             end
           { :error, _reason } -> :error

@@ -9,7 +9,7 @@ defmodule Poxa.EventHandler do
   alias Poxa.Authentication
   alias Poxa.PusherEvent
   alias Poxa.Console
-  require Lager
+  require Logger
 
   @error_json JSEX.encode!(%{error: "invalid json"})
   @doc """
@@ -21,7 +21,7 @@ defmodule Poxa.EventHandler do
     if JSEX.is_json?(body) do
       {:ok, req, body}
     else
-      Lager.info "Invalid JSON on Event Handler: #{body}"
+      Logger.info "Invalid JSON on Event Handler: #{body}"
       {:ok, req} = :cowboy_req.reply(400, [], @error_json, req)
       {:shutdown, req, nil}
     end
@@ -49,12 +49,12 @@ defmodule Poxa.EventHandler do
           {:ok, req} = :cowboy_req.reply(200, [], "{}", req)
           {:ok, req, nil}
         else
-          Lager.info "No channel defined"
+          Logger.info "No channel defined"
           {:ok, req} = :cowboy_req.reply(400, [], @invalid_event_json, req)
           {:ok, req, nil}
         end
       _ ->
-        Lager.info "Authentication failed"
+        Logger.info "Authentication failed"
         {:ok, req} = :cowboy_req.reply(401, [], @authentication_error_json, req)
         {:ok, req, nil}
     end

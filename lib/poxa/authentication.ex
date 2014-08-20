@@ -1,5 +1,5 @@
 defmodule Poxa.Authentication do
-  require Lager
+  require Logger
   alias Poxa.CryptoHelper
 
   @type error_reason :: {:error, binary}
@@ -22,7 +22,7 @@ defmodule Poxa.Authentication do
       :ok
     rescue
       error in [MatchError, Signaturex.AuthenticationError] ->
-        Lager.info "Error during authentication #{error.message}"
+        Logger.info "Error during authentication #{error.message}"
         {:badauth, "Error during authentication"}
     end
   end
