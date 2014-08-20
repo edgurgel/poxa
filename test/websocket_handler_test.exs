@@ -10,6 +10,12 @@ defmodule Poxa.WebsocketHandlerTest do
   import Poxa.WebsocketHandler
   alias Poxa.WebsocketHandler.State
 
+  setup_all do
+    :application.set_env(:poxa, :app_secret, "secret")
+    :application.set_env(:poxa, :app_key, "app_key")
+    :ok
+  end
+
   setup do
     new PusherEvent
     new Authentication
@@ -17,7 +23,6 @@ defmodule Poxa.WebsocketHandlerTest do
     new PresenceSubscription
     new Console
     new Time
-    new :application, [:unstick]
     new JSEX
     new :gproc
     new :uuid
@@ -77,7 +82,6 @@ defmodule Poxa.WebsocketHandlerTest do
   end
 
   test "subscribe private channel event" do
-    expect(:application, :get_env, 2, "secret")
     expect(JSEX, :decode!, 1, %{"event" => "pusher:subscribe"})
     expect(Subscription, :subscribe!, 2, {:ok, :channel})
     expect(PusherEvent, :subscription_succeeded, 1, :subscription_succeeded)
@@ -89,14 +93,12 @@ defmodule Poxa.WebsocketHandlerTest do
       {:reply, {:text, :subscription_succeeded}, :req, state}
 
     assert validate JSEX
-    assert validate :application
     assert validate PusherEvent
     assert validate Subscription
     assert validate Console
   end
 
   test "subscribe private channel event failing for bad authentication" do
-    expect(:application, :get_env, 2, "secret")
     expect(JSEX, :decode!, 1, %{"event" => "pusher:subscribe"})
     expect(Subscription, :subscribe!, 2, :error)
     expect(PusherEvent, :subscription_error, 0, :subscription_error)
@@ -107,13 +109,11 @@ defmodule Poxa.WebsocketHandlerTest do
       {:reply, {:text, :subscription_error}, :req, state}
 
     assert validate JSEX
-    assert validate :application
     assert validate PusherEvent
     assert validate Subscription
   end
 
   test "subscribe presence channel event" do
-    expect(:application, :get_env, 2, "secret")
     expect(JSEX, :decode!, 1, %{"event" => "pusher:subscribe"})
     expect(Subscription, :subscribe!, 2, {:presence, :channel, :data})
     expect(PusherEvent, :presence_subscription_succeeded, 2, :subscription_succeeded)
@@ -125,14 +125,12 @@ defmodule Poxa.WebsocketHandlerTest do
       {:reply, {:text, :subscription_succeeded}, :req, state}
 
     assert validate JSEX
-    assert validate :application
     assert validate PusherEvent
     assert validate Subscription
     assert validate Console
   end
 
   test "subscribe presence channel event failing for bad authentication" do
-    expect(:application, :get_env, 2, "secret")
     expect(JSEX, :decode!, 1, %{"event" => "pusher:subscribe"})
     expect(Subscription, :subscribe!, 2, :error)
     expect(PusherEvent, :subscription_error, 0, :subscription_error)
@@ -143,7 +141,6 @@ defmodule Poxa.WebsocketHandlerTest do
       {:reply, {:text, :subscription_error}, :req, state}
 
     assert validate JSEX
-    assert validate :application
     assert validate PusherEvent
     assert validate Subscription
   end
@@ -268,59 +265,49 @@ defmodule Poxa.WebsocketHandlerTest do
   end
 
   test "websocket init" do
-    expect(:application, :get_env, 2, {:ok, "app_key"})
     expect(:cowboy_req, :binding, 2, {"app_key", :req})
     expect(:cowboy_req, :qs_val, 3, {"7", :req})
     expect(PusherEvent, :connection_established, 1, :connection_established)
 
     assert websocket_init(:transport, :req, :opts) == {:ok, :req, nil}
 
-    assert validate :application
     assert validate :cowboy_req
     assert validate PusherEvent
   end
 
   test "websocket init using wrong app_key" do
-    expect(:application, :get_env, 2, {:ok, "app_key"})
     expect(:cowboy_req, :binding, 2, {"different_app_key", :req})
     expect(:cowboy_req, :qs_val, 3, {"7", :req})
 
     assert websocket_init(:transport, :req, :opts) == {:ok, :req, {4001, "Application does not exist"}}
 
-    assert validate :application
     assert validate :cowboy_req
   end
 
   test "websocket init using protocol higher than 7" do
-    expect(:application, :get_env, 2, {:ok, "app_key"})
     expect(:cowboy_req, :binding, 2, {"app_key", :req})
     expect(:cowboy_req, :qs_val, 3, {"8", :req})
 
     assert websocket_init(:transport, :req, :opts) == {:ok, :req, {4007, "Unsupported protocol version"}}
 
-    assert validate :application
     assert validate :cowboy_req
   end
 
   test "websocket init using protocol lower than 5" do
-    expect(:application, :get_env, 2, {:ok, "app_key"})
     expect(:cowboy_req, :binding, 2, {"app_key", :req})
     expect(:cowboy_req, :qs_val, 3, {"4", :req})
 
     assert websocket_init(:transport, :req, :opts) == {:ok, :req, {4007, "Unsupported protocol version"}}
 
-    assert validate :application
     assert validate :cowboy_req
   end
 
   test "websocket init using protocol between 5 and 7" do
-    expect(:application, :get_env, 2, {:ok, "app_key"})
     expect(:cowboy_req, :binding, 2, {"app_key", :req})
     expect(:cowboy_req, :qs_val, 3, {"6", :req})
 
     assert websocket_init(:transport, :req, :opts) == {:ok, :req, nil}
 
-    assert validate :application
     assert validate :cowboy_req
   end
 
