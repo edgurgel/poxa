@@ -15,12 +15,7 @@ defmodule Poxa.Mixfile do
                       :gproc,
                       :cowboy ],
       included_applications: [ :jsex, :uuid, :signaturex ],
-      mod: { Poxa, [] },
-      env: [ port: 8080,
-             app_key: "app_key",
-             app_secret: "secret",
-             app_id: "app_id" ]
-                                ]
+      mod: { Poxa, [] } ]
   end
 
   defp deps do
