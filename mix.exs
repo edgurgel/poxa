@@ -24,7 +24,7 @@ defmodule Poxa.Mixfile do
       {:signaturex, "~> 0.0.7"},
       {:gproc, github: "uwiger/gproc", ref: "6e6cd7fab087edfaf7eb8a92a84d3c91cffe797c" },
       {:uuid, github: "avtobiff/erlang-uuid", tag: "v0.4.5" },
-      {:meck, github: "eproxus/meck", tag: "0.8.2", only: :test},
+      {:meck, "~> 0.8.2", only: :test},
       {:pusher_client, github: "edgurgel/pusher_client", only: :test},
       {:exrm, "0.12.11", only: :prod} ]
   end
