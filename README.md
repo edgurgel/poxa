@@ -1,5 +1,6 @@
 [![Build Status](https://travis-ci.org/edgurgel/poxa.png?branch=master)](https://travis-ci.org/edgurgel/poxa)
 [![Release](http://img.shields.io/github/release/edgurgel/poxa.svg)](https://github.com/edgurgel/poxa/releases/latest)
+[![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
 
 # Poxa
 
@@ -152,7 +153,7 @@ var pusher = new Pusher(API_KEY, {
 });
 ```
 
-## Deploying on Heroku [![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
+## Deploying on Heroku
 
 Add the file `Procfile`:
 
