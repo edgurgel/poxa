@@ -238,3 +238,7 @@ Pull requests are greatly appreciated.
 Pusher is an excellent service and you should use it on production.
 
 
+## Acknowledgements
+
+Thanks to [@bastos](https://github.com/bastos) for the project name :heart:!
+
