@@ -71,40 +71,49 @@ The default configuration is:
 * App key: 'app_key'
 * App secret: 'secret'
 
-You can run and configure these values using this command:
+You can run and configure these values using these environment variables:
 
-```console
-elixir --erl "-poxa port 9090 -poxa app_id '<<"12345">>' -poxa app_key '<<"key-12345">>' -poxa app_secret '<<"secret6789">>'" -S mix run --no-halt
+```
+PORT=8080
+POXA_APP_KEY=app_key
+POXA_SECRET=secret
+POXA_APP_ID=app_id
 ```
 
 Or you can setup a configuration file like this:
 
-test.config
+my_config.exs
 
 ```elixir
-[{poxa, [{port, 8080},
-         {app_id, <<"12345">>},
-         {app_key, <<"key-12345">>},
-         {app_secret, <<"secret6789">>}]}].
+use Mix.Config
+
+config :poxa,
+  port: 4567,
+  app_key: "123456789",
+  app_secret: "987654321",
+  app_id: "theid"
 ```
 
 And run:
 
 ```console
-elixir --erl "-config test" -S mix run --no-halt
+mix run --config my_config.exs --no-halt
 ```
 
 And if you want SSL, try something like this on your configuration file:
 
 ```elixir
-[{poxa, [{port, 8080},
-         {app_id, <<"app_id">>},
-         {app_key, <<"app_key">>},
-         {app_secret, <<"secret">>},
-         {ssl, [{port, 8443},
-                {cacertfile, "priv/ssl/server-ca.crt"},
-                {certfile, "priv/ssl/server.crt"},
-                {keyfile, "priv/ssl/server.key"}]}]}].
+use Mix.Config
+
+config :poxa,
+  port: 4567,
+  app_key: "123456789",
+  app_secret: "987654321",
+  app_id: "theid",
+  ssl: [port: 8443,
+        cacertfile: "priv/ssl/server-ca.crt",
+        certfile, "priv/ssl/server.crt",
+        keyfile, "priv/ssl/server.key"]
 ```
 
 ## Release
@@ -148,7 +157,7 @@ var pusher = new Pusher(API_KEY, {
 Add the file `Procfile`:
 
 ```
-web: elixir --erl "-poxa port $PORT" -S mix run --no-halt
+web: elixir -pa _build/prod/consolidated -S mix run --no-halt
 ```
 
 Add the file `elixir_buildpack.config`
@@ -158,7 +167,7 @@ Add the file `elixir_buildpack.config`
 erlang_version=17.0
 
 # Elixir version
-elixir_version=0.13.2
+elixir_version=0.15.1
 
 # Do dependencies have to be built from scratch on every deploy?
 always_build_deps=false
@@ -168,12 +177,6 @@ Configure the buildpack using:
 
 ```console
 heroku config:set BUILDPACK_URL="https://github.com/HashNuke/heroku-buildpack-elixir.git"
-```
-
-And finally enable websocket on Heroku (for now it's on Heroku Labs)
-
-```console
-heroku labs:enable websockets
 ```
 
 And this is it!

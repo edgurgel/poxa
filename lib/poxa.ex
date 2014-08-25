@@ -41,11 +41,14 @@ defmodule Poxa do
       {:ok, app_secret} = :application.get_env(:poxa, :app_secret)
       {:ok, port} = :application.get_env(:poxa, :port)
       {:ok, %{app_key: app_key, app_id: app_id,
-              app_secret: app_secret, port: port}}
+              app_secret: app_secret, port: to_integer(port)}}
     rescue
       MatchError -> :invalid_configuration
     end
   end
+
+  defp to_integer(int) when is_binary(int), do: String.to_integer(int)
+  defp to_integer(int) when is_integer(int), do: int
 
   defp run_ssl(dispatch) do
     case :application.get_env(:poxa, :ssl) do
