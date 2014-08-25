@@ -1,0 +1,15 @@
+{
+  "name": "Poxa",
+  "description": "Open Pusher implementation compatible with Pusher libraries",
+  "keywords": [
+    "pusher",
+    "websocket",
+    "elixir"
+    "real-time"
+  ],
+  "website": "https://github.com/edgurgel/poxa",
+  "repository": "https://github.com/edgurgel/poxa",
+  "env": {
+    "BUILDPACK_URL": "https://github.com/HashNuke/heroku-buildpack-elixir.git"
+  }
+}

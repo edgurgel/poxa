@@ -152,7 +152,7 @@ var pusher = new Pusher(API_KEY, {
 });
 ```
 
-## Deploying on Heroku
+## Deploying on Heroku [![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
 
 Add the file `Procfile`:
 
