@@ -15,4 +15,4 @@ before_install:
   - export PATH="$PATH:$PWD/vendor/elixir/bin"
   - export MIX_ENV=test
   - mix local.hex --force
-script: mix test --exclude integration --no-start
+script: mix test --exclude integration
