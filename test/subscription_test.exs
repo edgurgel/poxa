@@ -5,24 +5,29 @@ defmodule Poxa.SubscriptionTest do
   import :meck
   import Poxa.Subscription
 
+  defp spawn_registered_process(channel) do
+    parent = self
+    spawn_link fn ->
+      register_to_channel(channel)
+      send parent, :registered
+      receive do
+        _ -> :wait
+      end
+    end
+    receive do
+      :registered -> :ok
+    end
+  end
+
+  defp register_to_channel(channel) do
+    :gproc.reg({:p, :l, {:pusher, channel}})
+  end
+
   setup do
     new PresenceSubscription
     new AuthSignature
-    new :gproc
     on_exit fn -> unload end
     :ok
-  end
-
-  test "channel is subscribed returning true" do
-    expect(:gproc, :select, 1, [:something])
-    assert subscribed?("channel")
-    assert validate :gproc
-  end
-
-  test "channel is subscribed returning false" do
-    expect(:gproc, :select, 1, [])
-    refute subscribed?("channel")
-    assert validate :gproc
   end
 
   test "subscription to a public channel" do
@@ -129,19 +134,46 @@ defmodule Poxa.SubscriptionTest do
     assert validate :gproc
   end
 
+  test "channel is subscribed? returning true" do
+    register_to_channel("channel")
+
+    assert subscribed?("channel")
+  end
+
+  test "channel is subscribed returning false" do
+    refute subscribed?("channel")
+  end
+
+  test "subscription_count on channel" do
+    register_to_channel("channel")
+    spawn_registered_process("channel")
+
+    assert subscription_count("channel") == 2
+  end
+
+  test "occupied? returns false for empty channel" do
+    refute occupied?("a channel")
+  end
+
+  test "occupied? returns true for populated channel" do
+    register_to_channel("a channel")
+
+    assert occupied?("a channel")
+  end
+
   test "list all channels" do
-    expect(:gproc, :select, 1, ["channel1", "channel2", "channel3", "channel1"])
+    register_to_channel("channel1")
+    register_to_channel("channel2")
+    spawn_registered_process("channel3")
 
     assert all_channels == ["channel1", "channel2", "channel3"]
-
-    assert validate :gproc
   end
 
   test "list channels of a pid" do
-    expect(:gproc, :select, 1, ["channel1", "channel2", "channel3", "channel1"])
+    register_to_channel("channel1")
+    register_to_channel("channel2")
+    register_to_channel("channel3")
 
     assert channels(self) == ["channel1", "channel2", "channel3"]
-
-    assert validate :gproc
   end
 end

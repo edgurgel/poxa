@@ -84,10 +84,7 @@ defmodule Poxa.Subscription do
   @spec subscribed?(binary) :: boolean
   def subscribed?(channel) do
     match = {{:p, :l, {:pusher, channel}}, self, :_}
-    case :gproc.select([{match, [], [:'$$']}]) do
-      [] -> false;
-      _ -> true
-    end
+    :gproc.select_count([{match, [], [true]}]) != 0
   end
 
   @doc """
@@ -105,7 +102,7 @@ defmodule Poxa.Subscription do
   @spec occupied?(binary) :: boolean
   def occupied?(channel) do
     match = {{:p, :l, {:pusher, channel}}, :_, :_}
-    :gproc.select(:all, [{match, [], [true]}], 1) != :'$end_of_table'
+    :gproc.select_count([{match, [], [true]}]) != 0
   end
 
   @doc """
@@ -114,8 +111,7 @@ defmodule Poxa.Subscription do
   @spec all_channels :: [binary]
   def all_channels do
     match = {{:p, :l, {:pusher, :'$1'}}, :_, :_}
-    :gproc.select([{match, [], [:'$1']}])
-    |> Enum.uniq
+    :gproc.select([{match, [], [:'$1']}]) |> Enum.uniq
   end
 
   @doc """
@@ -124,8 +120,6 @@ defmodule Poxa.Subscription do
   @spec channels(pid) :: [binary]
   def channels(pid) do
     match = {{:p, :l, {:pusher, :'$1'}}, pid, :_}
-    :gproc.select([{match, [], [:'$1']}])
-    |> Enum.uniq
+    :gproc.select([{match, [], [:'$1']}]) |> Enum.uniq
   end
-
 end
