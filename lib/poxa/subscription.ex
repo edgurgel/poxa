@@ -123,7 +123,7 @@ defmodule Poxa.Subscription do
   """
   @spec channels(pid) :: [binary]
   def channels(pid) do
-    match = {{:p, :l, {:pusher, :'$1'}}, self, :_}
+    match = {{:p, :l, {:pusher, :'$1'}}, pid, :_}
     :gproc.select([{match, [], [:'$1']}])
     |> Enum.uniq
   end
