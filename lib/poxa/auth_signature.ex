@@ -12,17 +12,22 @@ defmodule Poxa.AuthSignature do
       [app_key, remote_signed_data] ->
         case Poxa.Authentication.check_key(app_key) do
           :ok ->
-            {:ok, app_secret} = :application.get_env(:poxa, :app_secret)
-            signed_data = CryptoHelper.hmac256_to_string(app_secret, to_sign)
-            if signed_data == remote_signed_data do
-              :ok
-            else
-              Logger.info "Authentication failed"
-              :error
-            end
-          { :error, _reason } -> :error
+            signed_data = sign_data(to_sign)
+            equals?(signed_data, remote_signed_data)
+          _ -> :error
         end
       _ -> :error
     end
+  end
+
+  defp sign_data(data) do
+    {:ok, app_secret} = :application.get_env(:poxa, :app_secret)
+    CryptoHelper.hmac256_to_string(app_secret, data)
+  end
+
+  defp equals?(signed_data, signed_data), do: :ok
+  defp equals?(_, _) do
+    Logger.info "Authentication failed"
+    :error
   end
 end

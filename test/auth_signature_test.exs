@@ -23,9 +23,9 @@ defmodule Poxa.AuthSignatureTest do
   end
 
   test "an invalid key" do
-    expect(Authentication, :check_key, 1, :error)
+    expect(Authentication, :check_key, 1, {:error, :reason})
 
-    assert validate("SocketId:private-channel", "Auth") == :error
+    assert validate("SocketId:private-channel", "Auth:key") == :error
 
     assert validate Authentication
   end
@@ -35,6 +35,16 @@ defmodule Poxa.AuthSignatureTest do
     expect(Authentication, :check_key, 1, :ok)
 
     assert validate("SocketId:private-channel", "Wrong:Auth") == :error
+
+    assert validate Authentication
+  end
+
+  test "invalid " do
+    :application.set_env(:poxa, :app_secret, "secret")
+    expect(Authentication, :check_key, 1, :ok)
+
+    assert validate("SocketId:private-channel", "asdfasdf") == :error
+    assert validate("SocketId:private-channel", "asdfasdf") == :error
 
     assert validate Authentication
   end
