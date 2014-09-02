@@ -3,30 +3,44 @@ defmodule Poxa.Integration.PublicChannelTest do
 
   @moduletag :integration
 
-  setup_all do
-    {:ok, pid} = PusherClient.start_link('ws://localhost:8080/app/app_key')
+  setup do
+    {:ok, pid} = PusherClient.start_link('ws://localhost:8080', "app_key", "secret", stream_to: self)
+    Application.ensure_all_started(:pusher)
+    Pusher.configure!("localhost", 8080, "app_id", "app_key", "secret")
     on_exit fn ->
       PusherClient.disconnect! pid
     end
     {:ok, [pid: pid]}
   end
 
-  defmodule EchoHandler do
-    use GenEvent
+  test "subscribe to a public channel", context do
+    pid = context[:pid]
+    channel = "channel"
 
-    def init(pid), do: { :ok, pid }
-    def handle_event(event, pid) do
-      send pid, event
-      { :ok, pid }
-    end
+    assert_receive %{channel: nil,
+                     event: "pusher:connection_established",
+                     data: _}, 1_000
+
+    PusherClient.subscribe!(pid, channel)
+
+    assert_receive %{channel: ^channel,
+                     event: "pusher:subscription_succeeded",
+                     data: %{}}, 1_000
   end
 
-  test "subscribe on a public channel", context do
+  test "subscribe to a public channel and trigger event", context do
     pid = context[:pid]
+    channel = "channel"
 
-    PusherClient.add_handler(pid, EchoHandler, self)
-    PusherClient.subscribe!(pid, "channel")
+    assert_receive %{channel: nil,
+                     event: "pusher:connection_established",
+                     data: _}, 1_000
 
-    assert_receive {"channel", "pusher:subscription_succeeded", %{}}, 5_000
+    PusherClient.subscribe!(pid, channel)
+    Pusher.trigger("test_event", %{data: 42}, channel)
+
+    assert_receive %{channel: ^channel,
+                     event: "test_event",
+                     data: %{"data" => 42}}, 1_000
   end
 end
