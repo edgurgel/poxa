@@ -26,6 +26,7 @@ defmodule Poxa.Mixfile do
       {:uuid, github: "avtobiff/erlang-uuid", tag: "v0.4.5" },
       {:meck, "~> 0.8.2", only: :test},
       {:pusher_client, github: "edgurgel/pusher_client", only: :test},
+      {:pusher, github: "edgurgel/pusher", only: :test},
       {:exrm, "0.12.11", only: :prod} ]
   end
 end

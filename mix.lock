@@ -3,11 +3,15 @@
   "cowlib": {:package, "1.0.0"},
   "exrm": {:package, "0.12.11"},
   "gproc": {:package, "0.3.1"},
+  "hackney": {:package, "0.13.1"},
+  "httpoison": {:package, "0.4.1"},
+  "idna": {:package, "1.0.1"},
   "jsex": {:package, "2.0.0"},
   "jsx": {:package, "2.0.2"},
   "meck": {:package, "0.8.2"},
-  "pusher_client": {:git, "git://github.com/edgurgel/pusher_client.git", "08766cea0c09fd2d0deac43d195cedc63363a5fd", []},
+  "pusher": {:git, "git://github.com/edgurgel/pusher.git", "8b45c70852a4b721e8cc5c56b8c7650ef79f7286", []},
+  "pusher_client": {:git, "git://github.com/edgurgel/pusher_client.git", "fe8cede230f4806bade09ad579a9650f48d2a65f", []},
   "ranch": {:package, "1.0.0"},
   "signaturex": {:package, "0.0.7"},
   "uuid": {:git, "git://github.com/avtobiff/erlang-uuid.git", "2056ad3717fedccf3634757401f77272bccb4554", [tag: "v0.4.5"]},
-  "websocket_client": {:git, "git://github.com/jeremyong/websocket_client.git", "e2a9ea6017576e0316e90cc36ffad315a4888f67", []}}
+  "websocket_client": {:git, "git://github.com/jeremyong/websocket_client.git", "2b8d9805306d36f22330f432ae6472f1f2625c30", []}}
