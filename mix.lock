@@ -2,7 +2,7 @@
   "cowboy": {:package, "1.0.0"},
   "cowlib": {:package, "1.0.0"},
   "exrm": {:package, "0.12.11"},
-  "gproc": {:git, "git://github.com/uwiger/gproc.git", "6e6cd7fab087edfaf7eb8a92a84d3c91cffe797c", [ref: "6e6cd7fab087edfaf7eb8a92a84d3c91cffe797c"]},
+  "gproc": {:package, "0.3.1"},
   "jsex": {:package, "2.0.0"},
   "jsx": {:package, "2.0.2"},
   "meck": {:package, "0.8.2"},

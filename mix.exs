@@ -22,7 +22,7 @@ defmodule Poxa.Mixfile do
     [ {:cowboy, "~> 1.0.0" },
       {:jsex, "~> 2.0"},
       {:signaturex, "~> 0.0.7"},
-      {:gproc, github: "uwiger/gproc", ref: "6e6cd7fab087edfaf7eb8a92a84d3c91cffe797c" },
+      {:gproc, "~> 0.3.0"},
       {:uuid, github: "avtobiff/erlang-uuid", tag: "v0.4.5" },
       {:meck, "~> 0.8.2", only: :test},
       {:pusher_client, github: "edgurgel/pusher_client", only: :test},
