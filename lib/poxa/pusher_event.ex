@@ -130,7 +130,7 @@ defmodule Poxa.PusherEvent do
   Returns a JSON for a member having the id `user_id` unsubscribing on
   a presence channel named `channel`
 
-      "{ "event" : "pusher_internal:member_added",
+      "{ "event" : "pusher_internal:member_removed",
          "channel" : "public-channel",
          "data" : { "user_id" : 123 } }"
   """
