@@ -10,7 +10,7 @@
   "jsx": {:package, "2.0.2"},
   "meck": {:package, "0.8.2"},
   "pusher": {:git, "git://github.com/edgurgel/pusher.git", "8b45c70852a4b721e8cc5c56b8c7650ef79f7286", []},
-  "pusher_client": {:git, "git://github.com/edgurgel/pusher_client.git", "fe8cede230f4806bade09ad579a9650f48d2a65f", []},
+  "pusher_client": {:git, "git://github.com/edgurgel/pusher_client.git", "51a3447b32d9505096e451ca7fdd9d6602a00e47", []},
   "ranch": {:package, "1.0.0"},
   "signaturex": {:package, "0.0.7"},
   "uuid": {:git, "git://github.com/avtobiff/erlang-uuid.git", "2056ad3717fedccf3634757401f77272bccb4554", [tag: "v0.4.5"]},
