@@ -1,5 +1,5 @@
 defmodule Poxa.Integration.PublicChannelTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   @moduletag :integration
 
