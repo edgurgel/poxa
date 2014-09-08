@@ -64,7 +64,9 @@ Run
 ```console
 mix deps.get
 mix compile
+mix compile.protocols
 ```
+
 The default configuration is:
 
 * Port: 8080
@@ -98,7 +100,7 @@ config :poxa,
 And run:
 
 ```console
-mix run --config my_config.exs --no-halt
+elixir -pa _build/dev/consolidated -S mix run --config my_config.exs --no-halt
 ```
 
 And if you want SSL, try something like this on your configuration file:
