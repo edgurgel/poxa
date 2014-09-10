@@ -49,7 +49,9 @@ How do I speak 'poxa'?
 * [ ] Integration test using pusher-js or other client library;
 * [ ] Web hooks;
 * [ ] Specify types signature to functions and use dialyzer to check them on Travis;
-* [ ] Add 'Vacated' and 'Occupied' events to Console.
+* [ ] Add 'Vacated' and 'Occupied' events to Console;
+* [ ] Use GenEvent to generate Console events so other handlers can be attached (Web hook for example);
+* [ ] Turn Poxa on a distributed server with multiple nodes;
 
 ## Typical usage
 
