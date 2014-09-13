@@ -8,6 +8,7 @@ otp_release:
 env:
   - ELIXIR="v0.15.0"
   - ELIXIR="v0.15.1"
+  - ELIXIR="v1.0.0"
 install: mix deps.get
 before_install:
   - mkdir -p vendor/elixir
