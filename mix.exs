@@ -21,12 +21,12 @@ defmodule Poxa.Mixfile do
   defp deps do
     [ {:cowboy, "~> 1.0.0" },
       {:jsex, "~> 2.0"},
-      {:signaturex, "~> 0.0.7"},
+      {:signaturex, "~> 0.0.8"},
       {:gproc, "~> 0.3.0"},
       {:uuid, github: "avtobiff/erlang-uuid", tag: "v0.4.5" },
       {:meck, "~> 0.8.2", only: :test},
       {:pusher_client, github: "edgurgel/pusher_client", only: :test},
       {:pusher, github: "edgurgel/pusher", only: :test},
-      {:exrm, "0.12.11", only: :prod} ]
+      {:exrm, "0.14.9", only: :prod} ]
   end
 end
