@@ -1,47 +1,45 @@
 defmodule Poxa.PresenceSubscriptionTest do
   use ExUnit.Case
   alias Poxa.PusherEvent
-  alias Poxa.Subscription
+  alias Poxa.Channel
   import :meck
   import Poxa.PresenceSubscription
 
   setup do
     new PusherEvent
-    new Subscription
     new :gproc
     on_exit fn -> unload end
     :ok
   end
 
   test "subscribe to a presence channel" do
-    expect(Subscription, :subscribed?, 1, false)
+    expect(Channel, :subscribed?, 2, false)
     expect(:gproc, :select_count, 1, 0)
     expect(:gproc, :send, 2, :sent)
     expect(:gproc, :reg, 2, :registered)
     expect(PusherEvent, :presence_member_added, 3, :event_message)
     expect(:gproc, :lookup_values, 1, :values)
     assert subscribe!("presence-channel", "{ \"user_id\" : \"id123\", \"user_info\" : \"info456\" }") == {:presence, "presence-channel", :values}
-    assert validate Subscription
+    assert validate Channel
     assert validate PusherEvent
     assert validate :gproc
   end
 
   test "subscribe to a presence channel already subscribed" do
-    expect(Subscription, :subscribed?, 1, true)
+    expect(Channel, :subscribed?, 2, true)
     expect(:gproc, :lookup_values, 1, :values)
     assert subscribe!("presence-channel", "{ \"user_id\" : \"id123\", \"user_info\" : \"info456\" }") == {:presence, "presence-channel", :values}
-    assert validate Subscription
+    assert validate Channel
     assert validate :gproc
   end
 
-
   test "subscribe to a presence channel having the same userid" do
-    expect(Subscription, :subscribed?, 1, false)
+    expect(Channel, :subscribed?, 2, false)
     expect(:gproc, :select_count, 1, 1) # true for user_id_already_on_presence_channel/2
     expect(:gproc, :reg, 2, :registered)
     expect(:gproc, :lookup_values, 1, :values)
     assert subscribe!("presence-channel", "{ \"user_id\" : \"id123\", \"user_info\" : \"info456\" }") == {:presence, "presence-channel", :values}
-    assert validate Subscription
+    assert validate Channel
     assert validate PusherEvent
     assert validate :gproc
   end
@@ -82,22 +80,6 @@ defmodule Poxa.PresenceSubscriptionTest do
   test "check subscribed presence channels and find nothing to unsubscribe" do
     expect(:gproc, :select, 1, [])
     assert check_and_remove == :ok
-    assert validate :gproc
-  end
-
-  test "return unique user ids currently subscribed" do
-    expect(:gproc, :select, 1, [ {:user_id, :user_info},
-                                 {:user_id, :user_info},
-                                 {:user_id2, :user_info2} ])
-    assert users("presence-channel") == [:user_id, :user_id2]
-    assert validate :gproc
-  end
-
-  test "return number of unique subscribed users" do
-    expect(:gproc, :select, 1, [ {:user_id, :user_info},
-                                 {:user_id, :user_info},
-                                 {:user_id2, :user_info2} ])
-    assert user_count("presence-channel") == 2
     assert validate :gproc
   end
 end

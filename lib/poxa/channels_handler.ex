@@ -6,8 +6,8 @@ defmodule Poxa.ChannelsHandler do
   """
 
   alias Poxa.AuthorizationHelper
-  alias Poxa.PresenceSubscription
-  alias Poxa.Subscription
+  alias Poxa.Channel
+  alias Poxa.PresenceChannel
 
   def init(_transport, _req, _opts) do
     {:upgrade, :protocol, :cowboy_rest}
@@ -32,7 +32,7 @@ defmodule Poxa.ChannelsHandler do
 
   defp malformed_request_one_channel?(attributes, channel) do
     if Enum.all?(attributes, fn s -> Enum.member?(@valid_attributes, s) end) do
-      !PresenceSubscription.presence_channel?(channel) and Enum.member?(attributes, "user_count")
+      !Channel.presence?(channel) and Enum.member?(attributes, "user_count")
     else
       true
     end
@@ -54,7 +54,7 @@ defmodule Poxa.ChannelsHandler do
   end
 
   defp show(channel, attributes, req, state) do
-    occupied = Subscription.occupied?(channel)
+    occupied = Channel.occupied?(channel)
     attribute_list = mount_attribute_list(attributes, channel)
     {JSEX.encode!([occupied: occupied] ++ attribute_list), req, state}
   end
@@ -62,13 +62,13 @@ defmodule Poxa.ChannelsHandler do
   defp mount_attribute_list(attributes, channel) do
     attribute_list =
       if Enum.member?(attributes, "subscription_count") do
-        [subscription_count: Subscription.subscription_count(channel)]
+        [subscription_count: Channel.subscription_count(channel)]
       else
         []
       end
     attribute_list ++
       if Enum.member?(attributes, "user_count") do
-        [user_count: PresenceSubscription.user_count(channel)]
+        [user_count: PresenceChannel.user_count(channel)]
       else
         []
       end
@@ -76,15 +76,14 @@ defmodule Poxa.ChannelsHandler do
 
   defp index(req, state) do
     channels =
-      Subscription.all_channels
+      Channel.all
         |> Enum.filter_map(
           fn channel ->
-            PresenceSubscription.presence_channel? channel
+            Channel.presence? channel
           end,
           fn channel ->
-            {channel, [user_count: PresenceSubscription.user_count(channel)]}
+            {channel, [user_count: PresenceChannel.user_count(channel)]}
           end)
     {JSEX.encode!(channels: channels), req, state}
   end
-
 end

@@ -12,6 +12,7 @@ defmodule Poxa.WebsocketHandler do
   alias Poxa.Console
   alias Poxa.PresenceSubscription
   alias Poxa.Subscription
+  alias Poxa.Channel
   alias Poxa.Time
 
   @max_protocol 7
@@ -46,7 +47,7 @@ defmodule Poxa.WebsocketHandler do
   defp supported_protocol?(protocol) do
     try do
       protocol = String.to_integer(protocol)
-      if protocol>= @min_protocol && protocol <= @max_protocol, do: true,
+      if protocol >= @min_protocol && protocol <= @max_protocol, do: true,
       else: false
     rescue
       ArgumentError -> false
@@ -86,7 +87,7 @@ defmodule Poxa.WebsocketHandler do
   # Client Events
   defp handle_pusher_event("client-" <> _event_name, decoded_json, req, %State{socket_id: socket_id} = state) do
     {message, channels, _exclude} = PusherEvent.parse_channels(decoded_json)
-    sent_channels = for channel <- channels, private_or_presence_channel(channel), Subscription.subscribed?(channel) do
+    sent_channels = for channel <- channels, Channel.private_or_presence?(channel), Channel.subscribed?(channel, self) do
       PusherEvent.send_message_to_channel(channel, message, [self])
       channel
     end
@@ -98,14 +99,6 @@ defmodule Poxa.WebsocketHandler do
   defp handle_pusher_event(_, _, req, state) do
     Logger.error "Undefined event"
     {:ok, req, state}
-  end
-
-  defp private_or_presence_channel(channel) do
-    case channel do
-      "presence-" <> _presence_channel -> true
-      "private-" <> _private_channel -> true
-      _ -> false
-    end
   end
 
   def websocket_info(:start, req, _state) do
@@ -129,9 +122,7 @@ defmodule Poxa.WebsocketHandler do
     {:reply, {:text, msg}, req, state}
   end
 
-  def websocket_info(_info, req, state) do
-    {:ok, req, state}
-  end
+  def websocket_info(_info, req, state), do: {:ok, req, state}
 
   defp generate_uuid do
     :uuid.uuid1
@@ -142,7 +133,7 @@ defmodule Poxa.WebsocketHandler do
   def websocket_terminate(_reason, _req, nil), do: :ok
   def websocket_terminate(_reason, _req, %State{socket_id: socket_id, time: time}) do
     duration = Time.stamp - time
-    channels = Subscription.channels(self)
+    channels = Channel.all(self)
     Console.disconnected(socket_id, channels, duration)
     PresenceSubscription.check_and_remove
     :gproc.goodbye

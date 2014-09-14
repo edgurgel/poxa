@@ -6,6 +6,7 @@ defmodule Poxa.WebsocketHandlerTest do
   alias Poxa.Subscription
   alias Poxa.Console
   alias Poxa.Time
+  alias Poxa.Channel
   import :meck
   import Poxa.WebsocketHandler
   alias Poxa.WebsocketHandler.State
@@ -199,7 +200,7 @@ defmodule Poxa.WebsocketHandlerTest do
     expect(JSEX, :decode!, [{[:client_event_json], decoded_json}])
     expect(PusherEvent, :parse_channels, [{[decoded_json], {:message, ["presence-channel", "public-channel"], nil}}])
     expect(PusherEvent, :send_message_to_channel, 3, :ok)
-    expect(Subscription, :subscribed?, 1, true)
+    expect(Channel, :subscribed?, 2, true)
     expect(Console, :client_event_message, [{[:socket_id, ["presence-channel"], :message], :ok}])
 
     state = %State{socket_id: :socket_id}
@@ -209,7 +210,7 @@ defmodule Poxa.WebsocketHandlerTest do
 
     assert validate JSEX
     assert validate PusherEvent
-    assert validate Subscription
+    assert validate Channel
     assert validate Console
   end
 
@@ -218,7 +219,7 @@ defmodule Poxa.WebsocketHandlerTest do
     expect(JSEX, :decode!, [{[:client_event_json], decoded_json}])
     expect(PusherEvent, :parse_channels, [{[decoded_json], {:message, ["private-channel"], nil}}])
     expect(PusherEvent, :send_message_to_channel, 3, :ok)
-    expect(Subscription, :subscribed?, 1, true)
+    expect(Channel, :subscribed?, 2, true)
     expect(Console, :client_event_message, [{[:socket_id, ["private-channel"], :message], :ok}])
 
     state = %State{socket_id: :socket_id}
@@ -228,7 +229,7 @@ defmodule Poxa.WebsocketHandlerTest do
 
     assert validate JSEX
     assert validate PusherEvent
-    assert validate Subscription
+    assert validate Channel
     assert validate Console
   end
 
@@ -236,8 +237,8 @@ defmodule Poxa.WebsocketHandlerTest do
     expect(JSEX, :decode!, 1, %{"event" => "client-event"})
     expect(PusherEvent, :parse_channels, 1, {:message, ["private-subscribed-channel", "private-not-subscribed"], nil})
     expect(PusherEvent, :send_message_to_channel, 3, :ok)
-    expect(Subscription, :subscribed?, [{["private-subscribed-channel"], true},
-                                        {["private-not-subscribed"], false}])
+    expect(Channel, :subscribed?, [{["private-subscribed-channel", self], true},
+                                   {["private-not-subscribed", self], false}])
     expect(Console, :client_event_message, [{[:socket_id, ["private-subscribed-channel"], :message], :ok}])
 
     state = %State{socket_id: :socket_id}
@@ -247,7 +248,7 @@ defmodule Poxa.WebsocketHandlerTest do
 
     assert validate JSEX
     assert validate PusherEvent
-    assert validate Subscription
+    assert validate Channel
     assert validate Console
   end
 
@@ -312,7 +313,7 @@ defmodule Poxa.WebsocketHandlerTest do
   end
 
   test "websocket termination" do
-    expect(Subscription, :channels, 1, :channels)
+    expect(Channel, :all, 1, :channels)
     expect(Time, :stamp, 0, 100)
     expect(Console, :disconnected, [{[:socket_id, :channels, 90], :ok}])
     expect(PresenceSubscription, :check_and_remove, 0, :ok)
@@ -331,5 +332,4 @@ defmodule Poxa.WebsocketHandlerTest do
   test "websocket termination without a socket_id" do
     assert websocket_terminate(:reason, :req, nil) == :ok
   end
-
 end

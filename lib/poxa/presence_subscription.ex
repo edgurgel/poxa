@@ -13,7 +13,7 @@ defmodule Poxa.PresenceSubscription do
   @type user_info :: :jsx.json_term # Not sure
 
   alias Poxa.PusherEvent
-  alias Poxa.Subscription
+  alias Poxa.Channel
   require Logger
 
   @doc """
@@ -22,7 +22,7 @@ defmodule Poxa.PresenceSubscription do
   @spec subscribe!(binary, :jsx.json_term) :: {:presence, binary, [{pid, {user_id, :jsx.json_term}}]}
   def subscribe!(channel, channel_data) do
     decoded_channel_data = JSEX.decode!(channel_data)
-    if Subscription.subscribed?(channel) do
+    if Channel.subscribed?(channel, self) do
       Logger.info "Already subscribed #{inspect self} on channel #{channel}"
     else
       Logger.info "Registering #{inspect self} to channel #{channel}"
@@ -62,30 +62,6 @@ defmodule Poxa.PresenceSubscription do
   end
 
   @doc """
-  This function returns the user ids currently subscribed to a presence channel
-
-  More info at: http://pusher.com/docs/rest_api#method-get-users
-  """
-  @spec users(binary) :: [user_id]
-  def users(channel) do
-    match = {{:p, :l, {:pusher, channel}}, :_, :'$1'}
-    :gproc.select([{match, [], [:'$1']}])
-    |> Enum.uniq(fn {user_id, _} -> user_id end)
-    |> Enum.map(fn {user_id, _} -> user_id end)
-  end
-
-  @doc """
-  Returns the number of unique users on a presence channel
-  """
-  @spec user_count(binary) :: non_neg_integer
-  def user_count(channel) do
-    match = {{:p, :l, {:pusher, channel}}, :_, :'$1'}
-    :gproc.select([{match, [], [:'$1']}])
-    |> Enum.uniq(fn {user_id, _} -> user_id end)
-    |> Enum.count
-  end
-
-  @doc """
   This function checks if the user that is leaving the presence channel
   have more than one connection subscribed.
 
@@ -97,7 +73,7 @@ defmodule Poxa.PresenceSubscription do
     match = {{:p, :l, {:pusher, :'$1'}}, self, {:'$2', :_}}
     channel_user_id = :gproc.select([{match, [], [[:'$1',:'$2']]}])
     member_remove_fun = fn([channel, user_id]) ->
-      if presence_channel?(channel) do
+      if Channel.presence?(channel) do
         if only_one_connection_on_user_id?(channel, user_id) do
           message = PusherEvent.presence_member_removed(channel, user_id)
           :gproc.send({:p, :l, {:pusher, channel}}, {self, message})
@@ -112,9 +88,4 @@ defmodule Poxa.PresenceSubscription do
     match = {{:p, :l, {:pusher, channel}}, :_, {user_id, :_}}
     :gproc.select_count([{match, [], [true]}]) == 1
   end
-
-  @spec presence_channel?(any) :: boolean
-  def presence_channel?("presence-" <> _  = _channel), do:  true
-  def presence_channel?(_), do: false
-
 end

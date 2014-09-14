@@ -5,6 +5,7 @@ defmodule Poxa.Subscription do
   """
   alias Poxa.AuthSignature
   alias Poxa.PresenceSubscription
+  alias Poxa.Channel
   require Logger
 
   @doc """
@@ -48,7 +49,7 @@ defmodule Poxa.Subscription do
 
   defp subscribe_channel(channel) do
     Logger.info "Subscribing to channel #{channel}"
-    if subscribed?(channel) do
+    if Channel.subscribed?(channel, self) do
       Logger.info "Already subscribed #{inspect self} on channel #{channel}"
     else
       Logger.info "Registering #{inspect self} to channel #{channel}"
@@ -63,7 +64,7 @@ defmodule Poxa.Subscription do
   @spec unsubscribe!(:jsx.json_term) :: {:ok, binary}
   def unsubscribe!(data) do
     channel = data["channel"]
-    if PresenceSubscription.presence_channel?(channel) do
+    if Channel.presence?(channel) do
       PresenceSubscription.unsubscribe!(channel);
     end
     unsubscribe_channel(channel)
@@ -71,55 +72,10 @@ defmodule Poxa.Subscription do
 
   defp unsubscribe_channel(channel) do
     Logger.info "Unsubscribing to channel #{channel}"
-    case subscribed?(channel) do
+    case Channel.subscribed?(channel, self) do
       true -> :gproc.unreg({:p, :l, {:pusher, channel}});
       false -> Logger.debug "Already subscribed"
     end
     {:ok, channel}
-  end
-
-  @doc """
-  Returns true if subscribed to `channel` and false otherwise
-  """
-  @spec subscribed?(binary) :: boolean
-  def subscribed?(channel) do
-    match = {{:p, :l, {:pusher, channel}}, self, :_}
-    :gproc.select_count([{match, [], [true]}]) != 0
-  end
-
-  @doc """
-  Returns how many connections are opened on the `channel`
-  """
-  @spec subscription_count(binary) :: non_neg_integer
-  def subscription_count(channel) do
-    match = {{:p, :l, {:pusher, channel}}, :_, :_}
-    :gproc.select_count([{match, [], [true]}])
-  end
-
-  @doc """
-  Returns true if the channel has at least 1 subscription
-  """
-  @spec occupied?(binary) :: boolean
-  def occupied?(channel) do
-    match = {{:p, :l, {:pusher, channel}}, :_, :_}
-    :gproc.select_count([{match, [], [true]}]) != 0
-  end
-
-  @doc """
-  Returns the list of channels with at least 1 subscription
-  """
-  @spec all_channels :: [binary]
-  def all_channels do
-    match = {{:p, :l, {:pusher, :'$1'}}, :_, :_}
-    :gproc.select([{match, [], [:'$1']}]) |> Enum.uniq
-  end
-
-  @doc """
-  Returns the list of channels the `pid` is subscribed
-  """
-  @spec channels(pid) :: [binary]
-  def channels(pid) do
-    match = {{:p, :l, {:pusher, :'$1'}}, pid, :_}
-    :gproc.select([{match, [], [:'$1']}]) |> Enum.uniq
   end
 end

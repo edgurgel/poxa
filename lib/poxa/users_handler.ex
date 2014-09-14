@@ -7,6 +7,7 @@ defmodule Poxa.UsersHandler do
 
   alias Poxa.AuthorizationHelper
   alias Poxa.PresenceSubscription
+  alias Poxa.Channel
 
   def init(_transport, _req, _opts) do
     {:upgrade, :protocol, :cowboy_rest}
@@ -18,7 +19,7 @@ defmodule Poxa.UsersHandler do
 
   def malformed_request(req, _state) do
     {channel, req} = :cowboy_req.binding(:channel_name, req)
-    {!PresenceSubscription.presence_channel?(channel), req, channel}
+    {!Channel.presence?(channel), req, channel}
   end
 
   def is_authorized(req, channel) do
