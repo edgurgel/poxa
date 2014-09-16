@@ -134,7 +134,14 @@ MIX_ENV=prod mix do deps.get, release
 Then you can run it using:
 
 ```console
-./rel/poxa/bin/poxa console
+$ ./rel/poxa/bin/poxa
+Usage: poxa {start|start_boot <file>|foreground|stop|restart|reboot|ping|rpc <m> <f> [<a>]|console|console_clean|console_boot <file>|attach|remote_console|upgrade}
+```
+
+To start as daemon you just need to:
+
+```console
+./rel/poxa/bin/poxa start
 ```
 
 ## Your application
