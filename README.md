@@ -144,6 +144,28 @@ To start as daemon you just need to:
 ./rel/poxa/bin/poxa start
 ```
 
+### Release configuration
+
+Starting from Poxa 0.3.1 the configuration can be done on `./releases/0.3.1/poxa.conf` considering 0.3.1 is the release version.
+
+You should see a file like this:
+
+```
+# HTTP port
+poxa.port = 8080
+
+# Pusher app key
+poxa.app_key = "app_key"
+
+# Pusher secret
+poxa.app_secret = "secret"
+
+# Pusher app id
+poxa.app_id = "app_id"
+```
+
+You can change anything on this file and just start the release and this configuration will be used.
+
 ## Your application
 
 If you are using the pusher-gem:
