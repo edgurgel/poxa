@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.1 (2014-09-16)
+
+* Refactor channel specific code to Channel and PresenceChannel modules;
+* Use [conform](http://github.com/bitwalker/conform) to configure releases;
+
 ## 0.3.0 (2014-09-13)
 
 * Drop lager and use Elixir Logger instead;
