@@ -128,7 +128,7 @@ If you just want to run a release, follow these instructions:
 First download dependencies and generate the release (or download it [here](https://github.com/edgurgel/poxa/releases))
 
 ```console
-MIX_ENV=prod mix do deps.get, release
+MIX_ENV=prod mix do deps.get, compile, release
 ```
 
 Then you can run it using:
