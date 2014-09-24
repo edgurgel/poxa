@@ -1,6 +1,4 @@
 defmodule Poxa.PresenceChannel do
-  #defstruct [:name, :user_id, :user_info]
-  #@type t :: %__MODULE__{name: binary, user_id: binary, user_info: term}
   @doc """
   This function returns the user ids currently subscribed to a presence channel
 
