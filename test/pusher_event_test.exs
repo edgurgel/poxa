@@ -24,7 +24,7 @@ defmodule Poxa.PusherEventTest do
   end
 
   test "connection established output" do
-    json = "{\"data\":{\"activity_timeout\":120,\"socket_id\":\"SocketId\"},\"event\":\"pusher:connection_established\"}"
+    json ="{\"data\":\"{\\\"activity_timeout\\\":120,\\\"socket_id\\\":\\\"SocketId\\\"}\",\"event\":\"pusher:connection_established\"}"
     assert connection_established("SocketId") == json
   end
 
@@ -44,17 +44,17 @@ defmodule Poxa.PusherEventTest do
   end
 
   test "presence member added output" do
-    json = "{\"channel\":\"channel\",\"data\":{\"user_id\":\"userid\",\"user_info\":\"userinfo\"},\"event\":\"pusher_internal:member_added\"}"
+    json ="{\"channel\":\"channel\",\"data\":\"{\\\"user_id\\\":\\\"userid\\\",\\\"user_info\\\":\\\"userinfo\\\"}\",\"event\":\"pusher_internal:member_added\"}"
     assert presence_member_added("channel", "userid", "userinfo") == json
   end
 
   test "presence member removed output" do
-    json = "{\"channel\":\"channel\",\"data\":{\"user_id\":\"userid\"},\"event\":\"pusher_internal:member_removed\"}"
+    json ="{\"channel\":\"channel\",\"data\":\"{\\\"user_id\\\":\\\"userid\\\"}\",\"event\":\"pusher_internal:member_removed\"}"
     assert presence_member_removed("channel", "userid") == json
   end
 
   test "presence subscription succeeded" do
-    json = "{\"channel\":\"presence-channel\",\"data\":{\"presence\":{\"count\":1,\"hash\":{\"userid\":\"userinfo\"},\"ids\":[\"userid\"]}},\"event\":\"pusher_internal:subscription_succeeded\"}"
+    json = "{\"channel\":\"presence-channel\",\"data\":\"{\\\"presence\\\":{\\\"count\\\":1,\\\"hash\\\":{\\\"userid\\\":\\\"userinfo\\\"},\\\"ids\\\":[\\\"userid\\\"]}}\",\"event\":\"pusher_internal:subscription_succeeded\"}"
     assert presence_subscription_succeeded("presence-channel", [{:pid, {"userid", "userinfo"}}, {:pid2, {"userid", "userinfo"}}]) == json
   end
 
