@@ -19,7 +19,9 @@ defmodule Poxa.ChannelTest do
     register_to_channel("channel2")
     spawn_registered_process("channel3")
 
-    assert all == ["channel1", "channel2", "channel3"]
+    assert "channel1" in all
+    assert "channel2" in all
+    assert "channel3" in all
   end
 
   test "list channels of a pid" do
