@@ -47,8 +47,7 @@ defmodule Poxa.WebsocketHandler do
   defp supported_protocol?(protocol) do
     try do
       protocol = String.to_integer(protocol)
-      if protocol >= @min_protocol && protocol <= @max_protocol, do: true,
-      else: false
+      protocol >= @min_protocol and protocol <= @max_protocol
     rescue
       ArgumentError -> false
     end
