@@ -4,7 +4,7 @@ defmodule Poxa.PresenceChannel do
 
   More info at: http://pusher.com/docs/rest_api#method-get-users
   """
-  #@spec users(binary) :: [user_id]
+  @spec users(binary) :: [binary | integer]
   def users(channel) do
     match = {{:p, :l, {:pusher, channel}}, :_, :'$1'}
     :gproc.select([{match, [], [:'$1']}])
