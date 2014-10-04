@@ -9,7 +9,7 @@ defmodule Poxa.SubscriptionTest do
   setup do
     new PresenceSubscription
     new AuthSignature
-    new Channel
+    new Channel, [:passthrough]
     new :gproc
     on_exit fn -> unload end
     :ok

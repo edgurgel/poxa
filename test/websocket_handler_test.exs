@@ -116,8 +116,8 @@ defmodule Poxa.WebsocketHandlerTest do
 
   test "subscribe presence channel event" do
     expect(JSEX, :decode!, 1, %{"event" => "pusher:subscribe"})
-    expect(Subscription, :subscribe!, 2, {:presence, :channel, :data})
-    expect(PusherEvent, :presence_subscription_succeeded, 2, :subscription_succeeded)
+    expect(Subscription, :subscribe!, 2, %PresenceSubscription{})
+    expect(PusherEvent, :subscription_succeeded, 1, :subscription_succeeded)
     expect(Console, :subscribed, 2, :ok)
 
     state = %State{socket_id: :socket_id}

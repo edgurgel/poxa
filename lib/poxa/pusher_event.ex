@@ -36,13 +36,43 @@ defmodule Poxa.PusherEvent do
       "{ "event" : "pusher_internal:subscription_succeeded",
          "channel" : "public-channel",
          "data" : {} }"
+
+  If it's a presence subscription the following JSON is generated
+
+      "{ "event": "pusher_internal:subscription_succeeded",
+        "channel": "presence-example-channel",
+        "data": {
+          "presence": {
+          "ids": ["1234","98765"],
+          "hash": {
+            "1234": {
+              "name":"John Locke",
+              "twitter": "@jlocke"
+            },
+            "98765": {
+              "name":"Nicola Tesla",
+              "twitter": "@ntesla"
+            }
+          },
+          "count": 2
+          }
+        }
+      }"
   """
-  @spec subscription_succeeded(binary) :: binary
-  def subscription_succeeded(channel) do
+  @spec subscription_succeeded(binary | PresenceSubscription.t) :: binary
+  def subscription_succeeded(channel) when is_binary(channel) do
     %{event: "pusher_internal:subscription_succeeded",
       channel: channel,
       data: %{} } |> encode!
+  end
 
+  def subscription_succeeded(%PresenceSubscription{channel: channel, channel_data: channel_data}) do
+    {ids, _Hash} = :lists.unzip(channel_data)
+    count = Enum.count(ids)
+    data = %{presence: %{ids: ids, hash: channel_data, count: count}} |> encode!
+    %{event: "pusher_internal:subscription_succeeded",
+      channel: channel,
+      data: data } |> encode!
   end
 
   @subscription_error %{event: "pusher:subscription_error", data: %{}} |> encode!
@@ -64,44 +94,6 @@ defmodule Poxa.PusherEvent do
   """
   @spec pong :: <<_ :: 264>>
   def pong, do: @pong
-
-  @doc """
-  Returns a JSON for a succeeded presence subscription
-
-      { "event": "pusher_internal:subscription_succeeded",
-        "channel": "presence-example-channel",
-        "data": {
-          "presence": {
-          "ids": ["1234","98765"],
-          "hash": {
-            "1234": {
-              "name":"John Locke",
-              "twitter": "@jlocke"
-            },
-            "98765": {
-              "name":"Nicola Tesla",
-              "twitter": "@ntesla"
-            }
-          },
-          "count": 2
-          }
-        }
-      }
-  """
-  @spec presence_subscription_succeeded(binary, [{pid, {PresenceSubscription.user_id, PresenceSubscription.user_info}}]) :: binary
-  def presence_subscription_succeeded(channel, presence_data) do
-    # This may be too slow in the future...let's wait and see :)
-    ids_hash = for {_pid, {user_id, user_info}} <- presence_data do
-      {user_id, user_info}
-    end |> Enum.uniq(fn {user_id, _} -> user_id end)
-    {ids, _Hash} = :lists.unzip(ids_hash)
-    count = Enum.count(ids)
-    data = %{presence: %{ids: ids, hash: ids_hash, count: count}} |> encode!
-    %{event: "pusher_internal:subscription_succeeded",
-      channel: channel,
-      data: data
-    } |> encode!
-  end
 
   @doc """
   Returns a JSON for a new member subscription on a presence channel

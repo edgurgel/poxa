@@ -67,9 +67,9 @@ defmodule Poxa.WebsocketHandler do
       {:ok, channel} ->
         Console.subscribed(socket_id, channel)
         PusherEvent.subscription_succeeded(channel)
-      {:presence, channel, presence_data} ->
+      subscription = %PresenceSubscription{channel: channel} ->
         Console.subscribed(socket_id, channel)
-        PusherEvent.presence_subscription_succeeded(channel, presence_data)
+        PusherEvent.subscription_succeeded(subscription)
       :error -> PusherEvent.subscription_error
     end
     {:reply, {:text, reply}, req, state}

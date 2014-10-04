@@ -9,17 +9,19 @@ defmodule Poxa.PresenceSubscription do
 
   More info at: http://pusher.com/docs/client_api_guide/client_presence_channels
   """
-  @type user_id :: integer | binary # Maybe a json_term too?
-  @type user_info :: :jsx.json_term # Not sure
+  @type user_id :: integer | binary
+  @type user_info :: :jsx.json_term
+  defstruct [:channel, :channel_data]
+  @type t :: %__MODULE__{channel: binary, channel_data: [{user_id, user_info}]}
 
   alias Poxa.PusherEvent
   alias Poxa.Channel
   require Logger
 
   @doc """
-  Returns {:presence, `channel`, [{pid(), {user_id, user_info}}]
+  Returns a PresenceSubscription struct
   """
-  @spec subscribe!(binary, :jsx.json_term) :: {:presence, binary, [{pid, {user_id, :jsx.json_term}}]}
+  @spec subscribe!(binary, :jsx.json_term) :: PresenceSubscription.t
   def subscribe!(channel, channel_data) do
     decoded_channel_data = JSEX.decode!(channel_data)
     if Channel.subscribed?(channel, self) do
@@ -33,7 +35,13 @@ defmodule Poxa.PresenceSubscription do
       end
       :gproc.reg({:p, :l, {:pusher, channel}}, {user_id, user_info})
     end
-    {:presence, channel, :gproc.lookup_values({:p, :l, {:pusher, channel}})}
+    %__MODULE__{channel: channel, channel_data: channel_data(channel)}
+  end
+
+  defp channel_data(channel) do
+    for {_pid, {user_id, user_info}} <- :gproc.lookup_values({:p, :l, {:pusher, channel}}) do
+      {user_id, user_info}
+    end |> Enum.uniq(fn {user_id, _} -> user_id end)
   end
 
   defp extract_userid_and_userinfo(channel_data) do

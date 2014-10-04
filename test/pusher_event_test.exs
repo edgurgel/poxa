@@ -55,7 +55,9 @@ defmodule Poxa.PusherEventTest do
 
   test "presence subscription succeeded" do
     json = "{\"channel\":\"presence-channel\",\"data\":\"{\\\"presence\\\":{\\\"count\\\":1,\\\"hash\\\":{\\\"userid\\\":\\\"userinfo\\\"},\\\"ids\\\":[\\\"userid\\\"]}}\",\"event\":\"pusher_internal:subscription_succeeded\"}"
-    assert presence_subscription_succeeded("presence-channel", [{:pid, {"userid", "userinfo"}}, {:pid2, {"userid", "userinfo"}}]) == json
+    subscription = %Poxa.PresenceSubscription{channel: "presence-channel",
+                                              channel_data: [{"userid", "userinfo"}]}
+    assert subscription_succeeded(subscription) == json
   end
 
   test "parse channels having a single channel" do

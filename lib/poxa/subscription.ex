@@ -18,27 +18,28 @@ defmodule Poxa.Subscription do
     | :error
   def subscribe!(data, socket_id) do
     channel = data["channel"]
-    case channel do
-      "private-" <> _private_channel ->
+    cond do
+      Channel.private?(channel) ->
         to_sign = case data["channel_data"] do
-          nil -> << socket_id :: binary, ":", channel :: binary >>
-          channel_data -> << socket_id :: binary, ":", channel :: binary, ":", channel_data :: binary >>
+          nil -> socket_id <> ":" <> channel
+          channel_data -> socket_id <> ":" <> channel <> ":" <> channel_data
         end
         case AuthSignature.validate(to_sign, data["auth"]) do
           :ok -> subscribe_channel(channel)
           :error -> subscribe_error(channel)
         end
-      "presence-" <> _presence_channel ->
+      Channel.presence?(channel) ->
         channel_data = Dict.get(data, "channel_data", "undefined")
-        to_sign = <<socket_id :: binary, ":", channel ::binary, ":", channel_data :: binary>>
+        to_sign = socket_id <> ":" <> channel <> ":" <> channel_data
         case AuthSignature.validate(to_sign, data["auth"]) do
           :ok -> PresenceSubscription.subscribe!(channel, channel_data)
           :error -> subscribe_error(channel)
         end
-      nil ->
+      is_binary(channel) ->
+        subscribe_channel(channel)
+      true ->
         Logger.info "Missing channel"
         :error
-      _ -> subscribe_channel(channel)
     end
   end
 
