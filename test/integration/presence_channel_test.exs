@@ -86,4 +86,25 @@ defmodule Poxa.Integration.PresenceChannelTest do
 
     PusherClient.disconnect!(other_pid)
   end
+
+  test "member_removed event on populated presence channel with same user id", context do
+    pid = context[:pid]
+    channel = "presence-channel"
+    PusherClient.subscribe!(pid, channel, %PusherClient.User{id: 123, info: %{k2: "v2"}})
+    assert_receive %{channel: ^channel,
+                     event: "pusher:subscription_succeeded",
+                     data: _}, 1_000
+
+
+    {:ok, other_pid} = Connection.connect
+    PusherClient.subscribe!(other_pid, channel, %PusherClient.User{id: 123, info: %{k1: "v1"}})
+    PusherClient.unsubscribe!(other_pid, channel)
+
+
+    refute_receive %{channel: "presence-channel",
+                     data: %{"user_id" => "123"},
+                     event: "pusher_internal:member_removed"}, 1_000
+
+    PusherClient.disconnect!(other_pid)
+  end
 end

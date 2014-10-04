@@ -45,14 +45,18 @@ defmodule Poxa.PresenceSubscriptionTest do
     expect(Channel, :subscribed?, 2, false)
     expect(:gproc, :select_count, 1, 1) # true for user_id_already_on_presence_channel/2
     expect(:gproc, :reg, 2, :registered)
-    expect(:gproc, :lookup_values, 1, :values)
-    assert subscribe!("presence-channel", "{ \"user_id\" : \"id123\", \"user_info\" : \"info456\" }") == {:presence, "presence-channel", :values}
+    user = {"id123", "info456"}
+    expect(:gproc, :lookup_values, 1, [{:pid, user}, {:other_pid, user}])
+
+    assert subscribe!("presence-channel", "{ \"user_id\" : \"id123\", \"user_info\" : \"info456\" }") == %PresenceSubscription{channel: "presence-channel", channel_data: [user]}
+
     assert validate Channel
     assert validate PusherEvent
     assert validate :gproc
   end
 
   test "unsubscribe to presence channel being subscribed" do
+    expect(:gproc, :select_count, 1, 1)
     expect(:gproc, :get_value, 1, {:userid, :userinfo})
     expect(:gproc, :send, 2, :sent)
     expect(PusherEvent, :presence_member_removed, 2, :event_message)
@@ -62,8 +66,19 @@ defmodule Poxa.PresenceSubscriptionTest do
   end
 
   test "unsubscribe to presence channel being not subscribed" do
+    expect(:gproc, :select_count, 1, 0)
     expect(:gproc, :get_value, 1, nil)
     assert unsubscribe!("presence-channel") == {:ok, "presence-channel"}
+    assert validate :gproc
+  end
+
+  test "unsubscribe to presence channel having other connection with the same pid" do
+    expect(:gproc, :select_count, 1, 2)
+    expect(:gproc, :get_value, 1, {:userid, :userinfo})
+    expect(:gproc, :send, 2, :sent)
+    expect(PusherEvent, :presence_member_removed, 2, :event_message)
+    assert unsubscribe!("presence-channel") == {:ok, "presence-channel"}
+    assert validate PusherEvent
     assert validate :gproc
   end
 

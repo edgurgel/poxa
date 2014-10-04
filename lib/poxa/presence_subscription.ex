@@ -62,8 +62,10 @@ defmodule Poxa.PresenceSubscription do
   def unsubscribe!(channel) do
     case :gproc.get_value({:p, :l, {:pusher, channel}}) do
       {user_id, _} ->
-        message = PusherEvent.presence_member_removed(channel, user_id)
-        :gproc.send({:p, :l, {:pusher, channel}}, {self, message})
+        if only_one_connection_on_user_id?(channel, user_id) do
+          message = PusherEvent.presence_member_removed(channel, user_id)
+          :gproc.send({:p, :l, {:pusher, channel}}, {self, message})
+        end
       _ -> nil
     end
     {:ok, channel}
