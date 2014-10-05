@@ -10,8 +10,8 @@ defmodule Poxa.Subscription do
 
   @doc """
   Subscribe to a channel on this process.
-  Returns :ok to public and private channels and
-  {:presence, channel, channel_data} to presence channel
+  Returns {:ok, channel} to public and private channels and
+  a PresenceSubscription to a presence channel
   """
   @spec subscribe!(:jsx.json_term, binary) :: {:ok, binary}
     | {:presence, binary, {PresenceSubscription.user_id, :jsx.json_term}}
@@ -60,7 +60,7 @@ defmodule Poxa.Subscription do
   end
 
   @doc """
-  Unsubscribe to a channel always returning :ok
+  Unsubscribe from a channel always returning :ok
   """
   @spec unsubscribe!(:jsx.json_term) :: {:ok, binary}
   def unsubscribe!(data) do
