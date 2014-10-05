@@ -58,6 +58,10 @@ defmodule Poxa.PresenceSubscription do
     :gproc.select_count([{match, [], [true]}]) != 0
   end
 
+  @doc """
+  Unsubscribe from a presence channel, possibly triggering presence_member_removed
+  It respects multiple connections from the same user id
+  """
   @spec unsubscribe!(binary) :: {:ok, binary}
   def unsubscribe!(channel) do
     case :gproc.get_value({:p, :l, {:pusher, channel}}) do
