@@ -14,7 +14,7 @@ defmodule Poxa.Subscription do
   a PresenceSubscription to a presence channel
   """
   @spec subscribe!(:jsx.json_term, binary) :: {:ok, binary}
-    | {:presence, binary, {PresenceSubscription.user_id, :jsx.json_term}}
+    | PresenceSubscription.t
     | :error
   def subscribe!(data, socket_id) do
     channel = data["channel"]
