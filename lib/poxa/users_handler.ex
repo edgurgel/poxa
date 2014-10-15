@@ -6,7 +6,7 @@ defmodule Poxa.UsersHandler do
   """
 
   alias Poxa.AuthorizationHelper
-  alias Poxa.PresenceSubscription
+  alias Poxa.PresenceChannel
   alias Poxa.Channel
 
   def init(_transport, _req, _opts) do
@@ -42,8 +42,7 @@ defmodule Poxa.UsersHandler do
 
   """
   def get_json(req, channel) do
-    response = PresenceSubscription.users(channel)
-      |> Enum.map(fn(id) -> [id: id] end)
+    response = PresenceChannel.users(channel) |> Enum.map(fn(id) -> [id: id] end)
     {JSEX.encode!(users: response), req, nil}
   end
 end
