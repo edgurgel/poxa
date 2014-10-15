@@ -27,7 +27,7 @@ function init() {
 function connect(appKey, secret) {
   var qs = authQS(appKey, secret);
   var host = window.location.host;
-  websocket = new WebSocket("ws://" + host  + "/console?" + qs);
+  websocket = new WebSocket(websocketProtocol() + "//" + host  + "/console?" + qs);
   websocket.onopen = function(evt) { onOpen(evt) };
   websocket.onclose = function(evt) { onClose(evt) };
   websocket.onmessage = function(evt) { onMessage(evt) };
@@ -47,6 +47,14 @@ function authQS(appKey, secret) {
 function disconnect() {
   websocket.close();
 };
+
+function isSecure() {
+  return window.location.protocol == 'https:';
+}
+
+function websocketProtocol() {
+  return isSecure() ? 'wss:' : 'ws:';
+}
 
 function onOpen(evt) {
   $("#connect").hide();
