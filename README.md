@@ -117,8 +117,8 @@ config :poxa,
   app_id: "theid",
   ssl: [port: 8443,
         cacertfile: "priv/ssl/server-ca.crt",
-        certfile, "priv/ssl/server.crt",
-        keyfile, "priv/ssl/server.key"]
+        certfile: "priv/ssl/server.crt",
+        keyfile: "priv/ssl/server.key"]
 ```
 
 ## Release
