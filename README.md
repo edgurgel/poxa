@@ -123,9 +123,11 @@ config :poxa,
 
 ## Release
 
+This is the preferred way to deploy a Poxa server.
+
 If you just want to run a release, follow these instructions:
 
-First download dependencies and generate the release (or download it [here](https://github.com/edgurgel/poxa/releases))
+First download dependencies and generate the release
 
 ```console
 MIX_ENV=prod mix do deps.get, compile, release
