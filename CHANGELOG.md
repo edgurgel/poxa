@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.2 (2014-10-16)
+
+* Fix Poxa console to work also on SSL connections. Thanks to @darrencauthon !;
+* Ensure double JSON encoding on data keys on events;
+* Refactor some parts to improve readability;
+* Drop support to Elixir 0.15.*;
+* Fix unsubscription on Presence channels.
+
 ## 0.3.1 (2014-09-16)
 
 * Refactor channel specific code to Channel and PresenceChannel modules;
