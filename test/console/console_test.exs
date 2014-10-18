@@ -3,61 +3,46 @@ defmodule Poxa.ConsoleTest do
   import :meck
   import Poxa.Console
 
-  setup do
-    new :gproc
+  setup_all do
     new JSEX
+    expect(JSEX, :encode!, &(&1))
     on_exit fn -> unload end
     :ok
   end
 
   test "connected" do
-    expect(JSEX, :encode!, 1, :encoded_json)
-    expect(:gproc, :send, 2, :ok)
+    handle_event(%{event: :connected, socket_id: "socket_id", origin: "origin"}, self)
 
-    assert connected(:socket_id, "origin") == :ok
-
-    assert validate JSEX
-    assert validate :gproc
+    assert_received %{details: "Origin: origin", socket: "socket_id", time: _, type: "Connection"}
   end
 
   test "disconnected" do
-    expect(JSEX, :encode!, 1, :encoded_json)
-    expect(:gproc, :send, 2, :ok)
+    handle_event(%{event: :disconnected, socket_id: "socket_id", channels: ["channel1"], duration: 123}, self)
 
-    assert disconnected(:socket_id, ["channel"], 120) == :ok
-
-    assert validate JSEX
-    assert validate :gproc
+    assert_received %{details: "Channels: [\"channel1\"], Lifetime: 123s", socket: "socket_id", time: _, type: "Disconnection"}
   end
 
   test "subscribed" do
-    expect(JSEX, :encode!, 1, :encoded_json)
-    expect(:gproc, :send, 2, :ok)
+    handle_event(%{event: :subscribed, socket_id: "socket_id", channel: "channel"}, self)
 
-    assert subscribed(:socket_id, "channel") == :ok
-
-    assert validate JSEX
-    assert validate :gproc
+    assert_received %{details: "Channel: channel", socket: "socket_id", time: _, type: "Subscribed"}
   end
 
   test "unsubscribed" do
-    expect(JSEX, :encode!, 1, :encoded_json)
-    expect(:gproc, :send, 2, :ok)
+    handle_event(%{event: :unsubscribed, socket_id: "socket_id", channel: "channel"}, self)
 
-    assert unsubscribed(:socket_id, "channel") == :ok
-
-    assert validate JSEX
-    assert validate :gproc
+    assert_received %{details: "Channel: channel", socket: "socket_id", time: _, type: "Unsubscribed"}
   end
 
   test "api_message" do
-    expect(JSEX, :encode!, 1, :encoded_json)
-    expect(:gproc, :send, 2, :ok)
+    handle_event(%{event: :api_message, channels: ["channel"], message: %{event: "event_message"}}, self)
 
-    assert api_message("channel", %{"event" => "event-name"}) == :ok
-
-    assert validate JSEX
-    assert validate :gproc
+    assert_received %{details: "Channels: [\"channel\"], Event: ", socket: "", time: _, type: "API Message"}
   end
 
+  test "client_event_message" do
+    handle_event(%{event: :client_event_message, socket_id: "socket_id", channels: ["channel"], message: %{event: "event_message"}}, self)
+
+    assert_received %{details: "Channels: [\"channel\"], Event: ", socket: "socket_id", time: _, type: "Client Event Message"}
+  end
 end

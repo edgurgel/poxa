@@ -1,13 +1,14 @@
 defmodule Poxa.Console.WSHandlerTest do
   use ExUnit.Case
   alias Poxa.Authentication
+  alias Poxa.Event
   import :meck
   import Poxa.Console.WSHandler
 
   setup do
     new Authentication
     new :cowboy_req
-    new :gproc
+    new Event
     on_exit fn -> unload end
     :ok
   end
@@ -17,13 +18,12 @@ defmodule Poxa.Console.WSHandlerTest do
     expect(:cowboy_req, :path, 1, {:path, :req3})
     expect(:cowboy_req, :qs_vals, 1, {:qs_vals, :req4})
     expect(Authentication, :check, [{[:method, :path, "", :qs_vals], :ok}])
-    expect(:gproc, :reg, 1, :ok)
+    expect(Event, :add_handler, [{[self, Poxa.Console], :ok}])
 
     assert websocket_init(:tranport, :req, []) == {:ok, :req4, nil}
 
     assert validate Authentication
     assert validate :cowboy_req
-    assert validate :gproc
   end
 
   test "websocket_init with incorrect signature" do
@@ -36,13 +36,5 @@ defmodule Poxa.Console.WSHandlerTest do
 
     assert validate Authentication
     assert validate :cowboy_req
-  end
-
-  test "websocket_terminate always say goodbye" do
-    expect(:gproc, :goodbye, 0, :ok)
-
-    assert websocket_terminate(:reason, :req, :state) == :ok
-
-    assert validate :gproc
   end
 end

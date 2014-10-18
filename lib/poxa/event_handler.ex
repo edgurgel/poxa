@@ -8,7 +8,7 @@ defmodule Poxa.EventHandler do
   """
   alias Poxa.Authentication
   alias Poxa.PusherEvent
-  alias Poxa.Console
+  alias Poxa.Event
   require Logger
 
   @error_json JSEX.encode!(%{error: "invalid json"})
@@ -45,7 +45,7 @@ defmodule Poxa.EventHandler do
         if channels && PusherEvent.valid?(request_data) do
           message = prepare_message(request_data)
           PusherEvent.send_message_to_channels(channels, message, exclude)
-          Console.api_message(channels, message)
+          Event.notify(:api_message, %{channels: channels, message: message})
           {:ok, req} = :cowboy_req.reply(200, [], "{}", req)
           {:ok, req, nil}
         else
@@ -67,5 +67,4 @@ defmodule Poxa.EventHandler do
     {event, message} = Dict.pop(message, "name")
     Dict.merge(message, %{"event" => event})
   end
-
 end

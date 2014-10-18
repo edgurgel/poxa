@@ -3,15 +3,17 @@ defmodule Poxa.Console.WSHandler do
   require Logger
   alias Poxa.Authentication
 
+  @doc false
   def init(_transport, _req, _opts), do: {:upgrade, :protocol, :cowboy_websocket}
 
+  @doc false
   def websocket_init(_transport_name, req, _opts) do
     {method, req} = :cowboy_req.method(req)
     {path, req} = :cowboy_req.path(req)
     {qs_vals, req} = :cowboy_req.qs_vals(req)
 
     if Authentication.check(method, path, "", qs_vals) == :ok do
-      :gproc.reg({:p, :l, :console})
+      Poxa.Event.add_handler(self, Poxa.Console)
       {:ok, req, nil}
     else
       Logger.error "Failed to authenticate on Console Websocket"
@@ -19,14 +21,14 @@ defmodule Poxa.Console.WSHandler do
     end
   end
 
+  @doc false
   def websocket_handle(_data, req, state), do: {:ok, req, state}
 
-  def websocket_info({_pid, msg}, req, state) do
+  @doc false
+  def websocket_info(msg, req, state) do
     {:reply, {:text, msg}, req, state}
   end
 
-  def websocket_terminate(_reason, _req, _state) do
-    :gproc.goodbye
-    :ok
-  end
+  @doc false
+  def websocket_terminate(_reason, _req, _state), do: :ok
 end

@@ -6,9 +6,8 @@ defmodule Poxa.Supervisor do
   end
 
   def init([]) do
-    children = []
+    children = [worker(GenEvent, [[name: Poxa.Event]])]
     supervise children, strategy: :one_for_one
   end
-
 end
 

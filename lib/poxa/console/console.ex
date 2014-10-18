@@ -1,45 +1,48 @@
 defmodule Poxa.Console do
   import JSEX, only: [encode!: 1]
+  use GenEvent
 
-  def connected(socket_id, origin) do
-    send_message("Connection", socket_id, "Origin: #{origin}")
+  @doc false
+  def init(pid), do: {:ok, pid}
+
+  @doc false
+  def handle_event(%{event: :connected, socket_id: socket_id, origin: origin}, pid) do
+    send_message("Connection", socket_id, "Origin: #{origin}", pid)
+    {:ok, pid}
   end
 
-  def disconnected(socket_id, channels, duration) when is_list(channels) do
-    send_message("Disconnection", socket_id, "Channels: #{inspect channels}, Lifetime: #{duration}s")
+  def handle_event(%{event: :disconnected, socket_id: socket_id, channels: channels, duration: duration}, pid) do
+    send_message("Disconnection", socket_id, "Channels: #{inspect channels}, Lifetime: #{duration}s", pid)
+    {:ok, pid}
   end
 
-  def subscribed(socket_id, channel) do
-    send_message("Subscribed", socket_id, "Channel: #{channel}")
+  def handle_event(%{event: :subscribed, socket_id: socket_id, channel: channel}, pid) do
+    send_message("Subscribed", socket_id, "Channel: #{channel}", pid)
+    {:ok, pid}
   end
 
-  def unsubscribed(socket_id, channel) do
-    send_message("Unsubscribed", socket_id, "Channel: #{channel}")
+  def handle_event(%{event: :unsubscribed, socket_id: socket_id, channel: channel}, pid) do
+    send_message("Unsubscribed", socket_id, "Channel: #{channel}", pid)
+    {:ok, pid}
   end
 
-  def api_message(channels, message) do
-    send_message("API Message", "", "Channels: #{inspect channels}, Event: #{message["event"]}")
+  def handle_event(%{event: :api_message, channels: channels, message: message}, pid) do
+    send_message("API Message", "", "Channels: #{inspect channels}, Event: #{message["event"]}", pid)
+    {:ok, pid}
   end
 
-  def client_event_message(socket_id, channels, message) do
-    send_message("Client Event Message", socket_id, "Channels: #{inspect channels}, Event: #{message["event"]}")
+  def handle_event(%{event: :client_event_message, socket_id: socket_id, channels: channels, message: message}, pid) do
+    send_message("Client Event Message", socket_id, "Channels: #{inspect channels}, Event: #{message["event"]}", pid)
+    {:ok, pid}
   end
 
-  defp send_message(type, socket_id, details) do
-    message(type, socket_id, details) |> send
-  end
-
-  defp send(message) do
-    :gproc.send({:p, :l, :console}, {self, message |> encode!})
+  defp send_message(type, socket_id, details, pid) do
+    msg = message(type, socket_id, details) |> encode!
+    send(pid, msg)
   end
 
   defp message(type, socket_id, details) do
-    [
-      type: type,
-      socket: socket_id,
-      details: details,
-      time: time
-    ]
+    %{ type: type, socket: socket_id, details: details, time: time }
   end
 
   defp time do
