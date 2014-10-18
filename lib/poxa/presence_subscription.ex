@@ -15,16 +15,16 @@ defmodule Poxa.PresenceSubscription do
   @type t :: %__MODULE__{channel: binary, channel_data: [{user_id, user_info}]}
 
   alias Poxa.PusherEvent
-  alias Poxa.Channel
+  import Poxa.Channel, only: [presence?: 1, subscribed?: 2]
   require Logger
 
   @doc """
   Returns a PresenceSubscription struct
   """
-  @spec subscribe!(binary, :jsx.json_term) :: PresenceSubscription.t
+  @spec subscribe!(binary, :jsx.json_term) :: __MODULE__.t
   def subscribe!(channel, channel_data) do
     decoded_channel_data = JSEX.decode!(channel_data)
-    if Channel.subscribed?(channel, self) do
+    if subscribed?(channel, self) do
       Logger.info "Already subscribed #{inspect self} on channel #{channel}"
     else
       Logger.info "Registering #{inspect self} to channel #{channel}"
@@ -67,8 +67,7 @@ defmodule Poxa.PresenceSubscription do
     case :gproc.get_value({:p, :l, {:pusher, channel}}) do
       {user_id, _} ->
         if only_one_connection_on_user_id?(channel, user_id) do
-          message = PusherEvent.presence_member_removed(channel, user_id)
-          :gproc.send({:p, :l, {:pusher, channel}}, {self, message})
+          presence_member_removed(channel, user_id)
         end
       _ -> nil
     end
@@ -77,25 +76,24 @@ defmodule Poxa.PresenceSubscription do
 
   @doc """
   This function checks if the user that is leaving the presence channel
-  have more than one connection subscribed.
+  has more than one connection subscribed.
 
-  If the connection is unique, fire up the member_removed event
-  Otherwise decrement the counter
+  If the connection is the only one, fire up the member_removed event
   """
   @spec check_and_remove :: :ok
   def check_and_remove do
     match = {{:p, :l, {:pusher, :'$1'}}, self, {:'$2', :_}}
     channel_user_id = :gproc.select([{match, [], [[:'$1',:'$2']]}])
-    member_remove_fun = fn([channel, user_id]) ->
-      if Channel.presence?(channel) do
-        if only_one_connection_on_user_id?(channel, user_id) do
-          message = PusherEvent.presence_member_removed(channel, user_id)
-          :gproc.send({:p, :l, {:pusher, channel}}, {self, message})
-        end
-      end
+    for [channel, user_id] <- channel_user_id,
+      presence?(channel), only_one_connection_on_user_id?(channel, user_id) do
+        presence_member_removed(channel, user_id)
     end
-    Enum.each(channel_user_id, member_remove_fun)
     :ok
+  end
+
+  defp presence_member_removed(channel, user_id) do
+    message = PusherEvent.presence_member_removed(channel, user_id)
+    :gproc.send({:p, :l, {:pusher, channel}}, {self, message})
   end
 
   defp only_one_connection_on_user_id?(channel, user_id) do
