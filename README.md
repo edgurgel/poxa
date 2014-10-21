@@ -50,7 +50,7 @@ How do I speak 'poxa'?
 * [ ] Web hooks;
 * [ ] Specify types signature to functions and use dialyzer to check them on Travis;
 * [ ] Add 'Vacated' and 'Occupied' events to Console;
-* [ ] Use GenEvent to generate Console events so other handlers can be attached (Web hook for example);
+* [X] Use GenEvent to generate Console events so other handlers can be attached (Web hook for example);
 * [ ] Turn Poxa on a distributed server with multiple nodes;
 
 ## Typical usage
