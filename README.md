@@ -38,7 +38,7 @@ How do I speak 'poxa'?
 * Simple console;
 * REST API
   * /users on presence channels
-  * /channels/:channel_name (Partial support)
+  * /channels/:channel_name
   * /channels (Partial support)
 
 ## TODO
