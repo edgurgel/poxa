@@ -65,17 +65,13 @@ defmodule Poxa.Subscription do
   @spec unsubscribe!(:jsx.json_term) :: {:ok, binary}
   def unsubscribe!(data) do
     channel = data["channel"]
-    if Channel.presence?(channel) do
-      PresenceSubscription.unsubscribe!(channel);
-    end
-    unsubscribe_channel(channel)
-  end
-
-  defp unsubscribe_channel(channel) do
-    Logger.info "Unsubscribing to channel #{channel}"
-    case Channel.subscribed?(channel, self) do
-      true -> :gproc.unreg({:p, :l, {:pusher, channel}});
-      false -> Logger.debug "Already subscribed"
+    if Channel.subscribed?(channel, self) do
+      if Channel.presence?(channel) do
+        PresenceSubscription.unsubscribe!(channel);
+      end
+      :gproc.unreg({:p, :l, {:pusher, channel}});
+    else
+      Logger.debug "Already subscribed"
     end
     {:ok, channel}
   end
