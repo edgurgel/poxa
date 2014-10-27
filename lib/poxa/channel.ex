@@ -58,7 +58,7 @@ defmodule Poxa.Channel do
   end
 
   @doc """
-  Returns true if subscribed to `channel` and false otherwise
+  Returns true if `pid` is subscribed to `channel` and false otherwise
   """
   @spec subscribed?(binary, pid) :: boolean
   def subscribed?(channel, pid) do
