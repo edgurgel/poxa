@@ -7,170 +7,96 @@ defmodule Poxa.EventHandlerTest do
   import Poxa.EventHandler
 
   setup do
-    new PusherEvent
-    new Authentication
-    new JSEX
-    new Event
-    new :cowboy_req
     on_exit fn -> unload end
     :ok
   end
 
-  test "init with a valid json" do
-    expect(:cowboy_req, :body, 1,
-                {:ok, :body, :req1})
-    expect(JSEX, :is_json?, 1, true)
+  test "malformed_request with valid data" do
+    data = %{"name" => "", "data" => "", "channel" => ""}
+    expect(:cowboy_req, :body, 1, {:ok, :body, :req1})
+    expect(JSEX, :decode, 1, {:ok, data})
 
-    assert init(:transport, :req, :opts) == {:ok, :req1, :body}
-
-    assert validate :cowboy_req
-    assert validate JSEX
-  end
-
-  test "init with a invalid json" do
-    expect(:cowboy_req, :body, 1,
-                {:ok, :body, :req1})
-    expect(JSEX, :is_json?, 1, false)
-    expect(:cowboy_req, :reply, 4,
-                {:ok, :req2})
-
-    assert init(:transport, :req, :opts) == {:shutdown, :req2, nil}
+    assert malformed_request(:req, :state) == {false, :req1, %{body: :body, data: data}}
 
     assert validate :cowboy_req
     assert validate JSEX
   end
 
-  test "single channel event" do
-    expect(Authentication, :check, 4, :ok)
-    expect(:cowboy_req, :qs_vals, 1, {:qsvals, :req2})
-    expect(:cowboy_req, :method, 1, {:method, :req3})
-    expect(:cowboy_req, :path, 1, {:path, :req3})
-    expect(JSEX, :decode!, 1,
-                %{"channel" => "channel_name",
-                  "name" => "event_etc" })
-    expect(:cowboy_req, :reply, 4, {:ok, :req4})
-    expect(PusherEvent, :parse_channels, 1,
-                {%{"name" => "event_etc"}, :channels, nil})
-    expect(PusherEvent, :valid?, 1, true)
-    expect(PusherEvent, :send_message_to_channels, 3, :ok)
-    expect(Event, :notify, 2, :ok)
+  test "malformed_request with invalid JSON" do
+    expect(:cowboy_req, :body, 1, {:ok, :body, :req1})
+    expect(:cowboy_req, :set_resp_body, 2, :req2)
+    expect(JSEX, :decode, 1, :error)
 
-    assert handle(:req, :state) == {:ok, :req4, nil}
+    assert malformed_request(:req, :state) == {true, :req2, :state}
 
-    assert validate PusherEvent
-    assert validate Authentication
-    assert validate :cowboy_req
-    assert validate JSEX
-    assert validate Event
-  end
-
-  test "single channel event excluding socket_id" do
-    expect(Authentication, :check, 4, :ok)
-    expect(:cowboy_req, :body, 1,
-                {:ok, :body, :req1})
-    expect(:cowboy_req, :qs_vals, 1, {:qsvals, :req2})
-    expect(:cowboy_req, :method, 1, {:method, :req3})
-    expect(:cowboy_req, :path, 1, {:path, :req3})
-    expect(JSEX, :decode!, 1, :decoded_json)
-    expect(:cowboy_req, :reply, 4, {:ok, :req4})
-    expect(PusherEvent, :parse_channels, 1,
-                {%{"name" => "event_etc"}, :channels, :exclude})
-    expect(PusherEvent, :valid?, 1, true)
-    expect(PusherEvent, :send_message_to_channels, 3, :ok)
-    expect(Event, :notify, 2, :ok)
-    expect(:cowboy_req, :reply, 4, {:ok, :req4})
-
-    assert handle(:req, :state) == {:ok, :req4, nil}
-
-    assert validate PusherEvent
-    assert validate Authentication
-    assert validate :cowboy_req
-    assert validate JSEX
-    assert validate Event
-  end
-
-  test "multiple channel event" do
-    expect(Authentication, :check, 4, :ok)
-    expect(:cowboy_req, :body, 1,
-                {:ok, :body, :req1})
-    expect(:cowboy_req, :qs_vals, 1, {:qsvals, :req2})
-    expect(:cowboy_req, :method, 1, {:method, :req3})
-    expect(:cowboy_req, :path, 1, {:path, :req3})
-    expect(JSEX, :decode!, 1, :decoded_json)
-    expect(:cowboy_req, :reply, 4, {:ok, :req4})
-    expect(PusherEvent, :parse_channels, 1,
-                {%{"name" => "event_etc"}, :channels, nil})
-    expect(PusherEvent, :send_message_to_channels, 3, :ok)
-    expect(PusherEvent, :valid?, 1, true)
-    expect(Event, :notify, 2, :ok)
-    expect(:cowboy_req, :reply, 4, {:ok, :req4})
-
-    assert handle(:req, :state) == {:ok, :req4, nil}
-
-    assert validate PusherEvent
-    assert validate Authentication
-    assert validate :cowboy_req
-    assert validate JSEX
-    assert validate Event
-  end
-
-  test "invalid event" do
-    expect(Authentication, :check, 4, :ok)
-    expect(:cowboy_req, :body, 1,
-                {:ok, :body, :req1})
-    expect(:cowboy_req, :qs_vals, 1, {:qsvals, :req2})
-    expect(:cowboy_req, :method, 1, {:method, :req3})
-    expect(:cowboy_req, :path, 1, {:path, :req3})
-    expect(JSEX, :decode!, 1, :decoded_json)
-    expect(:cowboy_req, :reply, 4, {:ok, :req4})
-    expect(PusherEvent, :valid?, 1, false)
-    expect(PusherEvent, :parse_channels, 1,
-                {%{"name" => "event_etc"}, :channels, nil})
-
-    assert handle(:req, :state) == {:ok, :req4, nil}
-
-    assert validate Authentication
-    assert validate PusherEvent
     assert validate :cowboy_req
     assert validate JSEX
   end
 
-  test "undefined channel event" do
-    expect(Authentication, :check, 4, :ok)
-    expect(:cowboy_req, :body, 1,
-                {:ok, :body, :req1})
-    expect(:cowboy_req, :qs_vals, 1, {:qsvals, :req2})
-    expect(:cowboy_req, :method, 1, {:method, :req3})
-    expect(:cowboy_req, :path, 1, {:path, :req3})
-    expect(JSEX, :decode!, 1, :decoded_json)
-    expect(PusherEvent, :valid?, 1, true)
-    expect(PusherEvent, :parse_channels, 1,
-                {%{"name" => "event_etc"}, nil, nil})
-    expect(:cowboy_req, :reply, 4, {:ok, :req4})
+  test "malformed_request with invalid data" do
+    data = %{"name" => "", "data" => ""}
+    expect(:cowboy_req, :body, 1, {:ok, :body, :req1})
+    expect(:cowboy_req, :set_resp_body, 2, :req2)
+    expect(JSEX, :decode, 1, {:ok, data})
 
-    assert handle(:req, :state) == {:ok, :req4, nil}
+    assert malformed_request(:req, :state) == {true, :req2, :state}
 
-    assert validate Authentication
-    assert validate PusherEvent
     assert validate :cowboy_req
     assert validate JSEX
   end
 
-  test "failing authentication" do
+  test "is_authorized with failing authentication" do
     expect(Authentication, :check, 4, :error)
-    expect(:cowboy_req, :body, 1,
-                {:ok, :body, :req1})
     expect(:cowboy_req, :qs_vals, 1, {:qsvals, :req2})
     expect(:cowboy_req, :method, 1, {:method, :req3})
     expect(:cowboy_req, :path, 1, {:path, :req3})
-    expect(JSEX, :decode!, 1, :decoded_json)
-    expect(:cowboy_req, :reply, 4, {:ok, :req4})
+    expect(:cowboy_req, :set_resp_body, 2, :req4)
 
-    assert handle(:req, :state) == {:ok, :req4, nil}
+    assert is_authorized(:req, %{body: :body}) == {false, :req4, %{body: :body}}
 
     assert validate Authentication
+    assert validate :cowboy_req
+  end
+
+  test "is_authorized with correct authentication" do
+    expect(Authentication, :check, 4, :ok)
+    expect(:cowboy_req, :qs_vals, 1, {:qsvals, :req2})
+    expect(:cowboy_req, :method, 1, {:method, :req3})
+    expect(:cowboy_req, :path, 1, {:path, :req3})
+
+    assert is_authorized(:req, %{body: :body}) == {true, :req3, %{body: :body}}
+
+    assert validate Authentication
+    assert validate :cowboy_req
+  end
+
+  test "valid_entity_length with data key smaller than 10KB" do
+    json = %{"data" => "not10KB"}
+    assert valid_entity_length(:req, %{data: json}) == {true, :req, %{data: json}}
+  end
+
+  test "valid_entity_length with data key bigger than 10KB" do
+    data = File.read! "test/more_than_10KB.data"
+    json = %{"data" => data}
+    expect(:cowboy_req, :set_resp_body, 2, :req2)
+
+    assert valid_entity_length(:req, %{data: json}) == {false, :req2, %{data: json}}
+
+    assert validate :cowboy_req
+  end
+
+  test "post event" do
+    data = %{"name" => "event_etc"}
+    expect(PusherEvent, :parse_channels, 1,
+                {data, :channels, :excluded})
+    expect(PusherEvent, :send_message_to_channels, [{[:channels, %{"event" => "event_etc"}, :excluded], :ok}])
+    expect(Event, :notify, 2, :ok)
+    expect(:cowboy_req, :set_resp_body, 2, :req2)
+
+    assert post(:req, %{data: :data}) == {true, :req2, nil}
+
     assert validate PusherEvent
     assert validate :cowboy_req
-    assert validate JSEX
+    assert validate Event
   end
 end

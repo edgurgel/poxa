@@ -16,51 +16,69 @@ defmodule Poxa.EventHandler do
   If the body is a valid JSON, the state of the handler will be the body
   Otherwise the response will be a 400 status code
   """
-  def init(_transport, req, _opts) do
+  def init(_transport, _req, _opts), do: {:upgrade, :protocol, :cowboy_rest}
+
+  def allowed_methods(req, state), do: {["POST"], req, state}
+
+  @invalid_event_json JSEX.encode!(%{error: "Event must have channel(s), name, and data"})
+  def malformed_request(req, state) do
     {:ok, body, req} = :cowboy_req.body(req)
-    if JSEX.is_json?(body) do
-      {:ok, req, body}
-    else
-      Logger.info "Invalid JSON on Event Handler: #{body}"
-      {:ok, req} = :cowboy_req.reply(400, [], @error_json, req)
-      {:shutdown, req, nil}
+    case JSEX.decode(body) do
+      {:ok, data} ->
+        if invalid_data?(data) do
+          req = :cowboy_req.set_resp_body(@invalid_event_json, req)
+          {true, req, state}
+        else
+          {false, req, %{body: body, data: data}}
+        end
+      _ ->
+        req = :cowboy_req.set_resp_body(@invalid_event_json, req)
+        {true, req, state}
     end
   end
 
-  @authentication_error_json JSEX.encode!(%{error: "Authentication error"})
-  @invalid_event_json JSEX.encode!(%{error: "Event must have channel(s), name, and data"})
+  defp invalid_data?(%{"name" => _, "data" => _, "channel" => _}), do: false
+  defp invalid_data?(%{"name" => _, "data" => _, "channels" => _}), do: false
+  defp invalid_data?(_), do: true
 
-  @doc """
-  Decode the JSON and send events to channels if successful
-  """
-  def handle(req, body) do
+  @authentication_error_json JSEX.encode!(%{error: "Authentication error"})
+  # http://pusher.com/docs/rest_api#authentication
+  def is_authorized(req, %{body: body} = state) do
     {qs_vals, req} = :cowboy_req.qs_vals(req)
     {method, req} = :cowboy_req.method(req)
     {path, req} = :cowboy_req.path(req)
-    # http://pusher.com/docs/rest_api#authentication
-    case Authentication.check(method, path, body, qs_vals) do
-      :ok ->
-        request_data = JSEX.decode!(body)
-        {request_data, channels, exclude} = PusherEvent.parse_channels(request_data)
-        if channels && PusherEvent.valid?(request_data) do
-          message = prepare_message(request_data)
-          PusherEvent.send_message_to_channels(channels, message, exclude)
-          Event.notify(:api_message, %{channels: channels, message: message})
-          {:ok, req} = :cowboy_req.reply(200, [], "{}", req)
-          {:ok, req, nil}
-        else
-          Logger.info "No channel defined"
-          {:ok, req} = :cowboy_req.reply(400, [], @invalid_event_json, req)
-          {:ok, req, nil}
-        end
-      _ ->
-        Logger.info "Authentication failed"
-        {:ok, req} = :cowboy_req.reply(401, [], @authentication_error_json, req)
-        {:ok, req, nil}
+    authorized = Authentication.check(method, path, body, qs_vals) == :ok
+    unless authorized do
+      req = :cowboy_req.set_resp_body(@authentication_error_json, req)
     end
+    {authorized, req, state}
   end
 
-  def terminate(_reason, _req, _state), do: :ok
+  @invalid_data_size_json JSEX.encode!(%{error: "Data key must be smaller than 10KB"})
+  def valid_entity_length(req, %{data: data} = state) do
+    valid = byte_size(data["data"]) <= 10_000
+    unless valid do
+      req = :cowboy_req.set_resp_body(@invalid_data_size_json, req)
+    end
+    {valid, req, state}
+  end
+
+  def content_types_accepted(req, state) do
+    {[{{"application", "json", :*}, :post}], req, state}
+  end
+
+  def content_types_provided(req, state) do
+    {[{{"application", "json", []}, :undefined}], req, state}
+  end
+
+  def post(req, %{data: data}) do
+    {data, channels, exclude} = PusherEvent.parse_channels(data)
+    message = prepare_message(data)
+    PusherEvent.send_message_to_channels(channels, message, exclude)
+    Event.notify(:api_message, %{channels: channels, message: message})
+    req = :cowboy_req.set_resp_body("{}", req)
+    {true, req, nil}
+  end
 
   # Remove name and add event to the response
   defp prepare_message(message) do
