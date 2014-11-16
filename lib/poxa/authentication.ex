@@ -14,8 +14,8 @@ defmodule Poxa.Authentication do
       qs_vals = Enum.into(qs_vals, %{})
       #If any of these values are not avaiable -> MatchError
       body_md5 = qs_vals["body_md5"]
-      {:ok, app_key} = :application.get_env(:poxa, :app_key)
-      {:ok, secret} = :application.get_env(:poxa, :app_secret)
+      {:ok, app_key} = Application.fetch_env(:poxa, :app_key)
+      {:ok, secret} = Application.fetch_env(:poxa, :app_secret)
 
       :ok = check_body(body, body_md5)
       Signaturex.validate!(app_key, secret, method, path, qs_vals, 600)
@@ -33,7 +33,7 @@ defmodule Poxa.Authentication do
   """
   @spec check_key(binary) :: :ok | error_reason
   def check_key(auth_key) do
-    {:ok, app_key} = :application.get_env(:poxa, :app_key)
+    {:ok, app_key} = Application.fetch_env(:poxa, :app_key)
     if auth_key == app_key, do: :ok,
     else: {:error, "app_key and auth_key dont match."}
   end

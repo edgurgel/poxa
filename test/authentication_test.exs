@@ -4,22 +4,22 @@ defmodule Poxa.AuthenticationTest do
   import Poxa.Authentication
 
   setup do
-    new :application, [:unstick]
+    new Application
     on_exit fn -> unload end
     :ok
   end
 
   test "a valid auth_key" do
-    expect(:application, :get_env, 2, {:ok, :auth_key})
+    expect(Application, :fetch_env, 2, {:ok, :auth_key})
     assert check_key(:auth_key) == :ok
-    assert validate :application
+    assert validate Application
   end
 
   test "an invalid auth_key" do
-    expect(:application, :get_env, 2, {:ok, :auth_key})
+    expect(Application, :fetch_env, 2, {:ok, :auth_key})
     {return, _} = check_key(:invalid_auth_key)
     assert return == :error
-    assert validate :application
+    assert validate Application
   end
 
   test "a valid body" do
