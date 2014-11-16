@@ -36,10 +36,10 @@ defmodule Poxa do
 
   defp load_config do
     try do
-      {:ok, app_key} = :application.get_env(:poxa, :app_key)
-      {:ok, app_id} = :application.get_env(:poxa, :app_id)
-      {:ok, app_secret} = :application.get_env(:poxa, :app_secret)
-      {:ok, port} = :application.get_env(:poxa, :port)
+      {:ok, app_key} = Application.fetch_env(:poxa, :app_key)
+      {:ok, app_id} = Application.fetch_env(:poxa, :app_id)
+      {:ok, app_secret} = Application.fetch_env(:poxa, :app_secret)
+      {:ok, port} = Application.fetch_env(:poxa, :port)
       {:ok, %{app_key: app_key, app_id: app_id,
               app_secret: app_secret, port: to_integer(port)}}
     rescue
@@ -51,7 +51,7 @@ defmodule Poxa do
   defp to_integer(int) when is_integer(int), do: int
 
   defp run_ssl(dispatch) do
-    case :application.get_env(:poxa, :ssl) do
+    case Application.fetch_env(:poxa, :ssl) do
       {:ok, ssl_config} ->
         if Enum.all?([:port, :certfile, :keyfile], &Keyword.has_key?(ssl_config, &1)) do
           {:ok, _} = :cowboy.start_https(:https, 100,
@@ -62,7 +62,7 @@ defmodule Poxa do
         else
           Logger.error "Must specify port, certfile and keyfile (cacertfile optional)"
         end
-      :undefined -> Logger.info "SSL not configured/started"
+      :error -> Logger.info "SSL not configured/started"
     end
   end
 end
