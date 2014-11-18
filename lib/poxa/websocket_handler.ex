@@ -85,13 +85,11 @@ defmodule Poxa.WebsocketHandler do
   end
   # Client Events
   defp handle_pusher_event("client-" <> _event_name, decoded_json, req, %State{socket_id: socket_id} = state) do
-    {message, channels, _exclude} = PusherEvent.parse_channels(decoded_json)
-    sent_channels = for channel <- channels, Channel.private_or_presence?(channel), Channel.subscribed?(channel, self) do
-      PusherEvent.send_message_to_channel(channel, message, [self])
-      channel
-    end
-    unless Enum.empty?(sent_channels) do
-      Event.notify(:client_event_message, %{socket_id: socket_id, channels: sent_channels, message: message})
+    event = PusherEvent.build_client_event(decoded_json, socket_id)
+    channel = List.first(event.channels)
+    if Channel.private_or_presence?(channel) and Channel.subscribed?(channel, self) do
+      PusherEvent.publish(event)
+      Event.notify(:client_event_message, %{socket_id: socket_id, channels: event.channels, name: event.name})
     end
     {:ok, req, state}
   end

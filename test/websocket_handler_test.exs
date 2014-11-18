@@ -197,11 +197,12 @@ defmodule Poxa.WebsocketHandlerTest do
 
   test "client event on presence channel" do
     decoded_json = %{"event" => "client-event"}
+    event = %PusherEvent{channels: ["presence-channel"], name: "client-event"}
     expect(JSEX, :decode!, [{[:client_event_json], decoded_json}])
-    expect(PusherEvent, :parse_channels, [{[decoded_json], {:message, ["presence-channel", "public-channel"], nil}}])
-    expect(PusherEvent, :send_message_to_channel, 3, :ok)
+    expect(PusherEvent, :build_client_event, [{[decoded_json, :socket_id], event}])
+    expect(PusherEvent, :publish, 1, :ok)
     expect(Channel, :subscribed?, 2, true)
-    expect(Event, :notify, [{[:client_event_message, %{socket_id: :socket_id, channels: ["presence-channel"], message: :message}], :ok}])
+    expect(Event, :notify, [{[:client_event_message, %{socket_id: :socket_id, channels: ["presence-channel"], name: "client-event"}], :ok}])
 
     state = %State{socket_id: :socket_id}
 
@@ -216,11 +217,12 @@ defmodule Poxa.WebsocketHandlerTest do
 
   test "client event on private channel" do
     decoded_json = %{"event" => "client-event"}
+    event = %PusherEvent{channels: ["private-channel"], name: "client-event"}
     expect(JSEX, :decode!, [{[:client_event_json], decoded_json}])
-    expect(PusherEvent, :parse_channels, [{[decoded_json], {:message, ["private-channel"], nil}}])
-    expect(PusherEvent, :send_message_to_channel, 3, :ok)
+    expect(PusherEvent, :build_client_event, [{[decoded_json, :socket_id], event}])
+    expect(PusherEvent, :publish, 1, :ok)
     expect(Channel, :subscribed?, 2, true)
-    expect(Event, :notify, [{[:client_event_message, %{socket_id: :socket_id, channels: ["private-channel"], message: :message}], :ok}])
+    expect(Event, :notify, [{[:client_event_message, %{socket_id: :socket_id, channels: ["private-channel"], name: "client-event"}], :ok}])
 
     state = %State{socket_id: :socket_id}
 
@@ -234,12 +236,11 @@ defmodule Poxa.WebsocketHandlerTest do
   end
 
   test "client event on not subscribed private channel" do
-    expect(JSEX, :decode!, 1, %{"event" => "client-event"})
-    expect(PusherEvent, :parse_channels, 1, {:message, ["private-subscribed-channel", "private-not-subscribed"], nil})
-    expect(PusherEvent, :send_message_to_channel, 3, :ok)
-    expect(Channel, :subscribed?, [{["private-subscribed-channel", self], true},
-                                   {["private-not-subscribed", self], false}])
-    expect(Event, :notify, [{[:client_event_message, %{socket_id: :socket_id, channels: ["private-subscribed-channel"], message: :message}], :ok}])
+    decoded_json = %{"event" => "client-event"}
+    event = %PusherEvent{channels: ["private-not-subscribed"], name: "client-event"}
+    expect(JSEX, :decode!, [{[:client_event_json], decoded_json}])
+    expect(PusherEvent, :build_client_event, [{[decoded_json, :socket_id], event}])
+    expect(Channel, :subscribed?, 2, false)
 
     state = %State{socket_id: :socket_id}
 
@@ -253,8 +254,9 @@ defmodule Poxa.WebsocketHandlerTest do
   end
 
   test "client event on public channel" do
+    event = %PusherEvent{channels: ["public-channel"], name: "client-event"}
     expect(JSEX, :decode!, 1, %{"event" => "client-event"})
-    expect(PusherEvent, :parse_channels, 1, {:message, ["public-channel"], nil})
+    expect(PusherEvent, :build_client_event, 2, event)
 
     state = %State{socket_id: :socket_id}
 

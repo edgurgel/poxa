@@ -72,17 +72,10 @@ defmodule Poxa.EventHandler do
   end
 
   def post(req, %{data: data}) do
-    {data, channels, exclude} = PusherEvent.parse_channels(data)
-    message = prepare_message(data)
-    PusherEvent.send_message_to_channels(channels, message, exclude)
-    Event.notify(:api_message, %{channels: channels, message: message})
+    event = PusherEvent.build(data)
+    PusherEvent.publish(event)
+    Event.notify(:api_message, %{channels: event.channels, name: event.name})
     req = :cowboy_req.set_resp_body("{}", req)
     {true, req, nil}
-  end
-
-  # Remove name and add event to the response
-  defp prepare_message(message) do
-    {event, message} = Dict.pop(message, "name")
-    Dict.merge(message, %{"event" => event})
   end
 end

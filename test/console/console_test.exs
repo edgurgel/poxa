@@ -35,14 +35,14 @@ defmodule Poxa.ConsoleTest do
   end
 
   test "api_message" do
-    handle_event(%{event: :api_message, channels: ["channel"], message: %{event: "event_message"}}, self)
+    handle_event(%{event: :api_message, channels: ["channel"], name: "event_message"}, self)
 
-    assert_received %{details: "Channels: [\"channel\"], Event: ", socket: "", time: _, type: "API Message"}
+    assert_received %{details: "Channels: [\"channel\"], Event: event_message", socket: "", time: _, type: "API Message"}
   end
 
   test "client_event_message" do
-    handle_event(%{event: :client_event_message, socket_id: "socket_id", channels: ["channel"], message: %{event: "event_message"}}, self)
+    handle_event(%{event: :client_event_message, socket_id: "socket_id", channels: ["channel"], name: "event_message"}, self)
 
-    assert_received %{details: "Channels: [\"channel\"], Event: ", socket: "socket_id", time: _, type: "Client Event Message"}
+    assert_received %{details: "Channels: [\"channel\"], Event: event_message", socket: "socket_id", time: _, type: "Client Event Message"}
   end
 end

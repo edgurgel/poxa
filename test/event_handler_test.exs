@@ -86,10 +86,9 @@ defmodule Poxa.EventHandlerTest do
   end
 
   test "post event" do
-    data = %{"name" => "event_etc"}
-    expect(PusherEvent, :parse_channels, 1,
-                {data, :channels, :excluded})
-    expect(PusherEvent, :send_message_to_channels, [{[:channels, %{"event" => "event_etc"}, :excluded], :ok}])
+    event = %PusherEvent{}
+    expect(PusherEvent, :build, 1, event)
+    expect(PusherEvent, :publish, [{[event], :ok}])
     expect(Event, :notify, 2, :ok)
     expect(:cowboy_req, :set_resp_body, 2, :req2)
 

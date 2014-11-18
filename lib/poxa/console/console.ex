@@ -26,13 +26,13 @@ defmodule Poxa.Console do
     {:ok, pid}
   end
 
-  def handle_event(%{event: :api_message, channels: channels, message: message}, pid) do
-    send_message("API Message", "", "Channels: #{inspect channels}, Event: #{message["event"]}", pid)
+  def handle_event(%{event: :api_message, channels: channels, name: name}, pid) do
+    send_message("API Message", "", "Channels: #{inspect channels}, Event: #{name}", pid)
     {:ok, pid}
   end
 
-  def handle_event(%{event: :client_event_message, socket_id: socket_id, channels: channels, message: message}, pid) do
-    send_message("Client Event Message", socket_id, "Channels: #{inspect channels}, Event: #{message["event"]}", pid)
+  def handle_event(%{event: :client_event_message, socket_id: socket_id, channels: channels, name: name}, pid) do
+    send_message("Client Event Message", socket_id, "Channels: #{inspect channels}, Event: #{name}", pid)
     {:ok, pid}
   end
 

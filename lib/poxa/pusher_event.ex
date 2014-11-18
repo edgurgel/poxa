@@ -8,10 +8,6 @@ defmodule Poxa.PusherEvent do
   alias Poxa.PresenceSubscription
   import JSEX, only: [encode!: 1]
 
-  def valid?(event) do
-    Enum.all?(["name", "data"], &Dict.has_key?(event, &1))
-  end
-
   @doc """
   Return a JSON for an established connection using the `socket_id` parameter to
   identify this connection
@@ -155,15 +151,38 @@ defmodule Poxa.PusherEvent do
     end
   end
 
+  defstruct [:channels, :name, :data, :socket_id]
+  @type t :: %Poxa.PusherEvent{channels: list, name: binary,
+                               data: binary | map, socket_id: nil | binary}
+
+  @doc """
+  Builds the struct based on the decoded JSON from /events endpoint
+  """
+  @spec build(map) :: Poxa.PusherEvent.t
+  def build(%{"name" => name, "channels" => channels, "data" => data} = event) do
+    %Poxa.PusherEvent{channels: channels, data: data, name: name, socket_id: event["socket_id"]}
+  end
+  def build(%{"name" => name, "channel" => channel, "data" => data} = event) do
+    %Poxa.PusherEvent{channels: [channel], data: data, name: name, socket_id: event["socket_id"]}
+  end
+
+  def build_client_event(%{"event" => event, "channel" => channel, "data" => data}, socket_id) do
+    %Poxa.PusherEvent{channels: [channel], data: data, name: event, socket_id: socket_id}
+  end
+  def build_client_event(%{"name" => event, "channel" => channel, "data" => data}, socket_id) do
+    %Poxa.PusherEvent{channels: [channel], data: data, name: event, socket_id: socket_id}
+  end
+
   @doc """
   Send `message` to `channels` excluding `exclude`
   """
-  @spec send_message_to_channels([binary], :jsx.json_term, binary) :: :ok
-  def send_message_to_channels(channels, message, exclude) do
+  @spec publish(Poxa.PusherEvent.t) :: :ok
+  def publish(%Poxa.PusherEvent{channels: channels, socket_id: exclude} = event) do
+    exclude = event.socket_id
     pid_to_exclude = if exclude, do: :gproc.lookup_pids({:n, :l, exclude}),
     else: []
     for channel <- channels do
-      send_message_to_channel(channel, message, pid_to_exclude)
+      publish_event_to_channel(event, channel, pid_to_exclude)
     end
     :ok
   end
@@ -172,15 +191,19 @@ defmodule Poxa.PusherEvent do
   Send `message` to `channel` excluding `exclude` appending the channel name info
   to the message
   """
-  @spec send_message_to_channel(binary, :jsx.json_term, [pid]) :: :ok
-  def send_message_to_channel(channel, message, pid_to_exclude) do
-    message = Dict.merge(message, %{"channel" => channel})
+  @spec publish_event_to_channel(Poxa.PusherEvent.t, binary, [pid]) :: :ok
+  def publish_event_to_channel(event, channel, pid_to_exclude) do
+    message = build_message(event, channel) |> encode!
     pids = :gproc.lookup_pids({:p, :l, {:pusher, channel}})
     pids = pids -- pid_to_exclude
 
     for pid <- pids do
-      send pid, {self, encode!(message)}
+      send pid, {self, message}
     end
     :ok
+  end
+
+  defp build_message(event, channel) do
+    %{event: event.name, data: event.data, channel: channel}
   end
 end

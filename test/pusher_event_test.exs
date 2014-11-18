@@ -2,6 +2,7 @@ defmodule Poxa.PusherEventTest do
   use ExUnit.Case
   import :meck
   import Poxa.PusherEvent
+  alias Poxa.PusherEvent
 
   setup do
     new :gproc
@@ -10,18 +11,6 @@ defmodule Poxa.PusherEventTest do
   end
 
   doctest Poxa.PusherEvent
-
-  test "valid? for valid event" do
-    assert valid?(%{"name" => "publish", "data" => "{ \"key\" : \"value\" }"})
-  end
-
-  test "valid? for event without \"name\"" do
-    refute valid?(%{"names" => "publish", "data" => "{ \"key\" : \"value\" }"})
-  end
-
-  test "valid? for event without \"data\"" do
-    refute valid?(%{"name" => "publish", "dat" => "{ \"key\" : \"value\" }"})
-  end
 
   test "connection established output" do
     json ="{\"data\":\"{\\\"activity_timeout\\\":120,\\\"socket_id\\\":\\\"SocketId\\\"}\",\"event\":\"pusher:connection_established\"}"
@@ -61,10 +50,10 @@ defmodule Poxa.PusherEventTest do
   end
 
   test "parse channels having a single channel" do
-    data = %{"channel" => "channel_name",
+    event = %{"channel" => "channel_name",
+             "data" => "event_data",
              "name" => "event_etc"}
-    expected_data = %{"name" => "event_etc"}
-    assert parse_channels(data) == {expected_data, ["channel_name"], nil}
+    assert build(event) == %PusherEvent{name: "event_etc", data: "event_data", channels: ["channel_name"]}
   end
 
   test "parse channels having multiple channels" do
@@ -89,57 +78,54 @@ defmodule Poxa.PusherEventTest do
 
   test "sending message to a channel" do
     pid = self
-    new JSEX
     expect(:gproc, :lookup_pids, 1, [pid])
-    expected = %{"channel" => "channel123"}
+    expected = %{channel: "channel123", data: "data", event: "event"}
     expect(JSEX, :encode!, [{[expected], :msg}])
+    event = %PusherEvent{channels: ["channel123"], data: "data", name: "event"}
 
-    assert send_message_to_channel("channel123", %{}, []) == :ok
+    assert publish_event_to_channel(event, "channel123", []) == :ok
     assert_receive { ^pid, :msg }
 
     assert validate :gproc
     assert validate JSEX
-    unload JSEX
   end
 
   test "sending message to a channel excluding a pid" do
-    new JSEX
+    pid = self
     expect(:gproc, :lookup_pids, 1, [self])
-    expected = %{"channel" => "channel123"}
+    expected = %{channel: "channel123", data: "data", event: "event"}
     expect(JSEX, :encode!, [{[expected], :msg}])
+    event = %PusherEvent{channels: ["channel123"], data: "data", name: "event"}
 
-    assert send_message_to_channel("channel123", %{}, [self]) == :ok
+    assert publish_event_to_channel(event, "channel123", [self]) == :ok
+    refute_receive { ^pid, :msg }
 
     assert validate :gproc
     assert validate JSEX
-    unload JSEX
   end
 
   test "sending message to channels" do
     pid = self
-    new JSEX
     expect(:gproc, :lookup_pids, 1, [pid])
-    expected = %{"channel" => "channel123"}
+    expected = %{channel: "channel123", data: "data", event: "event"}
     expect(JSEX, :encode!, [{[expected], :msg}])
 
-    assert send_message_to_channels(["channel123"], %{}, nil) == :ok
+    assert publish(%PusherEvent{data: "data", channels: ["channel123"], name: "event"}) == :ok
     assert_receive { ^pid, :msg }
 
     assert validate :gproc
     assert validate JSEX
-    unload JSEX
   end
 
   test "sending message to channels excluding a socket id" do
     new JSEX
     expect(:gproc, :lookup_pids, 1, [self])
-    expected = %{"channel" => "channel123"}
+    expected = %{channel: "channel123", data: %{}, event: "event"}
     expect(JSEX, :encode!, [{[expected], :msg}])
 
-    assert send_message_to_channels(["channel123"], %{}, "SocketId") == :ok
+    assert publish(%PusherEvent{data: %{}, channels: ["channel123"], name: "event", socket_id: "SocketId"}) == :ok
 
     assert validate :gproc
     assert validate JSEX
-    unload JSEX
   end
 end
