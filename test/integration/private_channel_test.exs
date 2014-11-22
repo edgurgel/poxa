@@ -35,4 +35,29 @@ defmodule Poxa.Integration.PrivateChannelTest do
                      event: "test_event",
                      data: %{"data" => 42}}, 1_000
   end
+
+  test "client event on populated private channel", context do
+    pid = context[:pid]
+    channel = "private-channel"
+
+    {:ok, other_pid} = Connection.connect
+    PusherClient.subscribe!(other_pid, channel)
+
+    assert_receive %{channel: ^channel,
+                     event: "pusher:subscription_succeeded",
+                     data: _}, 1_000
+
+    PusherClient.subscribe!(pid, channel)
+
+    assert_receive %{channel: ^channel,
+                     event: "pusher:subscription_succeeded",
+                     data: _}, 1_000
+
+    PusherClient.trigger_event!(pid, "client-event", %{}, channel)
+
+    assert_receive %{channel: ^channel,
+                     event: "client-event",
+                     data: _}, 1_000
+    PusherClient.disconnect!(other_pid)
+  end
 end

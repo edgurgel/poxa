@@ -12,7 +12,7 @@
   "meck": {:hex, :meck, "0.8.2"},
   "poison": {:hex, :poison, "1.2.0"},
   "pusher": {:git, "git://github.com/edgurgel/pusher.git", "0ffe025b09dcce42bb41afbc89087f0d9f0aaf50", []},
-  "pusher_client": {:git, "git://github.com/edgurgel/pusher_client.git", "0416b186d4ef84e62ece1c72c240c422ad481875", []},
+  "pusher_client": {:git, "git://github.com/edgurgel/pusher_client.git", "be5670273e565cf469304468e37883904a06c665", []},
   "ranch": {:hex, :ranch, "1.0.0"},
   "signaturex": {:hex, :signaturex, "0.0.8"},
   "uuid": {:git, "git://github.com/avtobiff/erlang-uuid.git", "2056ad3717fedccf3634757401f77272bccb4554", [tag: "v0.4.5"]},
