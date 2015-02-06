@@ -47,7 +47,7 @@ defmodule Poxa.ChannelsHandler do
   end
 
   def get_json(req, {channel, attributes}) do
-      show(channel, attributes, req, nil)
+    show(channel, attributes, req, nil)
   end
   def get_json(req, nil) do
     index(req, nil)
@@ -75,15 +75,27 @@ defmodule Poxa.ChannelsHandler do
   end
 
   defp index(req, state) do
-    channels =
-      Channel.all
-        |> Enum.filter_map(
-          fn channel ->
-            Channel.presence? channel
-          end,
-          fn channel ->
-            {channel, [user_count: PresenceChannel.user_count(channel)]}
-          end)
+    {filter, req} = :cowboy_req.qs_val("filter_by_prefix", req, "")
+    channels = channels(filter)
     {JSEX.encode!(channels: channels), req, state}
   end
+
+  defp channels(filter) do
+    Channel.all
+      |> Enum.filter_map(
+        fn channel ->
+          filter_channel(channel, filter)
+        end,
+        fn channel ->
+          {channel, Channel.presence?(channel) }
+        end)
+      |> Enum.map(&user_count/1)
+  end
+
+  defp filter_channel(channel, nil), do: ! Channel.private?(channel)
+  defp filter_channel(channel, filter), do: Channel.matches?(channel, filter)
+
+  defp user_count({channel, true}), do: { channel, user_count: PresenceChannel.user_count(channel) }
+  defp user_count({channel, false}), do: { channel, user_count: Channel.subscription_count(channel) }
+
 end

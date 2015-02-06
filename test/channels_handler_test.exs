@@ -106,7 +106,9 @@ defmodule Poxa.ChannelsHandlerTest do
   end
 
   test "get_json on every single channel" do
+    expect(:cowboy_req, :qs_val, 3, {nil, :req})
     expect(Channel, :all, 0, ["presence-channel", "private-channel"])
+    expect(Channel, :presence?, 1, true)
     expect(PresenceChannel, :user_count, 1, 3)
     expected = [channels: [{"presence-channel", user_count: 3}]]
     expect(JSEX, :encode!, [{[expected], :encoded_json}])
@@ -116,5 +118,19 @@ defmodule Poxa.ChannelsHandlerTest do
     assert validate JSEX
     assert validate Channel
     assert validate PresenceChannel
+  end
+
+  test "get_json on every single channel with filter" do
+    expect(:cowboy_req, :qs_val, 3, {"poxa-", :req})
+    expect(Channel, :all, 0, ["presence-channel", "poxa-channel"])
+    expect(Channel, :presence?, 1, false)
+    expect(Channel, :subscription_count, 1, 9)
+    expected = [channels: [{"poxa-channel", user_count: 9}]]
+    expect(JSEX, :encode!, [{[expected], :encoded_json}])
+
+    assert get_json(:req, nil) == {:encoded_json, :req, nil}
+
+    assert validate JSEX
+    assert validate Channel
   end
 end
