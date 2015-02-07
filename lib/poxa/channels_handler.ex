@@ -22,17 +22,31 @@ defmodule Poxa.ChannelsHandler do
   def malformed_request(req, _state) do
     {info, req} = :cowboy_req.qs_val("info", req, "")
     attributes = String.split(info, ",")
+      |> Enum.reject(fn s -> s == "" end)
     {channel, req} = :cowboy_req.binding(:channel_name, req, nil)
     if channel do
-      {malformed_request_one_channel?(attributes, channel), req, {channel, attributes}}
+      {malformed_request_one_channel?(attributes, channel), req, {:one, channel, attributes}}
     else
-      {false, req, nil}
+      {filter, req} = :cowboy_req.qs_val("filter_by_prefix", req, nil)
+      {malformed_request_all_channels?(attributes, filter), req, {:all, filter, attributes}}
     end
   end
 
   defp malformed_request_one_channel?(attributes, channel) do
     if Enum.all?(attributes, fn s -> Enum.member?(@valid_attributes, s) end) do
       !Channel.presence?(channel) and Enum.member?(attributes, "user_count")
+    else
+      true
+    end
+  end
+
+  defp malformed_request_all_channels?(attributes, filter) do
+    if Enum.all?(attributes, fn s -> Enum.member?(@valid_attributes, s) end) do
+      if Enum.member?(attributes, "user_count") do
+        filter == nil or !Channel.matches?("presence-", filter)
+      else
+        false
+      end
     else
       true
     end
@@ -46,11 +60,11 @@ defmodule Poxa.ChannelsHandler do
     {[{{"application", "json", []}, :get_json}], req, state}
   end
 
-  def get_json(req, {channel, attributes}) do
+  def get_json(req, {:one, channel, attributes}) do
     show(channel, attributes, req, nil)
   end
-  def get_json(req, nil) do
-    index(req, nil)
+  def get_json(req, {:all, filter, attributes}) do
+    index(filter, attributes, req, nil)
   end
 
   defp show(channel, attributes, req, state) do
@@ -74,28 +88,23 @@ defmodule Poxa.ChannelsHandler do
       end
   end
 
-  defp index(req, state) do
-    {filter, req} = :cowboy_req.qs_val("filter_by_prefix", req, "")
-    channels = channels(filter)
+  defp index(filter, attributes, req, state) do
+    channels = channels(filter, attributes)
     {JSEX.encode!(channels: channels), req, state}
   end
 
-  defp channels(filter) do
+  defp channels(filter, attributes) do
     Channel.all
       |> Enum.filter_map(
         fn channel ->
           filter_channel(channel, filter)
         end,
         fn channel ->
-          {channel, Channel.presence?(channel) }
+          {channel, mount_attribute_list(attributes, channel)}
         end)
-      |> Enum.map(&user_count/1)
   end
 
-  defp filter_channel(channel, nil), do: ! Channel.private?(channel)
+  defp filter_channel(channel, nil), do: !Channel.private?(channel)
   defp filter_channel(channel, filter), do: Channel.matches?(channel, filter)
-
-  defp user_count({channel, true}), do: { channel, user_count: PresenceChannel.user_count(channel) }
-  defp user_count({channel, false}), do: { channel, user_count: Channel.subscription_count(channel) }
 
 end
