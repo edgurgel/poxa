@@ -94,14 +94,9 @@ defmodule Poxa.ChannelsHandler do
   end
 
   defp channels(filter, attributes) do
-    Channel.all
-      |> Enum.filter_map(
-        fn channel ->
-          filter_channel(channel, filter)
-        end,
-        fn channel ->
-          {channel, mount_attribute_list(attributes, channel)}
-        end)
+    for channel <- Channel.all, filter_channel(channel, filter) do
+      {channel, mount_attribute_list(attributes, channel)}
+    end
   end
 
   defp filter_channel(channel, nil), do: !Channel.private?(channel)
