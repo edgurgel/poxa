@@ -22,7 +22,7 @@ defmodule Poxa.ChannelsHandler do
   def malformed_request(req, _state) do
     {info, req} = :cowboy_req.qs_val("info", req, "")
     attributes = String.split(info, ",")
-      |> Enum.reject(fn s -> s == "" end)
+      |> Enum.reject(&(&1 == ""))
     {channel, req} = :cowboy_req.binding(:channel_name, req, nil)
     if channel do
       {malformed_request_one_channel?(attributes, channel), req, {:one, channel, attributes}}
