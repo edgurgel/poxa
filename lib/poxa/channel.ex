@@ -40,6 +40,27 @@ defmodule Poxa.Channel do
   end
 
   @doc """
+  Returns true if prefix matches channel
+
+  iex> Poxa.Channel.matches?("foo-bar", "foo-")
+  true
+  iex> Poxa.Channel.matches?("foo-bar", "bar-")
+  false
+  iex> Poxa.Channel.matches?("foo-bar", "")
+  false
+  iex> Poxa.Channel.matches?("foo-bar", "foo-bartman")
+  false
+  """
+  def matches?(_, ""), do: false
+  def matches?(channel, prefix) do
+    base = byte_size(prefix)
+    case channel do
+      <<^prefix :: binary-size(base), _ :: binary>> -> true
+      _ -> false
+    end
+  end
+
+  @doc """
   Returns true if the channel has at least 1 subscription
   """
   @spec occupied?(binary) :: boolean
