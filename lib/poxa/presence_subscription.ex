@@ -23,7 +23,7 @@ defmodule Poxa.PresenceSubscription do
   """
   @spec subscribe!(binary, :jsx.json_term) :: __MODULE__.t
   def subscribe!(channel, channel_data) do
-    decoded_channel_data = JSEX.decode!(channel_data)
+    decoded_channel_data = JSX.decode!(channel_data)
     if subscribed?(channel, self) do
       Logger.info "Already subscribed #{inspect self} on channel #{channel}"
     else
@@ -51,7 +51,7 @@ defmodule Poxa.PresenceSubscription do
   end
 
   defp sanitize_user_id(user_id) when is_binary(user_id), do: user_id
-  defp sanitize_user_id(user_id), do: JSEX.encode!(user_id)
+  defp sanitize_user_id(user_id), do: JSX.encode!(user_id)
 
   defp user_id_already_on_presence_channel(user_id, channel) do
     match = {{:p, :l, {:pusher, channel}}, :_, {user_id, :_}}

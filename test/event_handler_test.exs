@@ -14,35 +14,35 @@ defmodule Poxa.EventHandlerTest do
   test "malformed_request with valid data" do
     data = %{"name" => "", "data" => "", "channel" => ""}
     expect(:cowboy_req, :body, 1, {:ok, :body, :req1})
-    expect(JSEX, :decode, 1, {:ok, data})
+    expect(JSX, :decode, 1, {:ok, data})
 
     assert malformed_request(:req, :state) == {false, :req1, %{body: :body, data: data}}
 
     assert validate :cowboy_req
-    assert validate JSEX
+    assert validate JSX
   end
 
   test "malformed_request with invalid JSON" do
     expect(:cowboy_req, :body, 1, {:ok, :body, :req1})
     expect(:cowboy_req, :set_resp_body, 2, :req2)
-    expect(JSEX, :decode, 1, :error)
+    expect(JSX, :decode, 1, :error)
 
     assert malformed_request(:req, :state) == {true, :req2, :state}
 
     assert validate :cowboy_req
-    assert validate JSEX
+    assert validate JSX
   end
 
   test "malformed_request with invalid data" do
     data = %{"name" => "", "data" => ""}
     expect(:cowboy_req, :body, 1, {:ok, :body, :req1})
     expect(:cowboy_req, :set_resp_body, 2, :req2)
-    expect(JSEX, :decode, 1, {:ok, data})
+    expect(JSX, :decode, 1, {:ok, data})
 
     assert malformed_request(:req, :state) == {true, :req2, :state}
 
     assert validate :cowboy_req
-    assert validate JSEX
+    assert validate JSX
   end
 
   test "is_authorized with failing authentication" do

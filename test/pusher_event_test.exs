@@ -80,52 +80,52 @@ defmodule Poxa.PusherEventTest do
     pid = self
     expect(:gproc, :lookup_pids, 1, [pid])
     expected = %{channel: "channel123", data: "data", event: "event"}
-    expect(JSEX, :encode!, [{[expected], :msg}])
+    expect(JSX, :encode!, [{[expected], :msg}])
     event = %PusherEvent{channels: ["channel123"], data: "data", name: "event"}
 
     assert publish_event_to_channel(event, "channel123", []) == :ok
     assert_receive { ^pid, :msg }
 
     assert validate :gproc
-    assert validate JSEX
+    assert validate JSX
   end
 
   test "sending message to a channel excluding a pid" do
     pid = self
     expect(:gproc, :lookup_pids, 1, [self])
     expected = %{channel: "channel123", data: "data", event: "event"}
-    expect(JSEX, :encode!, [{[expected], :msg}])
+    expect(JSX, :encode!, [{[expected], :msg}])
     event = %PusherEvent{channels: ["channel123"], data: "data", name: "event"}
 
     assert publish_event_to_channel(event, "channel123", [self]) == :ok
     refute_receive { ^pid, :msg }
 
     assert validate :gproc
-    assert validate JSEX
+    assert validate JSX
   end
 
   test "sending message to channels" do
     pid = self
     expect(:gproc, :lookup_pids, 1, [pid])
     expected = %{channel: "channel123", data: "data", event: "event"}
-    expect(JSEX, :encode!, [{[expected], :msg}])
+    expect(JSX, :encode!, [{[expected], :msg}])
 
     assert publish(%PusherEvent{data: "data", channels: ["channel123"], name: "event"}) == :ok
     assert_receive { ^pid, :msg }
 
     assert validate :gproc
-    assert validate JSEX
+    assert validate JSX
   end
 
   test "sending message to channels excluding a socket id" do
-    new JSEX
+    new JSX
     expect(:gproc, :lookup_pids, 1, [self])
     expected = %{channel: "channel123", data: %{}, event: "event"}
-    expect(JSEX, :encode!, [{[expected], :msg}])
+    expect(JSX, :encode!, [{[expected], :msg}])
 
     assert publish(%PusherEvent{data: %{}, channels: ["channel123"], name: "event", socket_id: "SocketId"}) == :ok
 
     assert validate :gproc
-    assert validate JSEX
+    assert validate JSX
   end
 end

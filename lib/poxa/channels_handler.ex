@@ -70,7 +70,7 @@ defmodule Poxa.ChannelsHandler do
   defp show(channel, attributes, req, state) do
     occupied = Channel.occupied?(channel)
     attribute_list = mount_attribute_list(attributes, channel)
-    {JSEX.encode!([occupied: occupied] ++ attribute_list), req, state}
+    {JSX.encode!([occupied: occupied] ++ attribute_list), req, state}
   end
 
   defp mount_attribute_list(attributes, channel) do
@@ -90,7 +90,7 @@ defmodule Poxa.ChannelsHandler do
 
   defp index(filter, attributes, req, state) do
     channels = channels(filter, attributes)
-    {JSEX.encode!(channels: channels), req, state}
+    {JSX.encode!(channels: channels), req, state}
   end
 
   defp channels(filter, attributes) do

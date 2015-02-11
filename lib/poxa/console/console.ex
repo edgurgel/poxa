@@ -1,5 +1,5 @@
 defmodule Poxa.Console do
-  import JSEX, only: [encode!: 1]
+  import JSX, only: [encode!: 1]
   use GenEvent
 
   @doc false

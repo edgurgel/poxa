@@ -6,7 +6,7 @@ defmodule Poxa.PusherEvent do
   """
 
   alias Poxa.PresenceSubscription
-  import JSEX, only: [encode!: 1]
+  import JSX, only: [encode!: 1]
 
   @doc """
   Return a JSON for an established connection using the `socket_id` parameter to

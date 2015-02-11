@@ -14,13 +14,13 @@ defmodule Poxa.Mixfile do
                       :crypto,
                       :gproc,
                       :cowboy ],
-      included_applications: [ :jsex, :uuid, :signaturex ],
+      included_applications: [ :exjsx, :uuid, :signaturex ],
       mod: { Poxa, [] } ]
   end
 
   defp deps do
     [ {:cowboy, "~> 1.0.0" },
-      {:jsex, "~> 2.0"},
+      {:exjsx, "~> 3.0"},
       {:signaturex, "~> 0.0.8"},
       {:gproc, "~> 0.3.0"},
       {:uuid, github: "avtobiff/erlang-uuid", tag: "v0.4.5" },

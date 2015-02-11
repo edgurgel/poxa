@@ -43,7 +43,7 @@ defmodule Poxa.UsersHandler do
   """
   def get_json(req, channel) do
     response = PresenceChannel.users(channel) |> Enum.map(fn(id) -> [id: id] end)
-    {JSEX.encode!(users: response), req, nil}
+    {JSX.encode!(users: response), req, nil}
   end
 end
 
