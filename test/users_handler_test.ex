@@ -5,7 +5,7 @@ defmodule Poxa.UsersHandlerTest do
   import Poxa.UsersHandler
 
   setup do
-    new JSEX
+    new JSX
     new PresenceChannel
     new :cowboy_req
     on_exit fn -> unload end
@@ -32,12 +32,12 @@ defmodule Poxa.UsersHandlerTest do
   test "get_json returns users of a presence channel" do
     expect(PresenceChannel, :users, 1, ["user1", "user2"])
     expected = [users: [[id: "user1"], [id: "user2"]]]
-    expect(JSEX, :encode!, [{[expected], :encoded_json}])
+    expect(JSX, :encode!, [{[expected], :encoded_json}])
 
     assert get_json(:req, "channel123") == {:encoded_json, :req, nil}
 
     assert validate PresenceChannel
-    assert validate JSEX
+    assert validate JSX
   end
 
 end

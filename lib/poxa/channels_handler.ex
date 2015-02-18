@@ -22,17 +22,31 @@ defmodule Poxa.ChannelsHandler do
   def malformed_request(req, _state) do
     {info, req} = :cowboy_req.qs_val("info", req, "")
     attributes = String.split(info, ",")
+      |> Enum.reject(&(&1 == ""))
     {channel, req} = :cowboy_req.binding(:channel_name, req, nil)
     if channel do
-      {malformed_request_one_channel?(attributes, channel), req, {channel, attributes}}
+      {malformed_request_one_channel?(attributes, channel), req, {:one, channel, attributes}}
     else
-      {false, req, nil}
+      {filter, req} = :cowboy_req.qs_val("filter_by_prefix", req, nil)
+      {malformed_request_all_channels?(attributes, filter), req, {:all, filter, attributes}}
     end
   end
 
   defp malformed_request_one_channel?(attributes, channel) do
     if Enum.all?(attributes, fn s -> Enum.member?(@valid_attributes, s) end) do
       !Channel.presence?(channel) and Enum.member?(attributes, "user_count")
+    else
+      true
+    end
+  end
+
+  defp malformed_request_all_channels?(attributes, filter) do
+    if Enum.all?(attributes, fn s -> Enum.member?(@valid_attributes, s) end) do
+      if Enum.member?(attributes, "user_count") do
+        filter == nil or !Channel.matches?("presence-", filter)
+      else
+        false
+      end
     else
       true
     end
@@ -46,17 +60,17 @@ defmodule Poxa.ChannelsHandler do
     {[{{"application", "json", []}, :get_json}], req, state}
   end
 
-  def get_json(req, {channel, attributes}) do
-      show(channel, attributes, req, nil)
+  def get_json(req, {:one, channel, attributes}) do
+    show(channel, attributes, req, nil)
   end
-  def get_json(req, nil) do
-    index(req, nil)
+  def get_json(req, {:all, filter, attributes}) do
+    index(filter, attributes, req, nil)
   end
 
   defp show(channel, attributes, req, state) do
     occupied = Channel.occupied?(channel)
     attribute_list = mount_attribute_list(attributes, channel)
-    {JSEX.encode!([occupied: occupied] ++ attribute_list), req, state}
+    {JSX.encode!([occupied: occupied] ++ attribute_list), req, state}
   end
 
   defp mount_attribute_list(attributes, channel) do
@@ -74,16 +88,18 @@ defmodule Poxa.ChannelsHandler do
       end
   end
 
-  defp index(req, state) do
-    channels =
-      Channel.all
-        |> Enum.filter_map(
-          fn channel ->
-            Channel.presence? channel
-          end,
-          fn channel ->
-            {channel, [user_count: PresenceChannel.user_count(channel)]}
-          end)
-    {JSEX.encode!(channels: channels), req, state}
+  defp index(filter, attributes, req, state) do
+    channels = channels(filter, attributes)
+    {JSX.encode!(channels: channels), req, state}
   end
+
+  defp channels(filter, attributes) do
+    for channel <- Channel.all, filter_channel(channel, filter) do
+      {channel, mount_attribute_list(attributes, channel)}
+    end
+  end
+
+  defp filter_channel(channel, nil), do: !Channel.private?(channel)
+  defp filter_channel(channel, filter), do: Channel.matches?(channel, filter)
+
 end

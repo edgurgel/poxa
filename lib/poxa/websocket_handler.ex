@@ -54,7 +54,7 @@ defmodule Poxa.WebsocketHandler do
   end
 
   def websocket_handle({:text, json}, req, state) do
-    JSEX.decode!(json) |> handle_pusher_event(req, state)
+    JSX.decode!(json) |> handle_pusher_event(req, state)
   end
 
   def handle_pusher_event(decoded_json, req, state) do

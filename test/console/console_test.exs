@@ -4,8 +4,8 @@ defmodule Poxa.ConsoleTest do
   import Poxa.Console
 
   setup_all do
-    new JSEX
-    expect(JSEX, :encode!, &(&1))
+    new JSX
+    expect(JSX, :encode!, &(&1))
     on_exit fn -> unload end
     :ok
   end
