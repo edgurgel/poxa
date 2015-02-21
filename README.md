@@ -40,7 +40,7 @@ How do I speak 'poxa'?
 * REST API
   * /users on presence channels
   * /channels/:channel_name
-  * /channels (Partial support)
+  * /channels
 
 ## TODO
 
