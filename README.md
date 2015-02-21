@@ -45,7 +45,7 @@ How do I speak 'poxa'?
 ## TODO
 
 * [ ] SockJS support;
-* [ ] Complete REST api;
+* [x] Complete REST api;
 * [ ] Mimic pusher error codes;
 * [ ] Integration test using pusher-js or other client library;
 * [ ] Web hooks;
