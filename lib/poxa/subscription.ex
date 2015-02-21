@@ -54,7 +54,7 @@ defmodule Poxa.Subscription do
       Logger.info "Already subscribed #{inspect self} on channel #{channel}"
     else
       Logger.info "Registering #{inspect self} to channel #{channel}"
-      :gproc.reg({:p, :l, {:pusher, channel}})
+      :gproc.reg({:p, :g, {:pusher, channel}})
     end
     {:ok, channel}
   end
@@ -69,7 +69,7 @@ defmodule Poxa.Subscription do
       if Channel.presence?(channel) do
         PresenceSubscription.unsubscribe!(channel);
       end
-      :gproc.unreg({:p, :l, {:pusher, channel}});
+      :gproc.unreg({:p, :g, {:pusher, channel}});
     else
       Logger.debug "Already subscribed"
     end

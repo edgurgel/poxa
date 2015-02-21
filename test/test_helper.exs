@@ -27,6 +27,6 @@ defmodule SpawnHelper do
   end
 
   def register_to_channel(channel, value \\ :undefined) do
-    :gproc.reg({:p, :l, {:pusher, channel}}, value)
+    :gproc.reg({:p, :g, {:pusher, channel}}, value)
   end
 end
