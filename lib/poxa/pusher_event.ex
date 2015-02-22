@@ -177,12 +177,9 @@ defmodule Poxa.PusherEvent do
   Send `message` to `channels` excluding `exclude`
   """
   @spec publish(Poxa.PusherEvent.t) :: :ok
-  def publish(%Poxa.PusherEvent{channels: channels, socket_id: exclude} = event) do
-    exclude = event.socket_id
-    pid_to_exclude = if exclude, do: :gproc.lookup_pids({:n, :l, exclude}),
-    else: []
+  def publish(%Poxa.PusherEvent{channels: channels} = event) do
     for channel <- channels do
-      publish_event_to_channel(event, channel, pid_to_exclude)
+      publish_event_to_channel(event, channel)
     end
     :ok
   end
@@ -191,16 +188,10 @@ defmodule Poxa.PusherEvent do
   Send `message` to `channel` excluding `exclude` appending the channel name info
   to the message
   """
-  @spec publish_event_to_channel(Poxa.PusherEvent.t, binary, [pid]) :: :ok
-  def publish_event_to_channel(event, channel, pid_to_exclude) do
+  @spec publish_event_to_channel(Poxa.PusherEvent.t, binary) :: :ok
+  def publish_event_to_channel(event, channel) do
     message = build_message(event, channel) |> encode!
-    pids = :gproc.lookup_pids({:p, :l, {:pusher, channel}})
-    pids = pids -- pid_to_exclude
-
-    for pid <- pids do
-      send pid, {self, message}
-    end
-    :ok
+    :gproc.send({:p, :l, {:pusher, channel}}, {self, message, event.socket_id})
   end
 
   defp build_message(event, channel) do

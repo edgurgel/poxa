@@ -37,10 +37,23 @@ defmodule Poxa.WebsocketHandlerTest do
       {:reply, {:text, :msg}, :req, :state}
   end
 
+  test "process message with same socket_id" do
+    state = %State{socket_id: :socket_id}
+
+    assert websocket_info({:pid, :msg, :socket_id}, :req, state) ==
+      {:ok, :req, state}
+  end
+
+  test "process message with different socket_id" do
+    state = %State{socket_id: :other_socket_id}
+
+    assert websocket_info({:pid, :msg, :socket_id}, :req, state) ==
+      {:reply, {:text, :msg}, :req, state}
+  end
+
   test "special start process message" do
     expect(:uuid, :uuid1, fn -> passthrough([]) end)
     expect(:uuid, :to_string, 1, 'uuid')
-    expect(:gproc, :reg, 1, :registered)
     expect(:cowboy_req, :host_url, 1, {:host_url, :req2})
     expect(PusherEvent, :connection_established, 1, :connection_established)
     expect(Event, :notify, [{[:connected, %{socket_id: "uuid", origin: :host_url}], :ok}])
@@ -52,7 +65,6 @@ defmodule Poxa.WebsocketHandlerTest do
     assert validate PusherEvent
     assert validate Event
     assert validate :uuid
-    assert validate :gproc
     assert validate JSX
   end
 
