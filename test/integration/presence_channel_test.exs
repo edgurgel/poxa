@@ -4,13 +4,13 @@ defmodule Poxa.Integration.PresenceChannelTest do
   @moduletag :integration
 
   setup do
-    {:ok, pid} = Connection.connect
+    {:ok, pid, socket_id} = Connection.connect
     Application.ensure_all_started(:pusher)
     Pusher.configure!("localhost", 8080, "app_id", "app_key", "secret")
     on_exit fn ->
       PusherClient.disconnect! pid
     end
-    {:ok, [pid: pid]}
+    {:ok, [pid: pid, socket_id: socket_id]}
   end
 
   test "subscribe a presence channel", context do
@@ -46,7 +46,7 @@ defmodule Poxa.Integration.PresenceChannelTest do
     pid = context[:pid]
     channel = "presence-channel"
 
-    {:ok, other_pid} = Connection.connect
+    {:ok, other_pid, _} = Connection.connect
     PusherClient.subscribe!(other_pid, channel,
                             %PusherClient.User{id: 456, info: %{k1: "v1"}})
 
@@ -68,7 +68,7 @@ defmodule Poxa.Integration.PresenceChannelTest do
     pid = context[:pid]
     channel = "presence-channel"
 
-    {:ok, other_pid} = Connection.connect
+    {:ok, other_pid, _} = Connection.connect
     PusherClient.subscribe!(other_pid, channel,
                             %PusherClient.User{id: 456, info: %{k1: "v1"}})
 
@@ -101,7 +101,7 @@ defmodule Poxa.Integration.PresenceChannelTest do
                      data: _}, 1_000
 
 
-    {:ok, other_pid} = Connection.connect
+    {:ok, other_pid, _} = Connection.connect
     PusherClient.subscribe!(other_pid, channel,
                             %PusherClient.User{id: 456, info: %{k1: "v1"}})
     PusherClient.unsubscribe!(other_pid, channel)
@@ -123,7 +123,7 @@ defmodule Poxa.Integration.PresenceChannelTest do
                      data: _}, 1_000
 
 
-    {:ok, other_pid} = Connection.connect
+    {:ok, other_pid, _} = Connection.connect
     PusherClient.subscribe!(other_pid, channel, %PusherClient.User{id: 123, info: %{k1: "v1"}})
     PusherClient.unsubscribe!(other_pid, channel)
 

@@ -4,13 +4,13 @@ defmodule Poxa.Integration.PrivateChannelTest do
   @moduletag :integration
 
   setup do
-    {:ok, pid} = Connection.connect
+    {:ok, pid, socket_id} = Connection.connect
     Application.ensure_all_started(:pusher)
     Pusher.configure!("localhost", 8080, "app_id", "app_key", "secret")
     on_exit fn ->
       PusherClient.disconnect! pid
     end
-    {:ok, [pid: pid]}
+    {:ok, [pid: pid, socket_id: socket_id]}
   end
 
   test "subscribe a private channel", context do
@@ -40,7 +40,7 @@ defmodule Poxa.Integration.PrivateChannelTest do
     pid = context[:pid]
     channel = "private-channel"
 
-    {:ok, other_pid} = Connection.connect
+    {:ok, other_pid, _} = Connection.connect
     PusherClient.subscribe!(other_pid, channel)
 
     assert_receive %{channel: ^channel,
