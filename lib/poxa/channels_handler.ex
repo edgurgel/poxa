@@ -43,7 +43,7 @@ defmodule Poxa.ChannelsHandler do
   defp malformed_request_all_channels?(attributes, filter) do
     if Enum.all?(attributes, fn s -> Enum.member?(@valid_attributes, s) end) do
       if Enum.member?(attributes, "user_count") do
-        filter == nil or !Channel.matches?("presence-", filter)
+        !Channel.matches?(filter, "presence-")
       else
         false
       end

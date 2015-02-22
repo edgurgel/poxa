@@ -48,9 +48,12 @@ defmodule Poxa.Channel do
   false
   iex> Poxa.Channel.matches?("foo-bar", "")
   false
+  iex> Poxa.Channel.matches?("foo-bar", nil)
+  false
   iex> Poxa.Channel.matches?("foo-bar", "foo-bartman")
   false
   """
+  def matches?(_, nil), do: false
   def matches?(_, ""), do: false
   def matches?(channel, prefix) do
     base = byte_size(prefix)
