@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.3 (2015-02-22)
+
+* Refactor internals (Console, EventsHandler, Subscription, etc)
+* Add filter_by_prefix to /channels endpoint. Thanks to @tobycox
+
 ## 0.3.2 (2014-10-16)
 
 * Fix Poxa console to work also on SSL connections. Thanks to @darrencauthon !;
