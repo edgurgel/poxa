@@ -11,7 +11,7 @@
   "jsx": {:hex, :jsx, "2.4.0"},
   "meck": {:hex, :meck, "0.8.2"},
   "poison": {:hex, :poison, "1.2.0"},
-  "pusher": {:git, "git://github.com/edgurgel/pusher.git", "2aab551659e1d6745193ee2ca07274aad20c1c44", []},
+  "pusher": {:git, "git://github.com/edgurgel/pusher.git", "d8648e6b1e3ca447e7c6604eaf0e49fcf668f091", []},
   "pusher_client": {:git, "git://github.com/edgurgel/pusher_client.git", "5f0f0c63289a6ab00a1b84589949d0cbd28f7944", []},
   "ranch": {:hex, :ranch, "1.0.0"},
   "signaturex": {:hex, :signaturex, "0.0.8"},
