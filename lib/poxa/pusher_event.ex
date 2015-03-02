@@ -191,7 +191,7 @@ defmodule Poxa.PusherEvent do
   @spec publish_event_to_channel(Poxa.PusherEvent.t, binary) :: :ok
   def publish_event_to_channel(event, channel) do
     message = build_message(event, channel) |> encode!
-    :gproc.send({:p, :l, {:pusher, channel}}, {self, message, event.socket_id})
+    :gproc.send({:p, :g, {:pusher, channel}}, {self, message, event.socket_id})
   end
 
   defp build_message(event, channel) do

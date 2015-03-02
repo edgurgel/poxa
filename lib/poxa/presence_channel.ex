@@ -6,7 +6,7 @@ defmodule Poxa.PresenceChannel do
   """
   @spec users(binary) :: [binary | integer]
   def users(channel) do
-    match = {{:p, :l, {:pusher, channel}}, :_, :'$1'}
+    match = {{:p, :g, {:pusher, channel}}, :_, :'$1'}
     :gproc.select([{match, [], [:'$1']}])
     |> Enum.uniq(fn {user_id, _} -> user_id end)
     |> Enum.map(fn {user_id, _} -> user_id end)
@@ -17,7 +17,7 @@ defmodule Poxa.PresenceChannel do
   """
   @spec user_count(binary) :: non_neg_integer
   def user_count(channel) do
-    match = {{:p, :l, {:pusher, channel}}, :_, :'$1'}
+    match = {{:p, :g, {:pusher, channel}}, :_, :'$1'}
     :gproc.select([{match, [], [:'$1']}])
     |> Enum.uniq(fn {user_id, _} -> user_id end)
     |> Enum.count
