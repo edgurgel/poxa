@@ -11,9 +11,7 @@ defmodule Poxa.SocketIdTest do
     socket_id = SocketId.generate!
     [part1, part2] = String.split(socket_id, ".")
 
-    {int1, ""} = Integer.parse(part1)
-    {int2, ""} = Integer.parse(part1)
-
-    assert is_integer(int1) and is_integer(int2)
+    assert {_, ""} = Integer.parse(part1)
+    assert {_, ""} = Integer.parse(part2)
   end
 end

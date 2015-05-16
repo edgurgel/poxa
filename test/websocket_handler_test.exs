@@ -7,6 +7,7 @@ defmodule Poxa.WebsocketHandlerTest do
   alias Poxa.Event
   alias Poxa.Time
   alias Poxa.Channel
+  alias Poxa.SocketId
   import :meck
   import Poxa.WebsocketHandler
   alias Poxa.WebsocketHandler.State
@@ -25,8 +26,8 @@ defmodule Poxa.WebsocketHandlerTest do
     new Event
     new Time
     new JSX
+    new SocketId
     new :gproc
-    new :uuid
     new :cowboy_req
     on_exit fn -> unload end
     :ok
@@ -52,19 +53,18 @@ defmodule Poxa.WebsocketHandlerTest do
   end
 
   test "special start process message" do
-    expect(:uuid, :uuid1, fn -> passthrough([]) end)
-    expect(:uuid, :to_string, 1, 'uuid')
     expect(:cowboy_req, :host_url, 1, {:host_url, :req2})
     expect(PusherEvent, :connection_established, 1, :connection_established)
-    expect(Event, :notify, [{[:connected, %{socket_id: "uuid", origin: :host_url}], :ok}])
+    expect(SocketId, :generate!, 0, "123.456")
+    expect(Event, :notify, [{[:connected, %{socket_id: "123.456", origin: :host_url}], :ok}])
     expect(Time, :stamp, 0, 123)
 
     assert websocket_info(:start, :req, :state) ==
-      {:reply, {:text, :connection_established}, :req2, %State{socket_id: "uuid", time: 123}}
+      {:reply, {:text, :connection_established}, :req2, %State{socket_id: "123.456", time: 123}}
 
     assert validate PusherEvent
     assert validate Event
-    assert validate :uuid
+    assert validate SocketId
     assert validate JSX
   end
 

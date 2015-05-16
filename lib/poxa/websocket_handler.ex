@@ -14,6 +14,7 @@ defmodule Poxa.WebsocketHandler do
   alias Poxa.Subscription
   alias Poxa.Channel
   alias Poxa.Time
+  alias Poxa.SocketId
 
   @max_protocol 7
   @min_protocol 5
@@ -100,7 +101,7 @@ defmodule Poxa.WebsocketHandler do
 
   def websocket_info(:start, req, _state) do
     # Unique identifier for the connection
-    socket_id = generate_uuid
+    socket_id = SocketId.generate!
 
     {origin, req} = :cowboy_req.host_url(req)
     Event.notify(:connected, %{socket_id: socket_id, origin: origin})
@@ -126,10 +127,6 @@ defmodule Poxa.WebsocketHandler do
   end
 
   def websocket_info(_info, req, state), do: {:ok, req, state}
-
-  defp generate_uuid do
-    :uuid.uuid1 |> :uuid.to_string |> List.to_string
-  end
 
   def websocket_terminate(_reason, _req, nil), do: :ok
   def websocket_terminate(_reason, _req, %State{socket_id: socket_id, time: time}) do
