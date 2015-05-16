@@ -10,11 +10,8 @@ defmodule Poxa.Mixfile do
   end
 
   def application do
-    [ applications: [ :logger,
-                      :crypto,
-                      :gproc,
-                      :cowboy ],
-      included_applications: [ :exjsx, :uuid, :signaturex ],
+    [ applications: [ :logger, :crypto, :gproc, :cowboy ],
+      included_applications: [ :exjsx, :signaturex ],
       mod: { Poxa, [] } ]
   end
 
@@ -23,7 +20,6 @@ defmodule Poxa.Mixfile do
       {:exjsx, "~> 3.0"},
       {:signaturex, "~> 0.0.8"},
       {:gproc, "~> 0.3.0"},
-      {:uuid, github: "avtobiff/erlang-uuid", tag: "v0.4.5" },
       {:meck, "~> 0.8.2", only: :test},
       {:pusher_client, github: "edgurgel/pusher_client", only: :test},
       {:pusher, github: "edgurgel/pusher", only: :test},

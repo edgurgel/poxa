@@ -16,5 +16,4 @@
   "ranch": {:hex, :ranch, "1.0.0"},
   "signaturex": {:hex, :signaturex, "0.0.8"},
   "ssl_verify_hostname": {:hex, :ssl_verify_hostname, "1.0.1"},
-  "uuid": {:git, "git://github.com/avtobiff/erlang-uuid.git", "2056ad3717fedccf3634757401f77272bccb4554", [tag: "v0.4.5"]},
   "websocket_client": {:git, "git://github.com/jeremyong/websocket_client.git", "2b8d9805306d36f22330f432ae6472f1f2625c30", []}}
