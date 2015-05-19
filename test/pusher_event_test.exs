@@ -77,7 +77,7 @@ defmodule Poxa.PusherEventTest do
     expect(JSX, :encode!, [{[expected], :msg}])
     event = %PusherEvent{channels: ["channel123"], data: "data", name: "event"}
 
-    assert publish_event_to_channel(event, "channel123") == :ok
+    assert publish(event) == :ok
 
     assert validate :gproc
     assert validate JSX
