@@ -49,31 +49,26 @@ defmodule Poxa.PusherEventTest do
     assert subscription_succeeded(subscription) == json
   end
 
-  test "parse channels having a single channel" do
+  test "build PusherEvent with 1 channel" do
     event = %{"channel" => "channel_name",
-             "data" => "event_data",
-             "name" => "event_etc"}
+              "data" => "event_data",
+              "name" => "event_etc"}
     assert build(event) == %PusherEvent{name: "event_etc", data: "event_data", channels: ["channel_name"]}
   end
 
-  test "parse channels having multiple channels" do
-    data = %{"channels" => ["channel_name1", "channel_name2"],
-             "name" => "event_etc"}
-    expected_data = %{"name" => "event_etc"}
-    assert parse_channels(data) == {expected_data, ["channel_name1", "channel_name2"], nil}
+  test "build PusherEvent with multiple channels" do
+    event = %{"channels" => ["channel_name1", "channel_name2"],
+              "data" => "event_data",
+              "name" => "event_etc"}
+    assert build(event) == %PusherEvent{name: "event_etc", data: "event_data", channels: ["channel_name1","channel_name2"]}
   end
 
-  test "parse channels having no channels" do
-    data = %{"name" => "event_etc"}
-    assert parse_channels(data) == {data, nil, nil}
-  end
-
-  test "parse channels excluding socket id" do
-    data = %{"channel" => "channel_name",
-             "name" => "event_etc",
-             "socket_id" => "SocketId"}
-    expected_data = %{"name" => "event_etc", "socket_id" => "SocketId"}
-    assert parse_channels(data) == {expected_data, ["channel_name"], "SocketId"}
+  test "build PusherEvent with excluding socket_id" do
+    event = %{"channel" => "channel_name",
+              "data" => "event_data",
+              "socket_id" => "socketId",
+              "name" => "event_etc"}
+    assert build(event) == %PusherEvent{name: "event_etc", data: "event_data", channels: ["channel_name"], socket_id: "socketId"}
   end
 
   test "sending message to a channel" do

@@ -123,34 +123,6 @@ defmodule Poxa.PusherEvent do
       data: data} |> encode!
   end
 
-  @doc """
-  Returns a list of channels, the message without the channel info and
-  possibly a socket_id to exclude.
-
-  ## Examples
-      iex> Poxa.PusherEvent.parse_channels(%{"channel" => "private-channel"})
-      {%{}, ["private-channel"],nil}
-      iex> Poxa.PusherEvent.parse_channels(%{"channels" => ["private-channel", "public-channel"]})
-      {%{}, ["private-channel","public-channel"],nil}
-      iex> Poxa.PusherEvent.parse_channels(%{"channel" => "a-channel", "socket_id" => "to_exclude123" })
-      {%{"socket_id" => "to_exclude123"},["a-channel"],"to_exclude123"}
-
-  """
-  @spec parse_channels(map) :: {:jsx.json_term,
-                                [binary] | :undefined,
-                                :undefined | binary}
-  def parse_channels(message) do
-    exclude = message["socket_id"]
-    case Dict.pop(message, "channels") do
-      {nil, message} ->
-        case Dict.pop(message, "channel") do
-          {nil, message} -> {message, nil, exclude}
-          {channel, message} -> {message, [channel], exclude}
-        end
-      {channels, message} ->{message, channels, exclude}
-    end
-  end
-
   defstruct [:channels, :name, :data, :socket_id]
   @type t :: %Poxa.PusherEvent{channels: list, name: binary,
                                data: binary | map, socket_id: nil | binary}
