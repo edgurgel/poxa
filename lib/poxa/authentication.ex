@@ -18,11 +18,11 @@ defmodule Poxa.Authentication do
       {:ok, secret} = Application.fetch_env(:poxa, :app_secret)
 
       :ok = check_body(body, body_md5)
+
       Signaturex.validate!(app_key, secret, method, path, qs_vals, 600)
       :ok
     rescue
-      error in [MatchError, Signaturex.AuthenticationError] ->
-        Logger.info "Error during authentication #{error.message}"
+      _error in [MatchError, Signaturex.AuthenticationError] ->
         {:badauth, "Error during authentication"}
     end
   end

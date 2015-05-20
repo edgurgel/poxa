@@ -5,8 +5,42 @@ defmodule Poxa.AuthenticationTest do
 
   setup do
     new Application
+    new Signaturex
     on_exit fn -> unload end
     :ok
+  end
+
+  test "check with a non-empty body and correct md5" do
+    expect(Application, :fetch_env, [{[:poxa, :app_key], {:ok, :app_key}}, {[:poxa, :app_secret], {:ok, :secret}}])
+    qs = %{"body_md5" => "841a2d689ad86bd1611447453c22c6fc"}
+    expect(Signaturex, :validate!, [{[:app_key, :secret, 'get', '/url', qs, 600], :ok}])
+
+    assert check('get', '/url', 'body', qs) == :ok
+
+    assert validate Signaturex
+    assert validate Application
+  end
+
+  test "check with a non-empty body and incorrect md5" do
+    expect(Application, :fetch_env, [{[:poxa, :app_key], {:ok, :app_key}}, {[:poxa, :app_secret], {:ok, :secret}}])
+    qs = %{"body_md5" => "md5?"}
+    expect(Signaturex, :validate!, [{[:app_key, :secret, 'get', '/url', qs, 600], :ok}])
+
+    assert check('get', '/url', 'body', qs) == {:badauth, "Error during authentication"}
+
+    assert validate Signaturex
+    assert validate Application
+  end
+
+  test "check with an empty body" do
+    expect(Application, :fetch_env, [{[:poxa, :app_key], {:ok, :app_key}}, {[:poxa, :app_secret], {:ok, :secret}}])
+    qs = %{}
+    expect(Signaturex, :validate!, [{[:app_key, :secret, "get", "/url", qs, 600], :ok}])
+
+    assert check("get", "/url", "", qs) == :ok
+
+    assert validate Signaturex
+    assert validate Application
   end
 
   test "a valid auth_key" do
