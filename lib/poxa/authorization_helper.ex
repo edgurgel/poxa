@@ -7,8 +7,7 @@ defmodule Poxa.AuthorizationHelper do
     {method, req} = :cowboy_req.method(req)
     {qs_vals, req} = :cowboy_req.qs_vals(req)
     {path, req} = :cowboy_req.path(req)
-    auth = Authentication.check(method, path, body, qs_vals)
-    if auth == :ok do
+    if Authentication.check(method, path, body, qs_vals) do
       {true, req, state}
     else
       {{false, "authentication failed"}, req, nil}

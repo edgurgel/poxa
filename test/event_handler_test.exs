@@ -46,7 +46,7 @@ defmodule Poxa.EventHandlerTest do
   end
 
   test "is_authorized with failing authentication" do
-    expect(Authentication, :check, 4, :error)
+    expect(Authentication, :check, 4, false)
     expect(:cowboy_req, :qs_vals, 1, {:qsvals, :req2})
     expect(:cowboy_req, :method, 1, {:method, :req3})
     expect(:cowboy_req, :path, 1, {:path, :req3})
@@ -59,7 +59,7 @@ defmodule Poxa.EventHandlerTest do
   end
 
   test "is_authorized with correct authentication" do
-    expect(Authentication, :check, 4, :ok)
+    expect(Authentication, :check, 4, true)
     expect(:cowboy_req, :qs_vals, 1, {:qsvals, :req2})
     expect(:cowboy_req, :method, 1, {:method, :req3})
     expect(:cowboy_req, :path, 1, {:path, :req3})

@@ -12,7 +12,7 @@ defmodule Poxa.Console.WSHandler do
     {path, req} = :cowboy_req.path(req)
     {qs_vals, req} = :cowboy_req.qs_vals(req)
 
-    if Authentication.check(method, path, "", qs_vals) == :ok do
+    if Authentication.check(method, path, "", qs_vals) do
       :ok = Poxa.Event.add_handler({Poxa.Console, self}, self)
       {:ok, req, nil}
     else

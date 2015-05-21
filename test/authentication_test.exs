@@ -13,9 +13,9 @@ defmodule Poxa.AuthenticationTest do
   test "check with a non-empty body and correct md5" do
     expect(Application, :fetch_env, [{[:poxa, :app_key], {:ok, :app_key}}, {[:poxa, :app_secret], {:ok, :secret}}])
     qs = %{"body_md5" => "841a2d689ad86bd1611447453c22c6fc"}
-    expect(Signaturex, :validate!, [{[:app_key, :secret, 'get', '/url', qs, 600], :ok}])
+    expect(Signaturex, :validate, [{[:app_key, :secret, 'get', '/url', qs, 600], :ok}])
 
-    assert check('get', '/url', 'body', qs) == :ok
+    assert check('get', '/url', 'body', qs)
 
     assert validate Signaturex
     assert validate Application
@@ -24,9 +24,9 @@ defmodule Poxa.AuthenticationTest do
   test "check with a non-empty body and incorrect md5" do
     expect(Application, :fetch_env, [{[:poxa, :app_key], {:ok, :app_key}}, {[:poxa, :app_secret], {:ok, :secret}}])
     qs = %{"body_md5" => "md5?"}
-    expect(Signaturex, :validate!, [{[:app_key, :secret, 'get', '/url', qs, 600], :ok}])
+    expect(Signaturex, :validate, [{[:app_key, :secret, 'get', '/url', qs, 600], :ok}])
 
-    assert check('get', '/url', 'body', qs) == {:badauth, "Error during authentication"}
+    refute check('get', '/url', 'body', qs)
 
     assert validate Signaturex
     assert validate Application
@@ -35,9 +35,9 @@ defmodule Poxa.AuthenticationTest do
   test "check with an empty body" do
     expect(Application, :fetch_env, [{[:poxa, :app_key], {:ok, :app_key}}, {[:poxa, :app_secret], {:ok, :secret}}])
     qs = %{}
-    expect(Signaturex, :validate!, [{[:app_key, :secret, "get", "/url", qs, 600], :ok}])
+    expect(Signaturex, :validate, [{[:app_key, :secret, "get", "/url", qs, 600], :ok}])
 
-    assert check("get", "/url", "", qs) == :ok
+    assert check("get", "/url", "", qs)
 
     assert validate Signaturex
     assert validate Application
@@ -54,24 +54,5 @@ defmodule Poxa.AuthenticationTest do
     {return, _} = check_key(:invalid_auth_key)
     assert return == :error
     assert validate Application
-  end
-
-  test "a valid body" do
-    body = 'md5'
-    md5 = "1bc29b36f623ba82aaf6724fd3b16718"
-    # Impossible to mock crypto module
-    assert check_body(body, md5) == :ok
-  end
-
-  test "an invalid body" do
-    body = 'wrong-md5'
-    md5 = "md5"
-    # Impossible to mock crypto module
-    {return, _} = check_body(body, md5)
-    assert return == :error
-  end
-
-  test "an empty body" do
-    assert check_body("", nil) == :ok
   end
 end

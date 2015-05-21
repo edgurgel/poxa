@@ -16,7 +16,7 @@ defmodule Poxa.AuthorizarionHelperTest do
     expect(:cowboy_req, :method, 1, {:method, :req2})
     expect(:cowboy_req, :qs_vals, 1, {:qs_vals, :req3})
     expect(:cowboy_req, :path, 1, {:path, :req4})
-    expect(Authentication, :check, 4, :ok)
+    expect(Authentication, :check, 4, true)
     assert is_authorized(:req, :state) == {true, :req4, :state}
     assert validate(Authentication)
     assert validate(:cowboy_req)
@@ -27,7 +27,7 @@ defmodule Poxa.AuthorizarionHelperTest do
     expect(:cowboy_req, :method, 1, {:method, :req2})
     expect(:cowboy_req, :qs_vals, 1, {:qs_vals, :req3})
     expect(:cowboy_req, :path, 1, {:path, :req4})
-    expect(Authentication, :check, 4, {:badauth, "error"})
+    expect(Authentication, :check, 4, false)
     assert is_authorized(:req, :state) == {{false, "authentication failed"}, :req4, nil}
     assert validate(Authentication)
     assert validate(:cowboy_req)
