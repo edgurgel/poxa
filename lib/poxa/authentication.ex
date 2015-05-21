@@ -8,15 +8,13 @@ defmodule Poxa.Authentication do
   """
   @spec check(binary, binary, binary, [{binary, binary}]) :: boolean
   def check(method, path, body, qs_vals) do
-    try do
-      qs_vals = Enum.into(qs_vals, %{})
-      #If any of these values are not avaiable -> MatchError
-      body_md5 = qs_vals["body_md5"]
-      {:ok, app_key} = Application.fetch_env(:poxa, :app_key)
-      {:ok, secret} = Application.fetch_env(:poxa, :app_secret)
+    qs_vals = Enum.into(qs_vals, %{})
+    #If any of these values are not avaiable -> MatchError
+    body_md5 = qs_vals["body_md5"]
+    {:ok, app_key} = Application.fetch_env(:poxa, :app_key)
+    {:ok, secret} = Application.fetch_env(:poxa, :app_secret)
 
-      valid_body?(body, body_md5) and Signaturex.validate(app_key, secret, method, path, qs_vals, 600)
-    end
+    valid_body?(body, body_md5) and Signaturex.validate(app_key, secret, method, path, qs_vals, 600)
   end
 
   @doc """
