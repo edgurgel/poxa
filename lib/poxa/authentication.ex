@@ -1,6 +1,7 @@
 defmodule Poxa.Authentication do
-  require Logger
-  alias Poxa.CryptoHelper
+  @moduledoc """
+  A module that hold authentication validation using Signaturex
+  """
 
   @doc """
   Returns :ok if every step on authentication is :ok
@@ -30,6 +31,6 @@ defmodule Poxa.Authentication do
 
   defp valid_body?("", nil), do: true
   defp valid_body?(body, body_md5) do
-    body_md5 == CryptoHelper.md5_to_string(body)
+    body_md5 == Poxa.CryptoHelper.md5_to_string(body)
   end
 end
