@@ -1,4 +1,10 @@
 defmodule Poxa.Channel do
+  @moduledoc """
+  A module to work with channels
+
+  Channels can be public, private or presence channels.
+  """
+
   @doc """
   Returns true for `private-*`
 
