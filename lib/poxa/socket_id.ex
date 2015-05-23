@@ -7,4 +7,18 @@ defmodule Poxa.SocketId do
     <<part1::32, part2::32>> = :crypto.rand_bytes(8)
     "#{part1}.#{part2}"
   end
+
+  @doc """
+  Returns wheter a socket id is valid or not.
+
+  iex> Poxa.SocketId.valid? "123.456"
+  true
+  iex> Poxa.SocketId.valid? "123456"
+  false
+  iex> Poxa.SocketId.valid? "123.456:channel-private"
+  false
+  """
+  def valid?(socket_id) do
+    Regex.match?(~r/\A\d+\.\d+\z/, socket_id)
+  end
 end
