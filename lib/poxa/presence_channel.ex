@@ -1,4 +1,8 @@
 defmodule Poxa.PresenceChannel do
+  @moduledoc """
+  This module holds functions that are related to presence channel users information
+  """
+
   @doc """
   This function returns the user ids currently subscribed to a presence channel
 
