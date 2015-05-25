@@ -6,6 +6,20 @@ defmodule Poxa.Channel do
   """
 
   @doc """
+  Returns true if the channel name is valid and false otherwise
+
+  iex> Poxa.Channel.valid? "private-channel"
+  true
+  iex> Poxa.Channel.valid? "channel_name-1"
+  true
+  iex> Poxa.Channel.valid? "channel:presence-abcd"
+  false
+  """
+  def valid?(channel) do
+    Regex.match?(~r/\A[\w@\-;]+\z/, channel)
+  end
+
+  @doc """
   Returns true for `private-*`
 
   iex> Poxa.Channel.private?("private-ch")
