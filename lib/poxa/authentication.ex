@@ -4,13 +4,12 @@ defmodule Poxa.Authentication do
   """
 
   @doc """
-  Returns :ok if every step on authentication is :ok
+  Returns true if authentication process is validated correctly, false otherwise
   More info at: http://pusher.com/docs/rest_api#authentication
   """
   @spec check(binary, binary, binary, [{binary, binary}]) :: boolean
   def check(method, path, body, qs_vals) do
     qs_vals = Enum.into(qs_vals, %{})
-    #If any of these values are not avaiable -> MatchError
     body_md5 = qs_vals["body_md5"]
     {:ok, app_key} = Application.fetch_env(:poxa, :app_key)
     {:ok, secret} = Application.fetch_env(:poxa, :app_secret)
@@ -19,7 +18,7 @@ defmodule Poxa.Authentication do
   end
 
   @doc """
-  Returns :ok if the auth_key is identical to app_key and
+  Returns :ok if the `auth_key` is identical to app_key and
   :error, reason tuple otherwise
   """
   @spec check_key(binary) :: :ok | {:error, binary}
