@@ -23,8 +23,13 @@ defmodule Poxa.WebsocketHandler do
     defstruct [:socket_id, :time]
   end
 
+  @doc false
   def init(_transport, _req, _opts), do: {:upgrade, :protocol, :cowboy_websocket}
 
+  @doc """
+  This function checks for proper app_key and protocol before continuing
+  It can return 4007 code if the protocol is wrong or 4001 if the app key is incorrect
+  """
   def websocket_init(_transport_name, req, _opts) do
     {app_key, req} = :cowboy_req.binding(:app_key, req)
     {protocol, req} = :cowboy_req.qs_val("protocol", req, to_string(@max_protocol))
@@ -54,11 +59,21 @@ defmodule Poxa.WebsocketHandler do
     end
   end
 
+  @doc """
+  The handle function can receive the following requests:
+
+  * pusher:subscribe
+  * pusher:unsubscribe
+  * pusher:ping
+  * client-* event
+
+  More info: http://pusher.com/docs/pusher_protocol
+  """
   def websocket_handle({:text, json}, req, state) do
     JSX.decode!(json) |> handle_pusher_event(req, state)
   end
 
-  def handle_pusher_event(decoded_json, req, state) do
+  defp handle_pusher_event(decoded_json, req, state) do
     handle_pusher_event(decoded_json["event"], decoded_json, req, state)
   end
 
@@ -99,6 +114,13 @@ defmodule Poxa.WebsocketHandler do
     {:ok, req, state}
   end
 
+  @doc """
+  This function handles 3 possible cases:
+
+  * start - Normal start after successful websocket_init
+  * start_error - Improper start returning useful error code after unsuccessful websocket_init
+  * msg broadcast - Any message generate by events that gets to the connection
+  """
   def websocket_info(:start, req, _state) do
     # Unique identifier for the connection
     socket_id = SocketId.generate!
@@ -128,6 +150,10 @@ defmodule Poxa.WebsocketHandler do
 
   def websocket_info(_info, req, state), do: {:ok, req, state}
 
+  @doc """
+  Before terminating the websocket process the presence channels are checked to trigger
+  member removal if necessary and explicitly unregister tags on gproc
+  """
   def websocket_terminate(_reason, _req, nil), do: :ok
   def websocket_terminate(_reason, _req, %State{socket_id: socket_id, time: time}) do
     duration = Time.stamp - time
