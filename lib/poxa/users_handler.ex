@@ -9,23 +9,30 @@ defmodule Poxa.UsersHandler do
   alias Poxa.PresenceChannel
   alias Poxa.Channel
 
+  @doc false
   def init(_transport, _req, _opts) do
     {:upgrade, :protocol, :cowboy_rest}
   end
 
+  @doc false
   def allowed_methods(req, state) do
     {["GET"], req, state}
   end
 
+  @doc """
+  The request is malformed if the channel is not a presence channel
+  """
   def malformed_request(req, _state) do
     {channel, req} = :cowboy_req.binding(:channel_name, req)
     {!Channel.presence?(channel), req, channel}
   end
 
+  @doc false
   def is_authorized(req, channel) do
     AuthorizationHelper.is_authorized(req, channel)
   end
 
+  @doc false
   def content_types_provided(req, state) do
     {[{{"application", "json", []}, :get_json}], req, state}
   end
