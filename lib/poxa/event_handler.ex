@@ -25,21 +25,17 @@ defmodule Poxa.EventHandler do
     {:ok, body, req} = :cowboy_req.body(req)
     case JSX.decode(body) do
       {:ok, data} ->
-        if invalid_data?(data) do
-          req = :cowboy_req.set_resp_body(@invalid_event_json, req)
-          {true, req, state}
-        else
-          {false, req, %{body: body, data: data}}
+        case PusherEvent.build(data) do
+          {:ok, event} -> {false, req, %{body: body, event: event}}
+          _ ->
+            req = :cowboy_req.set_resp_body(@invalid_event_json, req)
+            {true, req, state}
         end
       _ ->
         req = :cowboy_req.set_resp_body(@invalid_event_json, req)
         {true, req, state}
     end
   end
-
-  defp invalid_data?(%{"name" => _, "data" => _, "channel" => _}), do: false
-  defp invalid_data?(%{"name" => _, "data" => _, "channels" => _}), do: false
-  defp invalid_data?(_), do: true
 
   @authentication_error_json JSX.encode!(%{error: "Authentication error"})
   # http://pusher.com/docs/rest_api#authentication
@@ -55,8 +51,8 @@ defmodule Poxa.EventHandler do
   end
 
   @invalid_data_size_json JSX.encode!(%{error: "Data key must be smaller than 10KB"})
-  def valid_entity_length(req, %{data: data} = state) do
-    valid = byte_size(data["data"]) <= 10_000
+  def valid_entity_length(req, %{event: event} = state) do
+    valid = byte_size(event.data) <= 10_000
     unless valid do
       req = :cowboy_req.set_resp_body(@invalid_data_size_json, req)
     end
@@ -71,8 +67,7 @@ defmodule Poxa.EventHandler do
     {[{{"application", "json", []}, :undefined}], req, state}
   end
 
-  def post(req, %{data: data}) do
-    event = PusherEvent.build(data)
+  def post(req, %{event: event}) do
     PusherEvent.publish(event)
     Event.notify(:api_message, %{channels: event.channels, name: event.name})
     req = :cowboy_req.set_resp_body("{}", req)
