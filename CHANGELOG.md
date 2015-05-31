@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.0 (2015-05-31)
+
+* Refactor internal modules Authentication and PusherEvent;
+* Document several modules;
+* Validate channel name and socket id on Events endpoint;
+* Generate socket id using the pattern "NUMBER.NUMBER" according to Pusher's format;
+
 ## 0.3.3 (2015-02-22)
 
 * Refactor internals (Console, EventsHandler, Subscription, etc)
