@@ -211,7 +211,7 @@ defmodule Poxa.WebsocketHandlerTest do
     decoded_json = %{"event" => "client-event"}
     event = %PusherEvent{channels: ["presence-channel"], name: "client-event"}
     expect(JSX, :decode!, [{[:client_event_json], decoded_json}])
-    expect(PusherEvent, :build_client_event, [{[decoded_json, :socket_id], event}])
+    expect(PusherEvent, :build_client_event, [{[decoded_json, :socket_id], {:ok, event}}])
     expect(PusherEvent, :publish, 1, :ok)
     expect(Channel, :subscribed?, 2, true)
     expect(Event, :notify, [{[:client_event_message, %{socket_id: :socket_id, channels: ["presence-channel"], name: "client-event"}], :ok}])
@@ -231,7 +231,7 @@ defmodule Poxa.WebsocketHandlerTest do
     decoded_json = %{"event" => "client-event"}
     event = %PusherEvent{channels: ["private-channel"], name: "client-event"}
     expect(JSX, :decode!, [{[:client_event_json], decoded_json}])
-    expect(PusherEvent, :build_client_event, [{[decoded_json, :socket_id], event}])
+    expect(PusherEvent, :build_client_event, [{[decoded_json, :socket_id], {:ok, event}}])
     expect(PusherEvent, :publish, 1, :ok)
     expect(Channel, :subscribed?, 2, true)
     expect(Event, :notify, [{[:client_event_message, %{socket_id: :socket_id, channels: ["private-channel"], name: "client-event"}], :ok}])
@@ -251,7 +251,7 @@ defmodule Poxa.WebsocketHandlerTest do
     decoded_json = %{"event" => "client-event"}
     event = %PusherEvent{channels: ["private-not-subscribed"], name: "client-event"}
     expect(JSX, :decode!, [{[:client_event_json], decoded_json}])
-    expect(PusherEvent, :build_client_event, [{[decoded_json, :socket_id], event}])
+    expect(PusherEvent, :build_client_event, [{[decoded_json, :socket_id], {:ok, event}}])
     expect(Channel, :subscribed?, 2, false)
 
     state = %State{socket_id: :socket_id}
@@ -268,7 +268,7 @@ defmodule Poxa.WebsocketHandlerTest do
   test "client event on public channel" do
     event = %PusherEvent{channels: ["public-channel"], name: "client-event"}
     expect(JSX, :decode!, 1, %{"event" => "client-event"})
-    expect(PusherEvent, :build_client_event, 2, event)
+    expect(PusherEvent, :build_client_event, 2, {:ok, event})
 
     state = %State{socket_id: :socket_id}
 

@@ -130,20 +130,37 @@ defmodule Poxa.PusherEvent do
   @doc """
   Builds the struct based on the decoded JSON from /events endpoint
   """
-  @spec build(map) :: Poxa.PusherEvent.t
+  @spec build(map) :: {:ok, Poxa.PusherEvent.t} | {:error, atom}
   def build(%{"name" => name, "channels" => channels, "data" => data} = event) do
-    %Poxa.PusherEvent{channels: channels, data: data, name: name, socket_id: event["socket_id"]}
+    build_event(channels, data, name, event["socket_id"])
   end
   def build(%{"name" => name, "channel" => channel, "data" => data} = event) do
-    %Poxa.PusherEvent{channels: [channel], data: data, name: name, socket_id: event["socket_id"]}
+    build_event([channel], data, name, event["socket_id"])
+  end
+  def build(_), do: {:error, :invalid_pusher_event}
+
+  @doc """
+  Build client events
+  """
+  @spec build_client_event(map, binary) :: {:ok, Poxa.PusherEvent.t} | {:error, atom}
+  def build_client_event(%{"event" => name, "channel" => channel, "data" => data}, socket_id) do
+    build_event([channel], data, name, socket_id)
+  end
+  def build_client_event(%{"name" => name, "channel" => channel, "data" => data}, socket_id) do
+    build_event([channel], data, name, socket_id)
   end
 
-  def build_client_event(%{"event" => event, "channel" => channel, "data" => data}, socket_id) do
-    %Poxa.PusherEvent{channels: [channel], data: data, name: event, socket_id: socket_id}
+  defp build_event(channels, data, name, socket_id) do
+    event = %Poxa.PusherEvent{channels: channels, data: data, name: name, socket_id: socket_id}
+    if valid?(event), do: {:ok, event},
+    else: {:error, :invalid_event}
   end
-  def build_client_event(%{"name" => event, "channel" => channel, "data" => data}, socket_id) do
-    %Poxa.PusherEvent{channels: [channel], data: data, name: event, socket_id: socket_id}
+
+  defp valid?(%Poxa.PusherEvent{channels: channels, data: data, name: event, socket_id: socket_id}) do
+    Enum.all?(channels, &Poxa.Channel.valid?(&1)) and
+      (!socket_id || Poxa.SocketId.valid?(socket_id))
   end
+  defp valid?(_), do: false
 
   @doc """
   Send `message` to `channels` excluding `exclude`

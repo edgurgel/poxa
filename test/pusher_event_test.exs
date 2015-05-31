@@ -53,22 +53,59 @@ defmodule Poxa.PusherEventTest do
     event = %{"channel" => "channel_name",
               "data" => "event_data",
               "name" => "event_etc"}
-    assert build(event) == %PusherEvent{name: "event_etc", data: "event_data", channels: ["channel_name"]}
+    assert build(event) == {:ok, %PusherEvent{name: "event_etc", data: "event_data", channels: ["channel_name"]}}
   end
 
   test "build PusherEvent with multiple channels" do
     event = %{"channels" => ["channel_name1", "channel_name2"],
               "data" => "event_data",
               "name" => "event_etc"}
-    assert build(event) == %PusherEvent{name: "event_etc", data: "event_data", channels: ["channel_name1","channel_name2"]}
+    assert build(event) == {:ok, %PusherEvent{name: "event_etc", data: "event_data", channels: ["channel_name1","channel_name2"]}}
   end
 
   test "build PusherEvent with excluding socket_id" do
     event = %{"channel" => "channel_name",
               "data" => "event_data",
-              "socket_id" => "socketId",
+              "socket_id" => "123.456",
               "name" => "event_etc"}
-    assert build(event) == %PusherEvent{name: "event_etc", data: "event_data", channels: ["channel_name"], socket_id: "socketId"}
+    assert build(event) == {:ok, %PusherEvent{name: "event_etc", data: "event_data", channels: ["channel_name"], socket_id: "123.456"}}
+  end
+
+  test "build PusherEvent with invalid socket_id" do
+    event = %{"channel" => "channel_name",
+              "data" => "event_data",
+              "socket_id" => "123:456",
+              "name" => "event_etc"}
+    assert build(event) == {:error, :invalid_event}
+  end
+
+  test "build PusherEvent with invalid channel name" do
+    event = %{"channel" => "channel:name",
+              "data" => "event_data",
+              "socket_id" => "123.456",
+              "name" => "event_etc"}
+    assert build(event) == {:error, :invalid_event}
+  end
+
+  test "build_client_event with excluding socket_id" do
+    event = %{"channel" => "channel_name",
+              "data" => "event_data",
+              "name" => "event_etc"}
+    assert build_client_event(event, "123.456") == {:ok, %PusherEvent{name: "event_etc", data: "event_data", channels: ["channel_name"], socket_id: "123.456"}}
+  end
+
+  test "build_client_event with invalid excluding socket_id" do
+    event = %{"channel" => "channel_name",
+              "data" => "event_data",
+              "name" => "event_etc"}
+    assert build_client_event(event, "123:456") == {:error, :invalid_event}
+  end
+
+  test "build_client_event with invalid channel name" do
+    event = %{"channel" => "channel:name",
+              "data" => "event_data",
+              "name" => "event_etc"}
+    assert build_client_event(event, "123.456") == {:error, :invalid_event}
   end
 
   test "sending message to a channel" do
