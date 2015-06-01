@@ -9,16 +9,24 @@ defmodule Poxa.ChannelsHandler do
   alias Poxa.Channel
   alias Poxa.PresenceChannel
 
+  @doc false
   def init(_transport, _req, _opts) do
     {:upgrade, :protocol, :cowboy_rest}
   end
 
+  @doc false
   def allowed_methods(req, state) do
     {["GET"], req, state}
   end
 
   @valid_attributes ["user_count", "subscription_count"]
 
+  @doc """
+  A request is malformed on /channels if:
+
+  * requesting invalid info (not user_count or subscription_count)
+  * user_count for non-presence channels
+  """
   def malformed_request(req, _state) do
     {info, req} = :cowboy_req.qs_val("info", req, "")
     attributes = String.split(info, ",")
@@ -52,14 +60,17 @@ defmodule Poxa.ChannelsHandler do
     end
   end
 
+  @doc false
   def is_authorized(req, state) do
     AuthorizationHelper.is_authorized(req, state)
   end
 
+  @doc false
   def content_types_provided(req, state) do
     {[{{"application", "json", []}, :get_json}], req, state}
   end
 
+  @doc false
   def get_json(req, {:one, channel, attributes}) do
     show(channel, attributes, req, nil)
   end
@@ -101,5 +112,4 @@ defmodule Poxa.ChannelsHandler do
 
   defp filter_channel(channel, nil), do: !Channel.private?(channel)
   defp filter_channel(channel, filter), do: Channel.matches?(channel, filter)
-
 end
