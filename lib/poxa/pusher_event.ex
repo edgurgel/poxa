@@ -156,7 +156,7 @@ defmodule Poxa.PusherEvent do
     else: {:error, :invalid_event}
   end
 
-  defp valid?(%Poxa.PusherEvent{channels: channels, data: data, name: event, socket_id: socket_id}) do
+  defp valid?(%Poxa.PusherEvent{channels: channels, socket_id: socket_id}) do
     Enum.all?(channels, &Poxa.Channel.valid?(&1)) and
       (!socket_id || Poxa.SocketId.valid?(socket_id))
   end
