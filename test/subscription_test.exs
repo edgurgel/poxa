@@ -34,7 +34,7 @@ defmodule Poxa.SubscriptionTest do
   test "subscription to a private channel" do
     expect(Channel, :subscribed?, 2, false)
     expect(:gproc, :reg, 1, :registered)
-    expect(AuthSignature, :validate, 2, :ok)
+    expect(AuthSignature, :valid?, 2, true)
     assert subscribe!(%{"channel" => "private-channel",
                         "auth" => "signeddata" }, "SocketId") == {:ok, "private-channel"}
     assert validate AuthSignature
@@ -44,7 +44,7 @@ defmodule Poxa.SubscriptionTest do
   test "subscription to a private channel having a channel_data" do
     expect(Channel, :subscribed?, 2, false)
     expect(:gproc, :reg, 1, :registered)
-    expect(AuthSignature, :validate, 2, :ok)
+    expect(AuthSignature, :valid?, 2, true)
     assert subscribe!(%{"channel" => "private-channel",
                         "auth" => "signeddata",
                         "channel_data" => "{\"user_id\" : \"id123\", \"user_info\" : \"info456\"}"}, "SocketId") == {:ok, "private-channel"}
@@ -55,7 +55,7 @@ defmodule Poxa.SubscriptionTest do
   test "subscription to a presence channel" do
     expect(Channel, :subscribed?, 2, false)
     expect(:gproc, :lookup_values, 1, :values) # subscribed? returns false
-    expect(AuthSignature, :validate, 2, :ok)
+    expect(AuthSignature, :valid?, 2, true)
     expect(PresenceSubscription, :subscribe!, 2, :ok)
 
     assert subscribe!(%{"channel" => "presence-channel",
@@ -68,7 +68,7 @@ defmodule Poxa.SubscriptionTest do
   end
 
   test "subscription to a private-channel having bad authentication" do
-    expect(AuthSignature, :validate, 2, :error)
+    expect(AuthSignature, :valid?, 2, false)
 
     assert subscribe!(%{"channel" => "private-channel",
                         "auth" => "signeddate"}, "SocketId") == :error
@@ -77,7 +77,7 @@ defmodule Poxa.SubscriptionTest do
   end
 
   test "subscription to a presence-channel having bad authentication" do
-    expect(AuthSignature, :validate, 2, :error)
+    expect(AuthSignature, :valid?, 2, false)
 
     assert subscribe!(%{"channel" => "presence-channel",
                         "auth" => "signeddate"}, "SocketId") == :error

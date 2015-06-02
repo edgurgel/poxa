@@ -45,14 +45,13 @@ defmodule Poxa.AuthenticationTest do
 
   test "a valid auth_key" do
     expect(Application, :fetch_env, 2, {:ok, :auth_key})
-    assert check_key(:auth_key) == :ok
+    assert check_key(:auth_key)
     assert validate Application
   end
 
   test "an invalid auth_key" do
     expect(Application, :fetch_env, 2, {:ok, :auth_key})
-    {return, _} = check_key(:invalid_auth_key)
-    assert return == :error
+    refute check_key(:invalid_auth_key)
     assert validate Application
   end
 end

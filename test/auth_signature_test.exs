@@ -15,36 +15,36 @@ defmodule Poxa.AuthSignatureTest do
     app_key = "app_key"
     signature = Poxa.CryptoHelper.hmac256_to_string("secret", "SocketId:private-channel")
     auth = <<app_key :: binary, ":", signature :: binary>>
-    expect(Authentication, :check_key, 1, :ok)
+    expect(Authentication, :check_key, 1, true)
 
-    assert validate("SocketId:private-channel", auth) == :ok
+    assert valid?("SocketId:private-channel", auth)
 
     assert validate Authentication
   end
 
   test "an invalid key" do
-    expect(Authentication, :check_key, 1, {:error, :reason})
+    expect(Authentication, :check_key, 1, false)
 
-    assert validate("SocketId:private-channel", "Auth:key") == :error
+    refute valid?("SocketId:private-channel", "Auth:key")
 
     assert validate Authentication
   end
 
   test "an invalid signature" do
     :application.set_env(:poxa, :app_secret, "secret")
-    expect(Authentication, :check_key, 1, :ok)
+    expect(Authentication, :check_key, 1, true)
 
-    assert validate("SocketId:private-channel", "Wrong:Auth") == :error
+    refute valid?("SocketId:private-channel", "Wrong:Auth")
 
     assert validate Authentication
   end
 
   test "invalid " do
     :application.set_env(:poxa, :app_secret, "secret")
-    expect(Authentication, :check_key, 1, :ok)
+    expect(Authentication, :check_key, 1, true)
 
-    assert validate("SocketId:private-channel", "asdfasdf") == :error
-    assert validate("SocketId:private-channel", "asdfasdf") == :error
+    refute valid?("SocketId:private-channel", "asdfasdf")
+    refute valid?("SocketId:private-channel", "asdfasdf")
 
     assert validate Authentication
   end

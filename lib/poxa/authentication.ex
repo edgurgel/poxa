@@ -18,14 +18,12 @@ defmodule Poxa.Authentication do
   end
 
   @doc """
-  Returns :ok if the `auth_key` is identical to app_key and
-  :error, reason tuple otherwise
+  Returns true if the `app_key` is the same as `auth_key`, false otherwise
   """
-  @spec check_key(binary) :: :ok | {:error, binary}
+  @spec check_key(binary) :: boolean
   def check_key(auth_key) do
     {:ok, app_key} = Application.fetch_env(:poxa, :app_key)
-    if auth_key == app_key, do: :ok,
-    else: {:error, "app_key and auth_key dont match."}
+    auth_key == app_key
   end
 
   defp valid_body?("", nil), do: true
