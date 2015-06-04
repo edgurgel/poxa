@@ -11,16 +11,17 @@ defmodule Poxa.EventHandler do
   alias Poxa.Event
   require Logger
 
-  @error_json JSX.encode!(%{error: "invalid json"})
-  @doc """
-  If the body is a valid JSON, the state of the handler will be the body
-  Otherwise the response will be a 400 status code
-  """
+  @doc false
   def init(_transport, _req, _opts), do: {:upgrade, :protocol, :cowboy_rest}
 
   def allowed_methods(req, state), do: {["POST"], req, state}
 
   @invalid_event_json JSX.encode!(%{error: "Event must have channel(s), name, and data"})
+
+  @doc """
+  If the body is not JSON or not a valid PusherEvent this function will
+  guarantee that 400 will be returned
+  """
   def malformed_request(req, state) do
     {:ok, body, req} = :cowboy_req.body(req)
     case JSX.decode(body) do
@@ -38,7 +39,10 @@ defmodule Poxa.EventHandler do
   end
 
   @authentication_error_json JSX.encode!(%{error: "Authentication error"})
-  # http://pusher.com/docs/rest_api#authentication
+
+  @doc """
+  More info http://pusher.com/docs/rest_api#authentication
+  """
   def is_authorized(req, %{body: body} = state) do
     {qs_vals, req} = :cowboy_req.qs_vals(req)
     {method, req} = :cowboy_req.method(req)
@@ -51,6 +55,10 @@ defmodule Poxa.EventHandler do
   end
 
   @invalid_data_size_json JSX.encode!(%{error: "Data key must be smaller than 10KB"})
+
+  @doc """
+  The event data can't be greater than 10KB
+  """
   def valid_entity_length(req, %{event: event} = state) do
     valid = byte_size(event.data) <= 10_000
     unless valid do
@@ -59,14 +67,17 @@ defmodule Poxa.EventHandler do
     {valid, req, state}
   end
 
+  @doc false
   def content_types_accepted(req, state) do
     {[{{"application", "json", :*}, :post}], req, state}
   end
 
+  @doc false
   def content_types_provided(req, state) do
     {[{{"application", "json", []}, :undefined}], req, state}
   end
 
+  @doc false
   def post(req, %{event: event}) do
     PusherEvent.publish(event)
     Event.notify(:api_message, %{channels: event.channels, name: event.name})
