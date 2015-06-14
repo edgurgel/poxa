@@ -27,6 +27,16 @@ defmodule Poxa.PusherEventTest do
     assert subscription_error == json
   end
 
+  test "pusher error output" do
+    json = "{\"data\":{\"code\":null,\"message\":\"An error\"},\"event\":\"pusher:error\"}"
+    assert pusher_error("An error") == json
+  end
+
+  test "pusher error with code output" do
+    json = "{\"data\":{\"code\":123,\"message\":\"An error\"},\"event\":\"pusher:error\"}"
+    assert pusher_error("An error", 123) == json
+  end
+
   test "pong output" do
     json ="{\"data\":{},\"event\":\"pusher:pong\"}"
     assert pong == json

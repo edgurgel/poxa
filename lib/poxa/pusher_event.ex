@@ -81,6 +81,23 @@ defmodule Poxa.PusherEvent do
   @spec subscription_error :: <<_ :: 376>>
   def subscription_error, do: @subscription_error
 
+  @doc """
+  Return a JSON for a pusher error using `message` and an optional `code`
+
+  Example:
+      "{
+        "event": "pusher:error",
+        "data": {
+          "message": String,
+          "code": Integer
+        }
+      }"
+  """
+  @spec pusher_error(binary, integer | nil) :: binary
+  def pusher_error(message, code \\ nil) do
+    %{ event: "pusher:error", data: %{ message: message, code: code } } |> encode!
+  end
+
   @pong %{event: "pusher:pong", data: %{}} |> encode!
   @doc """
   PING? PONG!
