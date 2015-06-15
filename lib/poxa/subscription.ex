@@ -6,6 +6,7 @@ defmodule Poxa.Subscription do
   alias Poxa.AuthSignature
   alias Poxa.PresenceSubscription
   alias Poxa.Channel
+  alias Poxa.PusherEvent
   require Logger
 
   @doc """
@@ -15,39 +16,46 @@ defmodule Poxa.Subscription do
   """
   @spec subscribe!(:jsx.json_term, binary) :: {:ok, binary}
     | PresenceSubscription.t
-    | :error
+    | {:error, binary}
   def subscribe!(data, socket_id) do
     channel = data["channel"]
     cond do
       Channel.private?(channel) ->
-        to_sign = case data["channel_data"] do
-          nil -> socket_id <> ":" <> channel
-          channel_data -> socket_id <> ":" <> channel <> ":" <> channel_data
-        end
-        if AuthSignature.valid?(to_sign, data["auth"]) do
-          subscribe_channel(channel)
-        else
-          subscribe_error(channel)
-        end
+        subscribe_private_channel(socket_id, channel, data["auth"], data["channel_data"])
       Channel.presence?(channel) ->
-        channel_data = Dict.get(data, "channel_data", "undefined")
-        to_sign = socket_id <> ":" <> channel <> ":" <> channel_data
-        if AuthSignature.valid?(to_sign, data["auth"]) do
-          PresenceSubscription.subscribe!(channel, channel_data)
-        else
-          subscribe_error(channel)
-        end
+        subscribe_presence_channel(socket_id, channel, data["auth"], data["channel_data"])
       is_binary(channel) ->
         subscribe_channel(channel)
       true ->
         Logger.info "Missing channel"
-        :error
+        {:error, PusherEvent.pusher_error("Missing parameter: data.channel")}
     end
   end
 
-  defp subscribe_error(channel) do
-    Logger.info "Error while subscribing to channel #{channel}"
-    :error
+  defp subscribe_presence_channel(socket_id, channel, auth, channel_data) do
+    to_sign = socket_id <> ":" <> channel <> ":" <> (channel_data || "")
+    if AuthSignature.valid?(to_sign, auth) do
+      PresenceSubscription.subscribe!(channel, channel_data)
+    else
+      {:error, signature_error(to_sign, auth)}
+    end
+  end
+
+  defp subscribe_private_channel(socket_id, channel, auth, channel_data) do
+    to_sign = case channel_data do
+      nil -> socket_id <> ":" <> channel
+      channel_data -> socket_id <> ":" <> channel <> ":" <> channel_data
+    end
+    if AuthSignature.valid?(to_sign, auth) do
+      subscribe_channel(channel)
+    else
+      {:error, signature_error(to_sign, auth)}
+    end
+  end
+
+  defp signature_error(to_sign, auth) do
+    msg = "Invalid signature: Expected HMAC SHA256 hex digest of #{to_sign}, but got #{auth}"
+    PusherEvent.pusher_error(msg)
   end
 
   defp subscribe_channel(channel) do
@@ -73,7 +81,7 @@ defmodule Poxa.Subscription do
       end
       :gproc.unreg({:p, :l, {:pusher, channel}});
     else
-      Logger.debug "Already subscribed"
+      Logger.debug "Not subscribed to"
     end
     {:ok, channel}
   end

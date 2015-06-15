@@ -113,16 +113,14 @@ defmodule Poxa.WebsocketHandlerTest do
 
   test "subscribe private channel event failing for bad authentication" do
     expect(JSX, :decode!, 1, %{"event" => "pusher:subscribe"})
-    expect(Subscription, :subscribe!, 2, :error)
-    expect(PusherEvent, :subscription_error, 0, :subscription_error)
+    expect(Subscription, :subscribe!, 2, {:error, :error_message})
 
     state = %State{socket_id: :socket_id}
 
     assert websocket_handle({:text, :subscription_json}, :req, state) ==
-      {:reply, {:text, :subscription_error}, :req, state}
+      {:reply, {:text, :error_message}, :req, state}
 
     assert validate JSX
-    assert validate PusherEvent
     assert validate Subscription
   end
 
@@ -145,16 +143,14 @@ defmodule Poxa.WebsocketHandlerTest do
 
   test "subscribe presence channel event failing for bad authentication" do
     expect(JSX, :decode!, 1, %{"event" => "pusher:subscribe"})
-    expect(Subscription, :subscribe!, 2, :error)
-    expect(PusherEvent, :subscription_error, 0, :subscription_error)
+    expect(Subscription, :subscribe!, 2, {:error, :error_message})
 
     state = %State{socket_id: :socket_id}
 
     assert websocket_handle({:text, :subscription_json}, :req, state) ==
-      {:reply, {:text, :subscription_error}, :req, state}
+      {:reply, {:text, :error_message}, :req, state}
 
     assert validate JSX
-    assert validate PusherEvent
     assert validate Subscription
   end
 

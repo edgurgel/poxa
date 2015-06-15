@@ -3,12 +3,14 @@ defmodule Poxa.SubscriptionTest do
   alias Poxa.AuthSignature
   alias Poxa.PresenceSubscription
   alias Poxa.Channel
+  alias Poxa.PusherEvent
   import :meck
   import Poxa.Subscription
 
   setup do
     new PresenceSubscription
     new AuthSignature
+    new PusherEvent
     new Channel, [:passthrough]
     new :gproc
     on_exit fn -> unload end
@@ -23,7 +25,11 @@ defmodule Poxa.SubscriptionTest do
   end
 
   test "subscription to a missing channel name" do
-    assert subscribe!(%{}, nil) == :error
+    expect(PusherEvent, :pusher_error, 1, :error_message)
+
+    assert subscribe!(%{}, nil) == {:error, :error_message}
+
+    assert validate PusherEvent
   end
 
   test "subscription to a public channel but already subscribed" do
@@ -69,20 +75,24 @@ defmodule Poxa.SubscriptionTest do
 
   test "subscription to a private-channel having bad authentication" do
     expect(AuthSignature, :valid?, 2, false)
+    expect(PusherEvent, :pusher_error, 1, :error_message)
 
     assert subscribe!(%{"channel" => "private-channel",
-                        "auth" => "signeddate"}, "SocketId") == :error
+                        "auth" => "signeddate"}, "SocketId") == {:error, :error_message}
 
     assert validate AuthSignature
+    assert validate PusherEvent
   end
 
   test "subscription to a presence-channel having bad authentication" do
     expect(AuthSignature, :valid?, 2, false)
+    expect(PusherEvent, :pusher_error, 1, :error_message)
 
     assert subscribe!(%{"channel" => "presence-channel",
-                        "auth" => "signeddate"}, "SocketId") == :error
+                        "auth" => "signeddate"}, "SocketId") == {:error, :error_message}
 
     assert validate AuthSignature
+    assert validate PusherEvent
   end
 
   test "unsubscribe channel being subscribed" do
