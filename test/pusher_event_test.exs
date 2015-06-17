@@ -5,7 +5,6 @@ defmodule Poxa.PusherEventTest do
   alias Poxa.PusherEvent
 
   setup do
-    new :gproc
     on_exit fn -> unload end
     :ok
   end
@@ -126,8 +125,7 @@ defmodule Poxa.PusherEventTest do
 
     assert publish(event) == :ok
 
-    assert validate :gproc
-    assert validate JSX
+    assert validate [:gproc, JSX]
   end
 
   test "sending message to channels excluding a socket id" do
@@ -137,7 +135,6 @@ defmodule Poxa.PusherEventTest do
 
     assert publish(%PusherEvent{data: %{}, channels: ["channel123"], name: "event", socket_id: "SocketId"}) == :ok
 
-    assert validate :gproc
-    assert validate JSX
+    assert validate [:gproc, JSX]
   end
 end
