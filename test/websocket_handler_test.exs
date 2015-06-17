@@ -1,6 +1,5 @@
 defmodule Poxa.WebsocketHandlerTest do
   use ExUnit.Case
-  alias Poxa.Authentication
   alias Poxa.PresenceSubscription
   alias Poxa.PusherEvent
   alias Poxa.Subscription
@@ -19,16 +18,6 @@ defmodule Poxa.WebsocketHandlerTest do
   end
 
   setup do
-    new PusherEvent
-    new Authentication
-    new Subscription
-    new PresenceSubscription
-    new Event
-    new Time
-    new JSX
-    new SocketId
-    new :gproc
-    new :cowboy_req
     on_exit fn -> unload end
     :ok
   end
@@ -62,10 +51,7 @@ defmodule Poxa.WebsocketHandlerTest do
     assert websocket_info(:start, :req, :state) ==
       {:reply, {:text, :connection_established}, :req2, %State{socket_id: "123.456", time: 123}}
 
-    assert validate PusherEvent
-    assert validate Event
-    assert validate SocketId
-    assert validate JSX
+    assert validate [PusherEvent, Event, SocketId]
   end
 
   test "undefined process message" do
@@ -90,8 +76,7 @@ defmodule Poxa.WebsocketHandlerTest do
     assert websocket_handle({:text, :ping_json}, :req, state) ==
       {:reply, {:text, :pong}, :req, state}
 
-    assert validate JSX
-    assert validate PusherEvent
+    assert validate [JSX, PusherEvent]
   end
 
   test "subscribe private channel event" do
@@ -105,10 +90,7 @@ defmodule Poxa.WebsocketHandlerTest do
     assert websocket_handle({:text, :subscribe_json}, :req, state) ==
       {:reply, {:text, :subscription_succeeded}, :req, state}
 
-    assert validate JSX
-    assert validate PusherEvent
-    assert validate Subscription
-    assert validate Event
+    assert validate [JSX, PusherEvent, Subscription, Event]
   end
 
   test "subscribe private channel event failing for bad authentication" do
@@ -120,8 +102,7 @@ defmodule Poxa.WebsocketHandlerTest do
     assert websocket_handle({:text, :subscription_json}, :req, state) ==
       {:reply, {:text, :error_message}, :req, state}
 
-    assert validate JSX
-    assert validate Subscription
+    assert validate [JSX, Subscription]
   end
 
   test "subscribe presence channel event" do
@@ -135,10 +116,7 @@ defmodule Poxa.WebsocketHandlerTest do
     assert websocket_handle({:text, :subscribe_json}, :req, state) ==
       {:reply, {:text, :subscription_succeeded}, :req, state}
 
-    assert validate JSX
-    assert validate PusherEvent
-    assert validate Subscription
-    assert validate Event
+    assert validate [JSX, PusherEvent, Subscription, Event]
   end
 
   test "subscribe presence channel event failing for bad authentication" do
@@ -150,8 +128,7 @@ defmodule Poxa.WebsocketHandlerTest do
     assert websocket_handle({:text, :subscription_json}, :req, state) ==
       {:reply, {:text, :error_message}, :req, state}
 
-    assert validate JSX
-    assert validate Subscription
+    assert validate [JSX, Subscription]
   end
 
   test "subscribe public channel event" do
@@ -165,10 +142,7 @@ defmodule Poxa.WebsocketHandlerTest do
     assert websocket_handle({:text, :subscribe_json}, :req, state) ==
       {:reply, {:text, :subscription_succeeded}, :req, state}
 
-    assert validate JSX
-    assert validate PusherEvent
-    assert validate Subscription
-    assert validate Event
+    assert validate [JSX, PusherEvent, Subscription, Event]
   end
 
   test "subscribe event on an already subscribed channel" do
@@ -182,10 +156,7 @@ defmodule Poxa.WebsocketHandlerTest do
     assert websocket_handle({:text, :subscribe_json}, :req, state) ==
       {:reply, {:text, :subscription_succeeded}, :req, state}
 
-    assert validate JSX
-    assert validate PusherEvent
-    assert validate Subscription
-    assert validate Event
+    assert validate [JSX, PusherEvent, Subscription, Event]
   end
 
   test "unsubscribe event" do
@@ -198,9 +169,7 @@ defmodule Poxa.WebsocketHandlerTest do
     assert websocket_handle({:text, :unsubscribe_json}, :req, state) ==
       {:ok, :req, state}
 
-    assert validate JSX
-    assert validate Subscription
-    assert validate Event
+    assert validate [JSX, Subscription, Event]
   end
 
   test "client event on presence channel" do
@@ -217,10 +186,7 @@ defmodule Poxa.WebsocketHandlerTest do
     assert websocket_handle({:text, :client_event_json}, :req, state) ==
       {:ok, :req, state}
 
-    assert validate JSX
-    assert validate PusherEvent
-    assert validate Channel
-    assert validate Event
+    assert validate [JSX, PusherEvent, Event]
   end
 
   test "client event on private channel" do
@@ -237,10 +203,7 @@ defmodule Poxa.WebsocketHandlerTest do
     assert websocket_handle({:text, :client_event_json}, :req, state) ==
       {:ok, :req, state}
 
-    assert validate JSX
-    assert validate PusherEvent
-    assert validate Channel
-    assert validate Event
+    assert validate [JSX, PusherEvent, Event]
   end
 
   test "client event on not subscribed private channel" do
@@ -255,10 +218,7 @@ defmodule Poxa.WebsocketHandlerTest do
     assert websocket_handle({:text, :client_event_json}, :req, state) ==
       {:ok, :req, state}
 
-    assert validate JSX
-    assert validate PusherEvent
-    assert validate Channel
-    assert validate Event
+    assert validate [JSX, PusherEvent, Channel]
   end
 
   test "client event on public channel" do
@@ -271,8 +231,7 @@ defmodule Poxa.WebsocketHandlerTest do
     assert websocket_handle({:text, :client_event_json}, :req, state) ==
       {:ok, :req, state}
 
-    assert validate JSX
-    assert validate PusherEvent
+    assert validate [JSX, PusherEvent]
   end
 
   test "websocket init" do
@@ -282,8 +241,7 @@ defmodule Poxa.WebsocketHandlerTest do
 
     assert websocket_init(:transport, :req, :opts) == {:ok, :req, nil}
 
-    assert validate :cowboy_req
-    assert validate PusherEvent
+    assert validate [:cowboy_req, PusherEvent]
   end
 
   test "websocket init using wrong app_key" do
@@ -333,10 +291,7 @@ defmodule Poxa.WebsocketHandlerTest do
 
     assert websocket_terminate(:reason, :req, state) == :ok
 
-    assert validate Subscription
-    assert validate Event
-    assert validate PresenceSubscription
-    assert validate :gproc
+    assert validate [Event, PresenceSubscription, :gproc]
   end
 
   test "websocket termination without a socket_id" do
