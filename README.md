@@ -15,19 +15,16 @@ How do I speak 'poxa'?
 
 ## Table of Contents
 
-- [Poxa ](#poxa-)
-	- [Features](#features)
-	- [TODO](#todo)
-	- [Typical usage](#typical-usage)
-	- [Release](#release)
-	- [Your application](#your-application)
-	- [Deploying on Heroku](#deploying-on-heroku)
-	- [Console](#console)
-	- [Implementation](#implementation)
-	- [Contributing](#contributing)
-	- [Pusher](#pusher)
-
-**Table of Contents**  *generated with [DocToc](http://doctoc.herokuapp.com/)*
+- [Features](#features)
+- [TODO](#todo)
+- [Typical usage](#typical-usage)
+- [Release](#release)
+- [Your application](#your-application)
+- [Deploying on Heroku](#deploying-on-heroku)
+- [Console](#console)
+- [Implementation](#implementation)
+- [Contributing](#contributing)
+- [Pusher](#pusher)
 
 ## Features
 
