@@ -58,6 +58,11 @@ defmodule Poxa.WebsocketHandlerTest do
     assert websocket_info(nil, :req, :state) == {:ok, :req, :state}
   end
 
+  test "ping websocket message" do
+    assert websocket_handle({:ping, ""}, :req, :state) ==
+      {:ok, :req, :state}
+  end
+
   test "undefined pusher event websocket message" do
     expect(JSX, :decode!, 1, %{"event" => "pushernil"})
 
