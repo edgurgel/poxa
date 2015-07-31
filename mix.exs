@@ -22,7 +22,7 @@ defmodule Poxa.Mixfile do
       {:gproc, "~> 0.3.0"},
       {:meck, "~> 0.8.2", only: :test},
       {:pusher_client, github: "edgurgel/pusher_client", only: :test},
-      {:pusher, github: "edgurgel/pusher", only: :test},
+      {:pusher, "~> 0.1.0", only: :test},
       {:exrm, "0.14.9", only: :prod},
       {:inch_ex, only: :docs} ]
   end
