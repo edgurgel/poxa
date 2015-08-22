@@ -24,6 +24,7 @@ defmodule Poxa.Mixfile do
       {:pusher_client, github: "edgurgel/pusher_client", only: :test},
       {:pusher, "~> 0.1.0", only: :test},
       {:exrm, "~> 0.19.2", only: :prod},
+      {:edip, "~> 0.4", only: :prod},
       {:inch_ex, only: :docs} ]
   end
 end

@@ -2,6 +2,7 @@
   "conform": {:hex, :conform, "0.16.0"},
   "cowboy": {:hex, :cowboy, "1.0.0"},
   "cowlib": {:hex, :cowlib, "1.0.0"},
+  "edip": {:hex, :edip, "0.4.1"},
   "erlware_commons": {:hex, :erlware_commons, "0.13.0"},
   "exjsx": {:hex, :exjsx, "3.1.0"},
   "exrm": {:hex, :exrm, "0.19.2"},

@@ -166,6 +166,18 @@ poxa.app_id = "app_id"
 
 You can change anything on this file and just start the release and this configuration will be used.
 
+## Using Docker
+
+Docker images are generated using [mix-edip](https://github.com/asaaki/mix-edip). They are available at Docker Hub: https://hub.docker.com/r/edgurgel/poxa/tags/
+
+One can generate it just running `MIX_ENV=prod mix edip --prefix edgurgel`.
+
+The docker run command should look like this:
+
+```
+docker run --rm -p 8080:8080 -v $PWD/mypoxa.conf:/app/releases/0.4.2/poxa.conf edgurgel/poxa:0.4.2
+```
+
 ## Your application
 
 If you are using the pusher-gem:
