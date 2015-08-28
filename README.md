@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/edgurgel/poxa.png?branch=master)](https://travis-ci.org/edgurgel/poxa)
+[![Build Status](https://travis-ci.org/edgurgel/poxa.svg?branch=master)](https://travis-ci.org/edgurgel/poxa)
 [![Inline docs](http://inch-ci.org/github/edgurgel/poxa.svg?branch=master)](http://inch-ci.org/github/edgurgel/poxa)
 [![Release](http://img.shields.io/github/release/edgurgel/poxa.svg)](https://github.com/edgurgel/poxa/releases/latest)
 [![Deploy](https://www.herokucdn.com/deploy/button.png)](https://heroku.com/deploy)
@@ -15,19 +15,16 @@ How do I speak 'poxa'?
 
 ## Table of Contents
 
-- [Poxa ](#poxa-)
-	- [Features](#features)
-	- [TODO](#todo)
-	- [Typical usage](#typical-usage)
-	- [Release](#release)
-	- [Your application](#your-application)
-	- [Deploying on Heroku](#deploying-on-heroku)
-	- [Console](#console)
-	- [Implementation](#implementation)
-	- [Contributing](#contributing)
-	- [Pusher](#pusher)
-
-**Table of Contents**  *generated with [DocToc](http://doctoc.herokuapp.com/)*
+- [Features](#features)
+- [TODO](#todo)
+- [Typical usage](#typical-usage)
+- [Release](#release)
+- [Your application](#your-application)
+- [Deploying on Heroku](#deploying-on-heroku)
+- [Console](#console)
+- [Implementation](#implementation)
+- [Contributing](#contributing)
+- [Pusher](#pusher)
 
 ## Features
 
@@ -168,6 +165,18 @@ poxa.app_id = "app_id"
 ```
 
 You can change anything on this file and just start the release and this configuration will be used.
+
+## Using Docker
+
+Docker images are generated using [mix-edip](https://github.com/asaaki/mix-edip). They are available at Docker Hub: https://hub.docker.com/r/edgurgel/poxa/tags/
+
+One can generate it just running `MIX_ENV=prod mix edip --prefix edgurgel`.
+
+The docker run command should look like this:
+
+```
+docker run --rm -p 8080:8080 -v $PWD/mypoxa.conf:/app/releases/0.4.2/poxa.conf edgurgel/poxa:0.4.2
+```
 
 ## Your application
 

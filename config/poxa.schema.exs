@@ -23,6 +23,26 @@
       to: "poxa.app_id",
       datatype: :binary,
       default: "app_id"
+    ],
+    "poxa.ssl.port": [
+      doc: "HTTPS port",
+      to: "poxa.ssl.port",
+      datatype: :integer,
+    ],
+    "poxa.ssl.cacertfile": [
+      doc: "PEM-encoded CA certificate path",
+      to: "poxa.ssl.cacertfile",
+      datatype: :binary,
+    ],
+    "poxa.ssl.certfile": [
+      doc: "Path to user certificate",
+      to: "poxa.ssl.certfile",
+      datatype: :binary,
+    ],
+    "poxa.ssl.keyfile": [
+      doc: "Path to the file containing the user's private PEM-encoded key",
+      to: "poxa.ssl.keyfile",
+      datatype: :binary,
     ]
   ],
   translations: [
