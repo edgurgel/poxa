@@ -16,7 +16,7 @@ defmodule Poxa.Channel do
   false
   """
   def valid?(channel) do
-    Regex.match?(~r/\A[\w@\-;]+\z/, channel)
+    Regex.match?(~r/\A[\w\-=@,.;]+\z/, channel)
   end
 
   @doc """
