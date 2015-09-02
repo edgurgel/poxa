@@ -48,4 +48,39 @@ defmodule Poxa.ChannelTest do
 
     assert subscription_count("channel") == 2
   end
+
+  test "valid? return true for valid characters" do
+    assert valid?("some_channel")
+    assert valid?("some-channel")
+    assert valid?("some=channel")
+    assert valid?("some@channel")
+    assert valid?("some,channel")
+    assert valid?("some.channel")
+    assert valid?("some;channel")
+    assert valid?("foo-bar_1234@=,.;")
+  end
+
+  test "valid? return false for valid characters" do
+    refute valid?("some`channel")
+    refute valid?("some~channel")
+    refute valid?("some!channel")
+    refute valid?("some#channel")
+    refute valid?("some$channel")
+    refute valid?("some%channel")
+    refute valid?("some^channel")
+    refute valid?("some&channel")
+    refute valid?("some*channel")
+    refute valid?("some+channel")
+    refute valid?("some(channel")
+    refute valid?("some)channel")
+    refute valid?("some[channel")
+    refute valid?("some]channel")
+    refute valid?("some{channel")
+    refute valid?("some}channel")
+    refute valid?("some<channel")
+    refute valid?("some>channel")
+    refute valid?("some'channel")
+    refute valid?("some\"channel")
+    refute valid?("some?channel")
+  end
 end
