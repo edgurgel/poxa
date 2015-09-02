@@ -60,7 +60,7 @@ defmodule Poxa.ChannelTest do
     assert valid?("foo-bar_1234@=,.;")
   end
 
-  test "valid? return false for valid characters" do
+  test "valid? return false for invalid characters" do
     refute valid?("some`channel")
     refute valid?("some~channel")
     refute valid?("some!channel")
