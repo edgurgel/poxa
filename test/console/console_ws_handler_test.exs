@@ -17,10 +17,11 @@ defmodule Poxa.Console.WSHandlerTest do
     expect(:cowboy_req, :method, 1, {:method, :req2})
     expect(:cowboy_req, :path, 1, {:path, :req3})
     expect(:cowboy_req, :qs_vals, 1, {:qs_vals, :req4})
-    expect(Authentication, :check, [{[:method, :path, "", :qs_vals], true}])
-    expect(Event, :add_handler, [{[{Poxa.Console, self}, self], :ok}])
+    expect(:cowboy_req, :binding, 2, {:app_id, :req5})
+    expect(Authentication, :check, [{[:app_id, :method, :path, "", :qs_vals], true}])
+    expect(Event, :add_handler, [{[{Poxa.Console, self}, [self, :app_id]], :ok}])
 
-    assert websocket_init(:tranport, :req, []) == {:ok, :req4, nil}
+    assert websocket_init(:tranport, :req, []) == {:ok, :req5, nil}
 
     assert validate Authentication
     assert validate :cowboy_req
@@ -30,9 +31,10 @@ defmodule Poxa.Console.WSHandlerTest do
     expect(:cowboy_req, :method, 1, {:method, :req2})
     expect(:cowboy_req, :path, 1, {:path, :req3})
     expect(:cowboy_req, :qs_vals, 1, {:qs_vals, :req4})
-    expect(Authentication, :check, [{[:method, :path, "", :qs_vals], false}])
+    expect(:cowboy_req, :binding, 2, {:app_id, :req5})
+    expect(Authentication, :check, [{[:app_id, :method, :path, "", :qs_vals], false}])
 
-    assert websocket_init(:tranport, :req, []) == {:shutdown, :req4}
+    assert websocket_init(:tranport, :req, []) == {:shutdown, :req5}
 
     assert validate Authentication
     assert validate :cowboy_req

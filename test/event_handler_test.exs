@@ -93,7 +93,7 @@ defmodule Poxa.EventHandlerTest do
   test "post event" do
     event = %PusherEvent{}
     expect(PusherEvent, :publish, [{[event], :ok}])
-    expect(Event, :notify, 2, :ok)
+    expect(Event, :notify, 3, :ok)
     expect(:cowboy_req, :set_resp_body, 2, :req2)
 
     assert post(:req, %{event: event}) == {true, :req2, nil}

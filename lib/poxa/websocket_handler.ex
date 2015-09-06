@@ -83,10 +83,10 @@ defmodule Poxa.WebsocketHandler do
     data = decoded_json["data"]
     reply = case Subscription.subscribe!(state.app_id, data, socket_id) do
       {:ok, channel} ->
-        Event.notify(:subscribed, %{socket_id: socket_id, channel: channel})
+        Event.notify(:subscribed, state.app_id, %{socket_id: socket_id, channel: channel})
         PusherEvent.subscription_succeeded(channel)
       subscription = %PresenceSubscription{channel: channel} ->
-        Event.notify(:subscribed, %{socket_id: socket_id, channel: channel})
+        Event.notify(:subscribed, state.app_id, %{socket_id: socket_id, channel: channel})
         PusherEvent.subscription_succeeded(subscription)
       {:error, error} -> error
     end
@@ -94,7 +94,7 @@ defmodule Poxa.WebsocketHandler do
   end
   defp handle_pusher_event("pusher:unsubscribe", decoded_json, req, %State{socket_id: socket_id} = state) do
     {:ok, channel} = Subscription.unsubscribe!(state.app_id, decoded_json["data"])
-    Event.notify(:unsubscribed, %{socket_id: socket_id, channel: channel})
+    Event.notify(:unsubscribed, state.app_id, %{socket_id: socket_id, channel: channel})
     {:ok, req, state}
   end
   defp handle_pusher_event("pusher:ping", _decoded_json, req, state) do
@@ -107,7 +107,7 @@ defmodule Poxa.WebsocketHandler do
     channel = List.first(event.channels)
     if Channel.private_or_presence?(channel) and Channel.subscribed?(channel, state.app_id, self) do
       PusherEvent.publish(event)
-      Event.notify(:client_event_message, %{socket_id: socket_id, channels: event.channels, name: event.name})
+      Event.notify(:client_event_message, state.app_id, %{socket_id: socket_id, channels: event.channels, name: event.name})
     end
     {:ok, req, state}
   end
@@ -128,7 +128,7 @@ defmodule Poxa.WebsocketHandler do
     socket_id = SocketId.generate!
 
     {origin, req} = :cowboy_req.host_url(req)
-    Event.notify(:connected, %{socket_id: socket_id, origin: origin})
+    Event.notify(:connected, state.app_id, %{socket_id: socket_id, origin: origin})
 
     reply = PusherEvent.connection_established(socket_id)
     {:reply, {:text, reply}, req, %{state | socket_id: socket_id, time: Time.stamp}}
@@ -160,7 +160,7 @@ defmodule Poxa.WebsocketHandler do
   def websocket_terminate(_reason, _req, state) do
     duration = Time.stamp - state.time
     channels = Channel.all(state.app_id, self)
-    Event.notify(:disconnected, %{socket_id: state.socket_id, channels: channels, duration: duration})
+    Event.notify(:disconnected, state.app_id, %{socket_id: state.socket_id, channels: channels, duration: duration})
     PresenceSubscription.check_and_remove(state.app_id)
     :gproc.goodbye
     :ok
