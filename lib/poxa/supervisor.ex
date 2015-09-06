@@ -10,7 +10,8 @@ defmodule Poxa.Supervisor do
   The supervisor will spawn a GenEvent named Poxa.Event
   """
   def init([]) do
-    children = [worker(GenEvent, [[name: Poxa.Event]])]
+    children = [worker(Poxa.App, []),
+                worker(GenEvent, [[name: Poxa.Event]])]
     supervise children, strategy: :one_for_one
   end
 end
