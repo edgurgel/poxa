@@ -2,56 +2,57 @@ defmodule Poxa.AuthenticationTest do
   use ExUnit.Case
   import :meck
   import Poxa.Authentication
+  alias Poxa.App
 
   setup do
     new Application
+    new App
     new Signaturex
     on_exit fn -> unload end
     :ok
   end
 
-  test "check with a non-empty body and correct md5" do
-    expect(Application, :fetch_env, [{[:poxa, :app_key], {:ok, :app_key}}, {[:poxa, :app_secret], {:ok, :secret}}])
+  test "check with unknown app_key and secret" do
+    expect(App, :key_secret, [{[:app_id], {:error, :reason}}])
     qs = %{"body_md5" => "841a2d689ad86bd1611447453c22c6fc"}
     expect(Signaturex, :validate, [{[:app_key, :secret, 'get', '/url', qs, 600], :ok}])
 
-    assert check('get', '/url', 'body', qs)
+    refute check(:app_id, 'get', '/url', 'body', qs)
 
     assert validate Signaturex
-    assert validate Application
+    assert validate App
+  end
+
+  test "check with a non-empty body and correct md5" do
+    expect(App, :key_secret, [{[:app_id], {:ok, {:app_key, :secret}}}])
+    qs = %{"body_md5" => "841a2d689ad86bd1611447453c22c6fc"}
+    expect(Signaturex, :validate, [{[:app_key, :secret, 'get', '/url', qs, 600], :ok}])
+
+    assert check(:app_id, 'get', '/url', 'body', qs)
+
+    assert validate Signaturex
+    assert validate App
   end
 
   test "check with a non-empty body and incorrect md5" do
-    expect(Application, :fetch_env, [{[:poxa, :app_key], {:ok, :app_key}}, {[:poxa, :app_secret], {:ok, :secret}}])
+    expect(App, :key_secret, [{[:app_id], {:ok, {:app_key, :secret}}}])
     qs = %{"body_md5" => "md5?"}
     expect(Signaturex, :validate, [{[:app_key, :secret, 'get', '/url', qs, 600], :ok}])
 
-    refute check('get', '/url', 'body', qs)
+    refute check(:app_id, 'get', '/url', 'body', qs)
 
     assert validate Signaturex
-    assert validate Application
+    assert validate App
   end
 
   test "check with an empty body" do
-    expect(Application, :fetch_env, [{[:poxa, :app_key], {:ok, :app_key}}, {[:poxa, :app_secret], {:ok, :secret}}])
+    expect(App, :key_secret, [{[:app_id], {:ok, {:app_key, :secret}}}])
     qs = %{}
     expect(Signaturex, :validate, [{[:app_key, :secret, "get", "/url", qs, 600], :ok}])
 
-    assert check("get", "/url", "", qs)
+    assert check(:app_id, "get", "/url", "", qs)
 
     assert validate Signaturex
-    assert validate Application
-  end
-
-  test "a valid auth_key" do
-    expect(Application, :fetch_env, 2, {:ok, :auth_key})
-    assert check_key(:auth_key)
-    assert validate Application
-  end
-
-  test "an invalid auth_key" do
-    expect(Application, :fetch_env, 2, {:ok, :auth_key})
-    refute check_key(:invalid_auth_key)
-    assert validate Application
+    assert validate App
   end
 end
