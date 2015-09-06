@@ -30,7 +30,8 @@ defmodule Poxa.UsersHandlerTest do
   end
 
   test "get_json returns users of a presence channel" do
-    expect(PresenceChannel, :users, 1, ["user1", "user2"])
+    expect(:cowboy_req, :binding, 2, {"app_id", :req})
+    expect(PresenceChannel, :users, [{["channel123", "app_id"], ["user1", "user2"]}])
     expected = [users: [[id: "user1"], [id: "user2"]]]
     expect(JSX, :encode!, [{[expected], :encoded_json}])
 
