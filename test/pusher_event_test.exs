@@ -9,8 +9,6 @@ defmodule Poxa.PusherEventTest do
     :ok
   end
 
-  doctest Poxa.PusherEvent
-
   test "connection established output" do
     json ="{\"data\":\"{\\\"activity_timeout\\\":120,\\\"socket_id\\\":\\\"SocketId\\\"}\",\"event\":\"pusher:connection_established\"}"
     assert connection_established("SocketId") == json
@@ -62,14 +60,15 @@ defmodule Poxa.PusherEventTest do
     event = %{"channel" => "channel_name",
               "data" => "event_data",
               "name" => "event_etc"}
-    assert build(event) == {:ok, %PusherEvent{name: "event_etc", data: "event_data", channels: ["channel_name"]}}
+    assert build("app_id", event) == {:ok, %PusherEvent{app_id: "app_id", name: "event_etc", data: "event_data", channels: ["channel_name"]}}
   end
 
   test "build PusherEvent with multiple channels" do
     event = %{"channels" => ["channel_name1", "channel_name2"],
               "data" => "event_data",
               "name" => "event_etc"}
-    assert build(event) == {:ok, %PusherEvent{name: "event_etc", data: "event_data", channels: ["channel_name1","channel_name2"]}}
+    assert build("app_id", event) ==
+      {:ok, %PusherEvent{app_id: "app_id", name: "event_etc", data: "event_data", channels: ["channel_name1","channel_name2"]}}
   end
 
   test "build PusherEvent with excluding socket_id" do
@@ -77,7 +76,14 @@ defmodule Poxa.PusherEventTest do
               "data" => "event_data",
               "socket_id" => "123.456",
               "name" => "event_etc"}
-    assert build(event) == {:ok, %PusherEvent{name: "event_etc", data: "event_data", channels: ["channel_name"], socket_id: "123.456"}}
+    assert build("app_id", event) == {:ok, %PusherEvent{app_id: "app_id", name: "event_etc", data: "event_data", channels: ["channel_name"], socket_id: "123.456"}}
+  end
+
+  test "build PusherEvent with no app_id" do
+    event = %{"channel" => "channel_name",
+              "data" => "event_data",
+              "name" => "event_etc"}
+    assert build(nil, event) == {:error, :invalid_event}
   end
 
   test "build PusherEvent with invalid socket_id" do
@@ -85,7 +91,7 @@ defmodule Poxa.PusherEventTest do
               "data" => "event_data",
               "socket_id" => "123:456",
               "name" => "event_etc"}
-    assert build(event) == {:error, :invalid_event}
+    assert build("app_id", event) == {:error, :invalid_event}
   end
 
   test "build PusherEvent with invalid channel name" do
@@ -93,35 +99,36 @@ defmodule Poxa.PusherEventTest do
               "data" => "event_data",
               "socket_id" => "123.456",
               "name" => "event_etc"}
-    assert build(event) == {:error, :invalid_event}
+    assert build("app_id", event) == {:error, :invalid_event}
   end
 
   test "build_client_event with excluding socket_id" do
     event = %{"channel" => "channel_name",
               "data" => "event_data",
               "name" => "event_etc"}
-    assert build_client_event(event, "123.456") == {:ok, %PusherEvent{name: "event_etc", data: "event_data", channels: ["channel_name"], socket_id: "123.456"}}
+    assert build_client_event("app_id", event, "123.456") ==
+      {:ok, %PusherEvent{app_id: "app_id", name: "event_etc", data: "event_data", channels: ["channel_name"], socket_id: "123.456"}}
   end
 
   test "build_client_event with invalid excluding socket_id" do
     event = %{"channel" => "channel_name",
               "data" => "event_data",
               "name" => "event_etc"}
-    assert build_client_event(event, "123:456") == {:error, :invalid_event}
+    assert build_client_event("app_id", event, "123:456") == {:error, :invalid_event}
   end
 
   test "build_client_event with invalid channel name" do
     event = %{"channel" => "channel:name",
               "data" => "event_data",
               "name" => "event_etc"}
-    assert build_client_event(event, "123.456") == {:error, :invalid_event}
+    assert build_client_event("app_id", event, "123.456") == {:error, :invalid_event}
   end
 
   test "sending message to a channel" do
-    expect(:gproc, :send, [{[{:p, :l, {:pusher, "channel123"}}, {self, :msg, nil}], :ok}])
+    expect(:gproc, :send, [{[{:p, :l, {:pusher, "app_id", "channel123"}}, {self, :msg, nil}], :ok}])
     expected = %{channel: "channel123", data: "data", event: "event"}
     expect(JSX, :encode!, [{[expected], :msg}])
-    event = %PusherEvent{channels: ["channel123"], data: "data", name: "event"}
+    event = %PusherEvent{app_id: "app_id", channels: ["channel123"], data: "data", name: "event"}
 
     assert publish(event) == :ok
 
@@ -131,9 +138,9 @@ defmodule Poxa.PusherEventTest do
   test "sending message to channels excluding a socket id" do
     expected = %{channel: "channel123", data: %{}, event: "event"}
     expect(JSX, :encode!, [{[expected], :msg}])
-    expect(:gproc, :send, [{[{:p, :l, {:pusher, "channel123"}}, {self, :msg, "SocketId"}], :ok}])
+    expect(:gproc, :send, [{[{:p, :l, {:pusher, "app_id", "channel123"}}, {self, :msg, "SocketId"}], :ok}])
 
-    assert publish(%PusherEvent{data: %{}, channels: ["channel123"], name: "event", socket_id: "SocketId"}) == :ok
+    assert publish(%PusherEvent{app_id: "app_id", data: %{}, channels: ["channel123"], name: "event", socket_id: "SocketId"}) == :ok
 
     assert validate [:gproc, JSX]
   end
