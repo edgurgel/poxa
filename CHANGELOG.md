@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.4.3 (2015-09-03)
+
+* Add edip dependency to generate docker images
+* Update exrm
+* Validate channel name according to pusher docs (waffleio#4). Thanks to @burtonjc :tada:
+
+## 0.4.2 (2015-07-10)
+
+* Add missing configuration steps for releases with SSL enabled
+
+## 0.4.1 (2015-07-06)
+
+* Fix pusher:error generation;
+* Refactor internals;
+* Add missing websocket_handle for ping frames;
+
 ## 0.4.0 (2015-05-31)
 
 * Refactor internal modules Authentication and PusherEvent;
