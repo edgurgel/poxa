@@ -14,40 +14,40 @@ defmodule Poxa.Subscription do
   Returns {:ok, channel} to public and private channels and
   a PresenceSubscription to a presence channel
   """
-  @spec subscribe!(:jsx.json_term, binary) :: {:ok, binary}
+  @spec subscribe!(binary, :jsx.json_term, binary) :: {:ok, binary}
     | PresenceSubscription.t
     | {:error, binary}
-  def subscribe!(data, socket_id) do
+  def subscribe!(app_id, data, socket_id) do
     channel = data["channel"]
     cond do
       Channel.private?(channel) ->
-        subscribe_private_channel(socket_id, channel, data["auth"], data["channel_data"])
+        subscribe_private_channel(app_id, socket_id, channel, data["auth"], data["channel_data"])
       Channel.presence?(channel) ->
-        subscribe_presence_channel(socket_id, channel, data["auth"], data["channel_data"])
+        subscribe_presence_channel(app_id, socket_id, channel, data["auth"], data["channel_data"])
       is_binary(channel) ->
-        subscribe_channel(channel)
+        subscribe_channel(app_id, channel)
       true ->
         Logger.info "Missing channel"
         {:error, PusherEvent.pusher_error("Missing parameter: data.channel")}
     end
   end
 
-  defp subscribe_presence_channel(socket_id, channel, auth, channel_data) do
+  defp subscribe_presence_channel(app_id, socket_id, channel, auth, channel_data) do
     to_sign = socket_id <> ":" <> channel <> ":" <> (channel_data || "")
-    if AuthSignature.valid?(to_sign, auth) do
-      PresenceSubscription.subscribe!(channel, channel_data)
+    if AuthSignature.valid?(app_id, to_sign, auth) do
+      PresenceSubscription.subscribe!(app_id, channel, channel_data)
     else
       {:error, signature_error(to_sign, auth)}
     end
   end
 
-  defp subscribe_private_channel(socket_id, channel, auth, channel_data) do
+  defp subscribe_private_channel(app_id, socket_id, channel, auth, channel_data) do
     to_sign = case channel_data do
       nil -> socket_id <> ":" <> channel
       channel_data -> socket_id <> ":" <> channel <> ":" <> channel_data
     end
-    if AuthSignature.valid?(to_sign, auth) do
-      subscribe_channel(channel)
+    if AuthSignature.valid?(app_id, to_sign, auth) do
+      subscribe_channel(app_id, channel)
     else
       {:error, signature_error(to_sign, auth)}
     end
@@ -58,13 +58,13 @@ defmodule Poxa.Subscription do
     PusherEvent.pusher_error(msg)
   end
 
-  defp subscribe_channel(channel) do
+  defp subscribe_channel(app_id, channel) do
     Logger.info "Subscribing to channel #{channel}"
-    if Channel.subscribed?(channel, self) do
+    if Channel.subscribed?(channel, app_id, self) do
       Logger.info "Already subscribed #{inspect self} on channel #{channel}"
     else
       Logger.info "Registering #{inspect self} to channel #{channel}"
-      :gproc.reg({:p, :l, {:pusher, channel}})
+      :gproc.reg({:p, :l, {:pusher, app_id, channel}})
     end
     {:ok, channel}
   end
@@ -72,14 +72,14 @@ defmodule Poxa.Subscription do
   @doc """
   Unsubscribe from a channel always returning :ok
   """
-  @spec unsubscribe!(:jsx.json_term) :: {:ok, binary}
-  def unsubscribe!(data) do
+  @spec unsubscribe!(binary, :jsx.json_term) :: {:ok, binary}
+  def unsubscribe!(app_id, data) do
     channel = data["channel"]
-    if Channel.subscribed?(channel, self) do
+    if Channel.subscribed?(channel, app_id, self) do
       if Channel.presence?(channel) do
-        PresenceSubscription.unsubscribe!(channel);
+        PresenceSubscription.unsubscribe!(app_id, channel);
       end
-      :gproc.unreg({:p, :l, {:pusher, channel}});
+      :gproc.unreg({:p, :l, {:pusher, app_id, channel}});
     else
       Logger.debug "Not subscribed to"
     end
