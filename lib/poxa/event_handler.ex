@@ -26,7 +26,8 @@ defmodule Poxa.EventHandler do
     {:ok, body, req} = :cowboy_req.body(req)
     case JSX.decode(body) do
       {:ok, data} ->
-        case PusherEvent.build(data) do
+        {app_id, req} = :cowboy_req.binding(:app_id, req)
+        case PusherEvent.build(app_id, data) do
           {:ok, event} -> {false, req, %{body: body, event: event}}
           _ ->
             req = :cowboy_req.set_resp_body(@invalid_event_json, req)
@@ -47,7 +48,8 @@ defmodule Poxa.EventHandler do
     {qs_vals, req} = :cowboy_req.qs_vals(req)
     {method, req} = :cowboy_req.method(req)
     {path, req} = :cowboy_req.path(req)
-    authorized = Authentication.check(method, path, body, qs_vals)
+    {app_id, req} = :cowboy_req.binding(:app_id, req)
+    authorized = Authentication.check(app_id, method, path, body, qs_vals)
     unless authorized do
       req = :cowboy_req.set_resp_body(@authentication_error_json, req)
     end

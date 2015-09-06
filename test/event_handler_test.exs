@@ -14,10 +14,11 @@ defmodule Poxa.EventHandlerTest do
   test "malformed_request with valid data" do
     event = %PusherEvent{}
     expect(:cowboy_req, :body, 1, {:ok, :body, :req1})
+    expect(:cowboy_req, :binding, 2, {"app_id", :req2})
     expect(JSX, :decode, 1, {:ok, :data})
-    expect(PusherEvent, :build, [{[:data], {:ok, event}}])
+    expect(PusherEvent, :build, [{["app_id", :data], {:ok, event}}])
 
-    assert malformed_request(:req, :state) == {false, :req1, %{body: :body, event: event}}
+    assert malformed_request(:req, :state) == {false, :req2, %{body: :body, event: event}}
 
     assert validate :cowboy_req
     assert validate JSX
@@ -36,36 +37,39 @@ defmodule Poxa.EventHandlerTest do
 
   test "malformed_request with invalid data" do
     expect(:cowboy_req, :body, 1, {:ok, :body, :req1})
-    expect(:cowboy_req, :set_resp_body, 2, :req2)
+    expect(:cowboy_req, :binding, 2, {"app_id", :req2})
+    expect(:cowboy_req, :set_resp_body, 2, :req3)
     expect(JSX, :decode, 1, {:ok, :data})
-    expect(PusherEvent, :build, [{[:data], {:error, :reason}}])
+    expect(PusherEvent, :build, [{["app_id", :data], {:error, :reason}}])
 
-    assert malformed_request(:req, :state) == {true, :req2, :state}
+    assert malformed_request(:req, :state) == {true, :req3, :state}
 
     assert validate :cowboy_req
     assert validate JSX
   end
 
   test "is_authorized with failing authentication" do
-    expect(Authentication, :check, 4, false)
-    expect(:cowboy_req, :qs_vals, 1, {:qsvals, :req2})
-    expect(:cowboy_req, :method, 1, {:method, :req3})
+    expect(Authentication, :check, 5, false)
+    expect(:cowboy_req, :qs_vals, 1, {:qsvals, :req1})
+    expect(:cowboy_req, :method, 1, {:method, :req2})
     expect(:cowboy_req, :path, 1, {:path, :req3})
-    expect(:cowboy_req, :set_resp_body, 2, :req4)
+    expect(:cowboy_req, :binding, [{[:app_id, :req3], {:app_id, :req4}}])
+    expect(:cowboy_req, :set_resp_body, 2, :req5)
 
-    assert is_authorized(:req, %{body: :body}) == {false, :req4, %{body: :body}}
+    assert is_authorized(:req, %{body: :body}) == {false, :req5, %{body: :body}}
 
     assert validate Authentication
     assert validate :cowboy_req
   end
 
   test "is_authorized with correct authentication" do
-    expect(Authentication, :check, 4, true)
+    expect(Authentication, :check, 5, true)
     expect(:cowboy_req, :qs_vals, 1, {:qsvals, :req2})
     expect(:cowboy_req, :method, 1, {:method, :req3})
     expect(:cowboy_req, :path, 1, {:path, :req3})
+    expect(:cowboy_req, :binding, [{[:app_id, :req3], {:app_id, :req4}}])
 
-    assert is_authorized(:req, %{body: :body}) == {true, :req3, %{body: :body}}
+    assert is_authorized(:req, %{body: :body}) == {true, :req4, %{body: :body}}
 
     assert validate Authentication
     assert validate :cowboy_req
