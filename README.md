@@ -21,6 +21,7 @@ How do I speak 'poxa'?
 - [Release](#release)
 - [Your application](#your-application)
 - [Deploying on Heroku](#deploying-on-heroku)
+- [Deploying on ElasticBeanstalk](#deploying-on-elasticbeanstalk)
 - [Console](#console)
 - [Implementation](#implementation)
 - [Contributing](#contributing)
@@ -235,6 +236,26 @@ A working deploy is on http://poxa.herokuapp.com, with:
 * Port: 80
 
 Also a pusher example(https://github.com/pusher/pusher-presence-demo) is running using poxa at: http://poxa-presence-chat.herokuapp.com/
+
+## Deploying on ElasticBeanstalk
+
+Add a config file `poxa.conf` and configure the HTTP Port.
+```
+# HTTP port
+poxa.port = 80
+```
+You should also configure your credentials, look at [Release Configuration](#release-configuration) for more details.
+
+Add a `Dockerfile`:
+```
+FROM edgurgel/poxa:0.4.3
+
+# Add the configuration file to the container.
+ADD ./poxa.conf /app/releases/0.4.3/poxa.conf
+
+EXPOSE 80
+```
+Pack this files into a zip and upload it to a ElasticBeanstalk Web Server configured for [Docker platform](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/docker-singlecontainer-deploy.html). You can also use [EB Cli](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/eb-cli3.html).
 
 ## Console
 
