@@ -25,6 +25,7 @@ How do I speak 'poxa'?
 - [Implementation](#implementation)
 - [Contributing](#contributing)
 - [Pusher](#pusher)
+- [Acknowledgements](#acknowledgements)
 
 ## Features
 
@@ -283,8 +284,11 @@ Pull requests are greatly appreciated.
 
 Pusher is an excellent service and you should use it on production.
 
-
 ## Acknowledgements
 
 Thanks to [@bastos](https://github.com/bastos) for the project name :heart:!
 
+## Who is using it?
+
+* [Waffle Takeout](https://takeout.waffle.io/)
+* Add your project/service here! Send a PR! :tada:
