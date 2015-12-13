@@ -26,6 +26,7 @@ How do I speak 'poxa'?
 - [Contributing](#contributing)
 - [Pusher](#pusher)
 - [Acknowledgements](#acknowledgements)
+- [Who is using it?](#who-is-using-it)
 
 ## Features
 
