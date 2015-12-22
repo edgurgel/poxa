@@ -10,8 +10,7 @@ defmodule Poxa.Mixfile do
   end
 
   def application do
-    [ applications: [ :logger, :crypto, :gproc, :cowboy, :asn1, :public_key, :ssl ],
-      included_applications: [ :exjsx, :signaturex ],
+    [ applications: [ :logger, :crypto, :gproc, :cowboy, :asn1, :public_key, :ssl, :exjsx, :signaturex ],
       mod: { Poxa, [] } ]
   end
 
