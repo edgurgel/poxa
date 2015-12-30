@@ -177,7 +177,7 @@ One can generate it just running `MIX_ENV=prod mix edip --prefix edgurgel`.
 The docker run command should look like this:
 
 ```
-docker run --rm -p 8080:8080 -v $PWD/mypoxa.conf:/app/releases/0.4.2/poxa.conf edgurgel/poxa:0.4.2
+docker run --rm -p 8080:8080 -v $PWD/mypoxa.conf:/app/running-config/poxa.conf edgurgel/poxa:0.4.2
 ```
 
 ## Your application
