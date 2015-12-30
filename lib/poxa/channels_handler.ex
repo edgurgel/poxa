@@ -32,11 +32,12 @@ defmodule Poxa.ChannelsHandler do
     attributes = String.split(info, ",")
       |> Enum.reject(&(&1 == ""))
     {channel, req} = :cowboy_req.binding(:channel_name, req, nil)
+    {app_id, req} = :cowboy_req.binding(:app_id, req)
     if channel do
-      {malformed_request_one_channel?(attributes, channel), req, {:one, channel, attributes}}
+      {malformed_request_one_channel?(attributes, channel), req, {:one, app_id, channel, attributes}}
     else
       {filter, req} = :cowboy_req.qs_val("filter_by_prefix", req, nil)
-      {malformed_request_all_channels?(attributes, filter), req, {:all, filter, attributes}}
+      {malformed_request_all_channels?(attributes, filter), req, {:all, app_id, filter, attributes}}
     end
   end
 
@@ -71,42 +72,42 @@ defmodule Poxa.ChannelsHandler do
   end
 
   @doc false
-  def get_json(req, {:one, channel, attributes}) do
-    show(channel, attributes, req, nil)
+  def get_json(req, {:one, app_id, channel, attributes}) do
+    show(app_id, channel, attributes, req, nil)
   end
-  def get_json(req, {:all, filter, attributes}) do
-    index(filter, attributes, req, nil)
+  def get_json(req, {:all, app_id, filter, attributes}) do
+    index(app_id, filter, attributes, req, nil)
   end
 
-  defp show(channel, attributes, req, state) do
-    occupied = Channel.occupied?(channel)
-    attribute_list = mount_attribute_list(attributes, channel)
+  defp show(app_id, channel, attributes, req, state) do
+    occupied = Channel.occupied?(channel, app_id)
+    attribute_list = mount_attribute_list(attributes, app_id, channel)
     {JSX.encode!([occupied: occupied] ++ attribute_list), req, state}
   end
 
-  defp mount_attribute_list(attributes, channel) do
+  defp mount_attribute_list(attributes, app_id, channel) do
     attribute_list =
       if Enum.member?(attributes, "subscription_count") do
-        [subscription_count: Channel.subscription_count(channel)]
+        [subscription_count: Channel.subscription_count(app_id, channel)]
       else
         []
       end
     attribute_list ++
       if Enum.member?(attributes, "user_count") do
-        [user_count: PresenceChannel.user_count(channel)]
+        [user_count: PresenceChannel.user_count(app_id, channel)]
       else
         []
       end
   end
 
-  defp index(filter, attributes, req, state) do
-    channels = channels(filter, attributes)
+  defp index(app_id, filter, attributes, req, state) do
+    channels = channels(app_id, filter, attributes)
     {JSX.encode!(channels: channels), req, state}
   end
 
-  defp channels(filter, attributes) do
-    for channel <- Channel.all, filter_channel(channel, filter) do
-      {channel, mount_attribute_list(attributes, channel)}
+  defp channels(app_id, filter, attributes) do
+    for channel <- Channel.all(app_id), filter_channel(channel, filter) do
+      {channel, mount_attribute_list(attributes, app_id, channel)}
     end
   end
 

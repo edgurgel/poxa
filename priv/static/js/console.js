@@ -10,37 +10,40 @@ function init() {
   };
 
   $('#connect').submit(function(event) {
+    var appId = $('#appId').val();
     var appKey = $('#appKey').val();
     var secret = $('#secret').val();
-    connect(appKey, secret);
+    connect(appId, appKey, secret);
     event.preventDefault();
   });
 
   $('#disconnect').submit(function(event) {
     disconnect();
-    var appKey = $('#appKey').val("");
-    var secret = $('#secret').val("");
+    $('#appId').val("");
+    $('#appKey').val("");
+    $('#secret').val("");
     event.preventDefault();
   });
 };
 
-function connect(appKey, secret) {
-  var qs = authQS(appKey, secret);
+function connect(appId, appKey, secret) {
+  var path = "/apps/" + appId + "/console"
+  var qs = authQS(appKey, secret, path);
   var host = window.location.host;
-  websocket = new WebSocket(websocketProtocol() + "//" + host  + "/console?" + qs);
+  websocket = new WebSocket(websocketProtocol() + "//" + host + path + "?" + qs);
   websocket.onopen = function(evt) { onOpen(evt) };
   websocket.onclose = function(evt) { onClose(evt) };
   websocket.onmessage = function(evt) { onMessage(evt) };
   websocket.onerror = function(evt) { onError(evt) };
 };
 
-function authQS(appKey, secret) {
+function authQS(appKey, secret, path) {
   var auth_key = appKey;
   var auth_timestamp = Math.round(new Date().getTime() / 1000);
   var params = { auth_key:auth_key,
                  auth_timestamp:auth_timestamp,
                  auth_version:"1.0" } ;
-  var auth_signature = CryptoJS.HmacSHA256("GET\n/console\n" + $.param(params), secret).toString();
+  var auth_signature = CryptoJS.HmacSHA256("GET\n" + path +"\n" + $.param(params), secret).toString();
   return $.param($.extend({ }, params, { auth_signature:auth_signature }));
 }
 

@@ -12,10 +12,10 @@ defmodule Connection do
 end
 
 defmodule SpawnHelper do
-  def spawn_registered_process(channel, value \\ :undefined) do
+  def spawn_registered_process(app_id, channel, value \\ :undefined) do
     parent = self
     spawn_link fn ->
-      register_to_channel(channel, value)
+      register_to_channel(app_id, channel, value)
       send parent, :registered
       receive do
         _ -> :wait
@@ -26,7 +26,7 @@ defmodule SpawnHelper do
     end
   end
 
-  def register_to_channel(channel, value \\ :undefined) do
-    :gproc.reg({:p, :l, {:pusher, channel}}, value)
+  def register_to_channel(app_id, channel, value \\ :undefined) do
+    :gproc.reg({:p, :l, {:pusher, app_id, channel}}, value)
   end
 end

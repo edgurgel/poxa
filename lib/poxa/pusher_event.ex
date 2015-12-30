@@ -140,42 +140,42 @@ defmodule Poxa.PusherEvent do
       data: data} |> encode!
   end
 
-  defstruct [:channels, :name, :data, :socket_id]
-  @type t :: %Poxa.PusherEvent{channels: list, name: binary,
+  defstruct [:channels, :name, :app_id, :data, :socket_id]
+  @type t :: %Poxa.PusherEvent{channels: list, name: binary, app_id: binary,
                                data: binary | map, socket_id: nil | binary}
 
   @doc """
   Builds the struct based on the decoded JSON from /events endpoint
   """
-  @spec build(map) :: {:ok, Poxa.PusherEvent.t} | {:error, atom}
-  def build(%{"name" => name, "channels" => channels, "data" => data} = event) do
-    build_event(channels, data, name, event["socket_id"])
+  @spec build(binary, map) :: {:ok, Poxa.PusherEvent.t} | {:error, atom}
+  def build(app_id, %{"name" => name, "channels" => channels, "data" => data} = event) do
+    build_event(app_id, channels, data, name, event["socket_id"])
   end
-  def build(%{"name" => name, "channel" => channel, "data" => data} = event) do
-    build_event([channel], data, name, event["socket_id"])
+  def build(app_id, %{"name" => name, "channel" => channel, "data" => data} = event) do
+    build_event(app_id, [channel], data, name, event["socket_id"])
   end
-  def build(_), do: {:error, :invalid_pusher_event}
+  def build(_, _), do: {:error, :invalid_pusher_event}
 
   @doc """
   Build client events
   """
-  @spec build_client_event(map, binary) :: {:ok, Poxa.PusherEvent.t} | {:error, atom}
-  def build_client_event(%{"event" => name, "channel" => channel, "data" => data}, socket_id) do
-    build_event([channel], data, name, socket_id)
+  @spec build_client_event(binary, map, binary) :: {:ok, Poxa.PusherEvent.t} | {:error, atom}
+  def build_client_event(app_id, %{"event" => name, "channel" => channel, "data" => data}, socket_id) do
+    build_event(app_id, [channel], data, name, socket_id)
   end
-  def build_client_event(%{"name" => name, "channel" => channel, "data" => data}, socket_id) do
-    build_event([channel], data, name, socket_id)
+  def build_client_event(app_id, %{"name" => name, "channel" => channel, "data" => data}, socket_id) do
+    build_event(app_id, [channel], data, name, socket_id)
   end
 
-  defp build_event(channels, data, name, socket_id) do
-    event = %Poxa.PusherEvent{channels: channels, data: data, name: name, socket_id: socket_id}
+  defp build_event(app_id, channels, data, name, socket_id) do
+    event = %Poxa.PusherEvent{app_id: app_id, channels: channels, data: data, name: name, socket_id: socket_id}
     if valid?(event), do: {:ok, event},
     else: {:error, :invalid_event}
   end
 
-  defp valid?(%Poxa.PusherEvent{channels: channels, socket_id: socket_id}) do
+  defp valid?(%Poxa.PusherEvent{channels: channels, socket_id: socket_id, app_id: app_id}) do
     Enum.all?(channels, &Poxa.Channel.valid?(&1)) and
-      (!socket_id || Poxa.SocketId.valid?(socket_id))
+      (!socket_id || Poxa.SocketId.valid?(socket_id)) and app_id
   end
   defp valid?(_), do: false
 
@@ -192,7 +192,7 @@ defmodule Poxa.PusherEvent do
 
   defp publish_event_to_channel(event, channel) do
     message = build_message(event, channel) |> encode!
-    :gproc.send({:p, :l, {:pusher, channel}}, {self, message, event.socket_id})
+    :gproc.send({:p, :l, {:pusher, event.app_id, channel}}, {self, message, event.socket_id})
   end
 
   defp build_message(event, channel) do

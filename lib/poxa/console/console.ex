@@ -3,38 +3,40 @@ defmodule Poxa.Console do
   use GenEvent
 
   @doc false
-  def init(pid), do: {:ok, pid}
+  def init([pid, app_id]), do: {:ok, {pid, app_id}}
 
   @doc false
-  def handle_event(%{event: :connected, socket_id: socket_id, origin: origin}, pid) do
+  def handle_event(%{event: :connected, app_id: app_id, socket_id: socket_id, origin: origin}, {pid, app_id}) do
     send_message("Connection", socket_id, "Origin: #{origin}", pid)
-    {:ok, pid}
+    {:ok, {pid, app_id}}
   end
 
-  def handle_event(%{event: :disconnected, socket_id: socket_id, channels: channels, duration: duration}, pid) do
+  def handle_event(%{event: :disconnected, app_id: app_id, socket_id: socket_id, channels: channels, duration: duration}, {pid, app_id}) do
     send_message("Disconnection", socket_id, "Channels: #{inspect channels}, Lifetime: #{duration}s", pid)
-    {:ok, pid}
+    {:ok, {pid, app_id}}
   end
 
-  def handle_event(%{event: :subscribed, socket_id: socket_id, channel: channel}, pid) do
+  def handle_event(%{event: :subscribed, app_id: app_id, socket_id: socket_id, channel: channel}, {pid, app_id}) do
     send_message("Subscribed", socket_id, "Channel: #{channel}", pid)
-    {:ok, pid}
+    {:ok, {pid, app_id}}
   end
 
-  def handle_event(%{event: :unsubscribed, socket_id: socket_id, channel: channel}, pid) do
+  def handle_event(%{event: :unsubscribed, app_id: app_id, socket_id: socket_id, channel: channel}, {pid, app_id}) do
     send_message("Unsubscribed", socket_id, "Channel: #{channel}", pid)
-    {:ok, pid}
+    {:ok, {pid, app_id}}
   end
 
-  def handle_event(%{event: :api_message, channels: channels, name: name}, pid) do
+  def handle_event(%{event: :api_message, app_id: app_id, channels: channels, name: name}, {pid, app_id}) do
     send_message("API Message", "", "Channels: #{inspect channels}, Event: #{name}", pid)
-    {:ok, pid}
+    {:ok, {pid, app_id}}
   end
 
-  def handle_event(%{event: :client_event_message, socket_id: socket_id, channels: channels, name: name}, pid) do
+  def handle_event(%{event: :client_event_message, app_id: app_id, socket_id: socket_id, channels: channels, name: name}, {pid, app_id}) do
     send_message("Client Event Message", socket_id, "Channels: #{inspect channels}, Event: #{name}", pid)
-    {:ok, pid}
+    {:ok, {pid, app_id}}
   end
+
+  def handle_event(_data, state), do: {:ok, state}
 
   defp send_message(type, socket_id, details, pid) do
     msg = message(type, socket_id, details) |> encode!

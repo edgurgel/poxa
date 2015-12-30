@@ -1,5 +1,6 @@
 defmodule Poxa.WebsocketHandlerTest do
   use ExUnit.Case
+  alias Poxa.App
   alias Poxa.PresenceSubscription
   alias Poxa.PusherEvent
   alias Poxa.Subscription
@@ -10,12 +11,6 @@ defmodule Poxa.WebsocketHandlerTest do
   import :meck
   import Poxa.WebsocketHandler
   alias Poxa.WebsocketHandler.State
-
-  setup_all do
-    :application.set_env(:poxa, :app_secret, "secret")
-    :application.set_env(:poxa, :app_key, "app_key")
-    :ok
-  end
 
   setup do
     on_exit fn -> unload end
@@ -45,11 +40,12 @@ defmodule Poxa.WebsocketHandlerTest do
     expect(:cowboy_req, :host_url, 1, {:host_url, :req2})
     expect(PusherEvent, :connection_established, 1, :connection_established)
     expect(SocketId, :generate!, 0, "123.456")
-    expect(Event, :notify, [{[:connected, %{socket_id: "123.456", origin: :host_url}], :ok}])
+    expect(Event, :notify, [{[:connected, 123, %{socket_id: "123.456", origin: :host_url}], :ok}])
     expect(Time, :stamp, 0, 123)
 
-    assert websocket_info(:start, :req, :state) ==
-      {:reply, {:text, :connection_established}, :req2, %State{socket_id: "123.456", time: 123}}
+    assert websocket_info(:start, :req, %State{app_id: 123}) ==
+      {:reply, {:text, :connection_established}, :req2,
+       %State{app_id: 123, socket_id: "123.456", time: 123}}
 
     assert validate [PusherEvent, Event, SocketId]
   end
@@ -86,11 +82,11 @@ defmodule Poxa.WebsocketHandlerTest do
 
   test "subscribe private channel event" do
     expect(JSX, :decode!, 1, %{"event" => "pusher:subscribe"})
-    expect(Subscription, :subscribe!, 2, {:ok, :channel})
+    expect(Subscription, :subscribe!, 3, {:ok, :channel})
     expect(PusherEvent, :subscription_succeeded, 1, :subscription_succeeded)
-    expect(Event, :notify, [{[:subscribed, %{socket_id: :socket_id, channel: :channel}], :ok}])
+    expect(Event, :notify, [{[:subscribed, :app_id, %{socket_id: :socket_id, channel: :channel}], :ok}])
 
-    state = %State{socket_id: :socket_id}
+    state = %State{socket_id: :socket_id, app_id: :app_id}
 
     assert websocket_handle({:text, :subscribe_json}, :req, state) ==
       {:reply, {:text, :subscription_succeeded}, :req, state}
@@ -100,7 +96,7 @@ defmodule Poxa.WebsocketHandlerTest do
 
   test "subscribe private channel event failing for bad authentication" do
     expect(JSX, :decode!, 1, %{"event" => "pusher:subscribe"})
-    expect(Subscription, :subscribe!, 2, {:error, :error_message})
+    expect(Subscription, :subscribe!, 3, {:error, :error_message})
 
     state = %State{socket_id: :socket_id}
 
@@ -112,11 +108,11 @@ defmodule Poxa.WebsocketHandlerTest do
 
   test "subscribe presence channel event" do
     expect(JSX, :decode!, 1, %{"event" => "pusher:subscribe"})
-    expect(Subscription, :subscribe!, 2, %PresenceSubscription{channel: :channel})
+    expect(Subscription, :subscribe!, 3, %PresenceSubscription{channel: :channel})
     expect(PusherEvent, :subscription_succeeded, 1, :subscription_succeeded)
-    expect(Event, :notify, [{[:subscribed, %{socket_id: :socket_id, channel: :channel}], :ok}])
+    expect(Event, :notify, [{[:subscribed, :app_id, %{socket_id: :socket_id, channel: :channel}], :ok}])
 
-    state = %State{socket_id: :socket_id}
+    state = %State{socket_id: :socket_id, app_id: :app_id}
 
     assert websocket_handle({:text, :subscribe_json}, :req, state) ==
       {:reply, {:text, :subscription_succeeded}, :req, state}
@@ -126,7 +122,7 @@ defmodule Poxa.WebsocketHandlerTest do
 
   test "subscribe presence channel event failing for bad authentication" do
     expect(JSX, :decode!, 1, %{"event" => "pusher:subscribe"})
-    expect(Subscription, :subscribe!, 2, {:error, :error_message})
+    expect(Subscription, :subscribe!, 3, {:error, :error_message})
 
     state = %State{socket_id: :socket_id}
 
@@ -138,11 +134,11 @@ defmodule Poxa.WebsocketHandlerTest do
 
   test "subscribe public channel event" do
     expect(JSX, :decode!, 1, %{"event" => "pusher:subscribe"})
-    expect(Subscription, :subscribe!, 2, {:ok, :channel})
+    expect(Subscription, :subscribe!, 3, {:ok, :channel})
     expect(PusherEvent, :subscription_succeeded, 1, :subscription_succeeded)
-    expect(Event, :notify, [{[:subscribed, %{socket_id: :socket_id, channel: :channel}], :ok}])
+    expect(Event, :notify, [{[:subscribed, :app_id, %{socket_id: :socket_id, channel: :channel}], :ok}])
 
-    state = %State{socket_id: :socket_id}
+    state = %State{socket_id: :socket_id, app_id: :app_id}
 
     assert websocket_handle({:text, :subscribe_json}, :req, state) ==
       {:reply, {:text, :subscription_succeeded}, :req, state}
@@ -152,11 +148,11 @@ defmodule Poxa.WebsocketHandlerTest do
 
   test "subscribe event on an already subscribed channel" do
     expect(JSX, :decode!, 1, %{"event" => "pusher:subscribe"})
-    expect(Subscription, :subscribe!, 2, {:ok, :channel})
+    expect(Subscription, :subscribe!, 3, {:ok, :channel})
     expect(PusherEvent, :subscription_succeeded, 1, :subscription_succeeded)
-    expect(Event, :notify, [{[:subscribed, %{socket_id: :socket_id, channel: :channel}], :ok}])
+    expect(Event, :notify, [{[:subscribed, :app_id, %{socket_id: :socket_id, channel: :channel}], :ok}])
 
-    state = %State{socket_id: :socket_id}
+    state = %State{socket_id: :socket_id, app_id: :app_id}
 
     assert websocket_handle({:text, :subscribe_json}, :req, state) ==
       {:reply, {:text, :subscription_succeeded}, :req, state}
@@ -166,10 +162,10 @@ defmodule Poxa.WebsocketHandlerTest do
 
   test "unsubscribe event" do
     expect(JSX, :decode!, 1, %{"event" => "pusher:unsubscribe", "data" => :data})
-    expect(Subscription, :unsubscribe!, [{[:data], {:ok, :channel}}])
-    expect(Event, :notify, [{[:unsubscribed, %{socket_id: :socket_id, channel: :channel}], :ok}])
+    expect(Subscription, :unsubscribe!, [{["app_id", :data], {:ok, :channel}}])
+    expect(Event, :notify, [{[:unsubscribed, "app_id", %{socket_id: :socket_id, channel: :channel}], :ok}])
 
-    state = %State{socket_id: :socket_id}
+    state = %State{socket_id: :socket_id, app_id: "app_id"}
 
     assert websocket_handle({:text, :unsubscribe_json}, :req, state) ==
       {:ok, :req, state}
@@ -181,12 +177,12 @@ defmodule Poxa.WebsocketHandlerTest do
     decoded_json = %{"event" => "client-event"}
     event = %PusherEvent{channels: ["presence-channel"], name: "client-event"}
     expect(JSX, :decode!, [{[:client_event_json], decoded_json}])
-    expect(PusherEvent, :build_client_event, [{[decoded_json, :socket_id], {:ok, event}}])
+    expect(PusherEvent, :build_client_event, [{["app_id", decoded_json, :socket_id], {:ok, event}}])
     expect(PusherEvent, :publish, 1, :ok)
-    expect(Channel, :subscribed?, 2, true)
-    expect(Event, :notify, [{[:client_event_message, %{socket_id: :socket_id, channels: ["presence-channel"], name: "client-event"}], :ok}])
+    expect(Channel, :subscribed?, 3, true)
+    expect(Event, :notify, [{[:client_event_message, "app_id", %{socket_id: :socket_id, channels: ["presence-channel"], name: "client-event"}], :ok}])
 
-    state = %State{socket_id: :socket_id}
+    state = %State{socket_id: :socket_id, app_id: "app_id"}
 
     assert websocket_handle({:text, :client_event_json}, :req, state) ==
       {:ok, :req, state}
@@ -198,12 +194,12 @@ defmodule Poxa.WebsocketHandlerTest do
     decoded_json = %{"event" => "client-event"}
     event = %PusherEvent{channels: ["private-channel"], name: "client-event"}
     expect(JSX, :decode!, [{[:client_event_json], decoded_json}])
-    expect(PusherEvent, :build_client_event, [{[decoded_json, :socket_id], {:ok, event}}])
+    expect(PusherEvent, :build_client_event, [{["app_id", decoded_json, :socket_id], {:ok, event}}])
     expect(PusherEvent, :publish, 1, :ok)
-    expect(Channel, :subscribed?, 2, true)
-    expect(Event, :notify, [{[:client_event_message, %{socket_id: :socket_id, channels: ["private-channel"], name: "client-event"}], :ok}])
+    expect(Channel, :subscribed?, 3, true)
+    expect(Event, :notify, [{[:client_event_message, "app_id", %{socket_id: :socket_id, channels: ["private-channel"], name: "client-event"}], :ok}])
 
-    state = %State{socket_id: :socket_id}
+    state = %State{socket_id: :socket_id, app_id: "app_id"}
 
     assert websocket_handle({:text, :client_event_json}, :req, state) ==
       {:ok, :req, state}
@@ -215,10 +211,10 @@ defmodule Poxa.WebsocketHandlerTest do
     decoded_json = %{"event" => "client-event"}
     event = %PusherEvent{channels: ["private-not-subscribed"], name: "client-event"}
     expect(JSX, :decode!, [{[:client_event_json], decoded_json}])
-    expect(PusherEvent, :build_client_event, [{[decoded_json, :socket_id], {:ok, event}}])
-    expect(Channel, :subscribed?, 2, false)
+    expect(PusherEvent, :build_client_event, [{["app_id", decoded_json, :socket_id], {:ok, event}}])
+    expect(Channel, :subscribed?, 3, false)
 
-    state = %State{socket_id: :socket_id}
+    state = %State{socket_id: :socket_id, app_id: "app_id"}
 
     assert websocket_handle({:text, :client_event_json}, :req, state) ==
       {:ok, :req, state}
@@ -229,7 +225,7 @@ defmodule Poxa.WebsocketHandlerTest do
   test "client event on public channel" do
     event = %PusherEvent{channels: ["public-channel"], name: "client-event"}
     expect(JSX, :decode!, 1, %{"event" => "client-event"})
-    expect(PusherEvent, :build_client_event, 2, {:ok, event})
+    expect(PusherEvent, :build_client_event, 3, {:ok, event})
 
     state = %State{socket_id: :socket_id}
 
@@ -243,56 +239,64 @@ defmodule Poxa.WebsocketHandlerTest do
     expect(:cowboy_req, :binding, 2, {"app_key", :req})
     expect(:cowboy_req, :qs_val, 3, {"7", :req})
     expect(PusherEvent, :connection_established, 1, :connection_established)
+    expect(App, :id, [{["app_key"], {:ok, "app_id"}}])
 
-    assert websocket_init(:transport, :req, :opts) == {:ok, :req, nil}
+    state = %State{app_id: "app_id"}
 
-    assert validate [:cowboy_req, PusherEvent]
+    assert websocket_init(:transport, :req, :opts) == {:ok, :req, state}
+
+    assert validate [:cowboy_req, PusherEvent, App]
   end
 
   test "websocket init using wrong app_key" do
     expect(:cowboy_req, :binding, 2, {"different_app_key", :req})
     expect(:cowboy_req, :qs_val, 3, {"7", :req})
+    expect(App, :id, [{["different_app_key"], {:error, :reason}}])
 
     assert websocket_init(:transport, :req, :opts) == {:ok, :req, {4001, "Application does not exist"}}
 
-    assert validate :cowboy_req
+    assert validate [:cowboy_req, App]
   end
 
   test "websocket init using protocol higher than 7" do
     expect(:cowboy_req, :binding, 2, {"app_key", :req})
     expect(:cowboy_req, :qs_val, 3, {"8", :req})
+    expect(App, :id, [{["app_key"], {:ok, "app_id"}}])
 
     assert websocket_init(:transport, :req, :opts) == {:ok, :req, {4007, "Unsupported protocol version"}}
 
-    assert validate :cowboy_req
+    assert validate [:cowboy_req, App]
   end
 
   test "websocket init using protocol lower than 5" do
     expect(:cowboy_req, :binding, 2, {"app_key", :req})
     expect(:cowboy_req, :qs_val, 3, {"4", :req})
+    expect(App, :id, [{["app_key"], {:ok, "app_id"}}])
 
     assert websocket_init(:transport, :req, :opts) == {:ok, :req, {4007, "Unsupported protocol version"}}
 
-    assert validate :cowboy_req
+    assert validate [:cowboy_req, App]
   end
 
   test "websocket init using protocol between 5 and 7" do
     expect(:cowboy_req, :binding, 2, {"app_key", :req})
     expect(:cowboy_req, :qs_val, 3, {"6", :req})
+    expect(App, :id, [{["app_key"], {:ok, "app_id"}}])
 
-    assert websocket_init(:transport, :req, :opts) == {:ok, :req, nil}
+    state = %State{app_id: "app_id"}
+    assert websocket_init(:transport, :req, :opts) == {:ok, :req, state}
 
-    assert validate :cowboy_req
+    assert validate [:cowboy_req, App]
   end
 
   test "websocket termination" do
-    expect(Channel, :all, 1, :channels)
+    expect(Channel, :all, 2, :channels)
     expect(Time, :stamp, 0, 100)
-    expect(Event, :notify, [{[:disconnected, %{socket_id: :socket_id, channels: :channels, duration: 90}], :ok}])
-    expect(PresenceSubscription, :check_and_remove, 0, :ok)
+    expect(Event, :notify, [{[:disconnected, :app_id, %{socket_id: :socket_id, channels: :channels, duration: 90}], :ok}])
+    expect(PresenceSubscription, :check_and_remove, 1, :ok)
     expect(:gproc, :goodbye, 0, :ok)
 
-    state = %State{socket_id: :socket_id, time: 10}
+    state = %State{socket_id: :socket_id, time: 10, app_id: :app_id}
 
     assert websocket_terminate(:reason, :req, state) == :ok
 

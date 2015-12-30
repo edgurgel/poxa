@@ -11,12 +11,13 @@ defmodule Poxa.Console.WSHandler do
     {method, req} = :cowboy_req.method(req)
     {path, req} = :cowboy_req.path(req)
     {qs_vals, req} = :cowboy_req.qs_vals(req)
+    {app_id, req} = :cowboy_req.binding(:app_id, req)
 
-    if Authentication.check(method, path, "", qs_vals) do
-      :ok = Poxa.Event.add_handler({Poxa.Console, self}, self)
+    if Authentication.check(app_id, method, path, "", qs_vals) do
+      :ok = Poxa.Event.add_handler({Poxa.Console, self}, [self, app_id])
       {:ok, req, nil}
     else
-      Logger.error "Failed to authenticate on Console Websocket"
+      Logger.error "Failed to authenticate on Console Websocket for app with id: #{app_id}"
       {:shutdown, req}
     end
   end

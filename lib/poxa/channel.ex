@@ -86,36 +86,36 @@ defmodule Poxa.Channel do
   @doc """
   Returns true if the channel has at least 1 subscription
   """
-  @spec occupied?(binary) :: boolean
-  def occupied?(channel) do
-    match = {{:p, :l, {:pusher, channel}}, :_, :_}
+  @spec occupied?(binary, binary) :: boolean
+  def occupied?(channel, app_id) do
+    match = {{:p, :l, {:pusher, app_id, channel}}, :_, :_}
     :gproc.select_count([{match, [], [true]}]) != 0
   end
 
   @doc """
   Returns the list of channels the `pid` is subscribed
   """
-  @spec all(pid | :_) :: [binary]
-  def all(pid \\ :_) do
-    match = {{:p, :l, {:pusher, :'$1'}}, pid, :_}
+  @spec all(binary, pid | :_) :: [binary]
+  def all(app_id, pid \\ :_) do
+    match = {{:p, :l, {:pusher, app_id, :'$1'}}, pid, :_}
     :gproc.select([{match, [], [:'$1']}]) |> Enum.uniq
   end
 
   @doc """
   Returns true if `pid` is subscribed to `channel` and false otherwise
   """
-  @spec subscribed?(binary, pid) :: boolean
-  def subscribed?(channel, pid) do
-    match = {{:p, :l, {:pusher, channel}}, pid, :_}
+  @spec subscribed?(binary, binary, pid) :: boolean
+  def subscribed?(channel, app_id, pid) do
+    match = {{:p, :l, {:pusher, app_id, channel}}, pid, :_}
     :gproc.select_count([{match, [], [true]}]) != 0
   end
 
   @doc """
   Returns how many connections are opened on the `channel`
   """
-  @spec subscription_count(binary) :: non_neg_integer
-  def subscription_count(channel) do
-    match = {{:p, :l, {:pusher, channel}}, :_, :_}
+  @spec subscription_count(binary, binary) :: non_neg_integer
+  def subscription_count(channel, app_id) do
+    match = {{:p, :l, {:pusher, app_id, channel}}, :_, :_}
     :gproc.select_count([{match, [], [true]}])
   end
 end
