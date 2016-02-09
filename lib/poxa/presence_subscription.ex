@@ -33,7 +33,7 @@ defmodule Poxa.PresenceSubscription do
         message = PusherEvent.presence_member_added(channel, user_id, user_info)
         :gproc.send({:p, :l, {:pusher, channel}}, {self, message})
       end
-      :gproc.reg({:p, :l, {:pusher, channel}}, {user_id, user_info})
+      Registry.subscribe(channel, {user_id, user_info})
     end
     %__MODULE__{channel: channel, channel_data: channel_data(channel)}
   end

@@ -9,6 +9,10 @@ defmodule Poxa.Adapter.GProc do
     reg({:p, :l, {:pusher, channel}})
   end
 
+  def register(channel, {user_id, user_info}) do
+    :gproc.reg({:p, :l, {:pusher, channel}}, {user_id, user_info})
+  end
+
   def unregister(channel) do
     unreg({:p, :l, {:pusher, channel}});
   end
