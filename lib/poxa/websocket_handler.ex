@@ -7,6 +7,7 @@ defmodule Poxa.WebsocketHandler do
 
   More info on Pusher protocol at: http://pusher.com/docs/pusher_protocol
   """
+
   require Logger
   alias Poxa.PusherEvent
   alias Poxa.Event

@@ -2,6 +2,7 @@ defmodule Poxa.PingHandler do
   @moduledoc """
   Simple ping endpoint that returns 200 "Pong!" for any request
   """
+
   require Logger
 
   @doc false

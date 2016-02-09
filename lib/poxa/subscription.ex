@@ -3,6 +3,7 @@ defmodule Poxa.Subscription do
   This module contains functions to handle subscription and unsubscription
   on channels, public, private and presence channels.
   """
+
   alias Poxa.AuthSignature
   alias Poxa.PresenceSubscription
   alias Poxa.Channel
