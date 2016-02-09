@@ -15,6 +15,7 @@ defmodule Poxa.PresenceSubscription do
   @type t :: %__MODULE__{channel: binary, channel_data: [{user_id, user_info}]}
 
   alias Poxa.PusherEvent
+  alias Poxa.Registry
   import Poxa.Channel, only: [presence?: 1, subscribed?: 2]
   require Logger
 
@@ -31,7 +32,7 @@ defmodule Poxa.PresenceSubscription do
       {user_id, user_info} = extract_userid_and_userinfo(decoded_channel_data)
       unless user_id_already_on_presence_channel(user_id, channel) do
         message = PusherEvent.presence_member_added(channel, user_id, user_info)
-        :gproc.send({:p, :l, {:pusher, channel}}, {self, message})
+        Registry.send_event(channel, {self, message})
       end
       Registry.subscribe(channel, {user_id, user_info})
     end
@@ -93,7 +94,7 @@ defmodule Poxa.PresenceSubscription do
 
   defp presence_member_removed(channel, user_id) do
     message = PusherEvent.presence_member_removed(channel, user_id)
-    :gproc.send({:p, :l, {:pusher, channel}}, {self, message})
+    Registry.send_event(channel, {self, message})
   end
 
   defp only_one_connection_on_user_id?(channel, user_id) do

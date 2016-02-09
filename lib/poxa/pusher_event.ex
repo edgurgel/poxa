@@ -6,6 +6,7 @@ defmodule Poxa.PusherEvent do
   """
 
   alias Poxa.PresenceSubscription
+  alias Poxa.Registry
   import JSX, only: [encode!: 1]
 
   @doc """
@@ -192,7 +193,7 @@ defmodule Poxa.PusherEvent do
 
   defp publish_event_to_channel(event, channel) do
     message = build_message(event, channel) |> encode!
-    :gproc.send({:p, :l, {:pusher, channel}}, {self, message, event.socket_id})
+    Registry.send_event(channel, {self, message, event.socket_id})
   end
 
   defp build_message(event, channel) do
