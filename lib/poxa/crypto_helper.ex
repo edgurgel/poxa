@@ -1,4 +1,8 @@
 defmodule Poxa.CryptoHelper do
+  @moduledoc """
+  Some simple helper macros used during authentication.
+  """
+
   @doc """
   Compute a SHA-256 MAC message authentication code from app_secret and data to sign.
   """

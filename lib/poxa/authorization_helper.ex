@@ -1,6 +1,13 @@
 defmodule Poxa.AuthorizationHelper do
+  @moduledoc """
+  This module providers a helper macro used for authentication in api handlers.
+  """
+
   alias Poxa.Authentication
 
+  @doc """
+  Takes the Request from Cowboy and verifys the signature using the Authentication module.
+  """
   @spec is_authorized(:cowboy_req.req, any) :: {true, :cowboy_req.req, any} | {{false, binary}, :cowboy_req.req, nil}
   def is_authorized(req, state) do
     {:ok, body, req} = :cowboy_req.body(req)
