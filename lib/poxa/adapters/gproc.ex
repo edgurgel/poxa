@@ -70,6 +70,10 @@ defmodule Poxa.Adapter.GProc do
     :gproc.select_count([{match, [], [true]}]) != 0
   end
 
+  def fetch_subscription(channel) do
+    :gproc.get_value({:p, :l, {:pusher, channel}})
+  end
+
   def clean_up, do: goodbye
 
   defp find_users(channel) do

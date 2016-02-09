@@ -56,6 +56,10 @@ defmodule Poxa.Registry do
     adapter.in_presence_channel?(user_id, channel)
   end
 
+  def fetch_subscription(channel) do
+    adapter.fetch_subscription(channel)
+  end
+
   def clean_up do
     adapter.clean_up
   end
@@ -84,6 +88,8 @@ defmodule Poxa.Registry do
   @callback connection_count(String.t, Integer.t) :: Integer.t
 
   @callback in_presence_channel?(String.t, PID.t) :: boolean
+
+  @callback fetch_subscription(String.t) :: any
 
   @callback clean_up() :: any
 
