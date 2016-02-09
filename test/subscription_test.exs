@@ -20,7 +20,7 @@ defmodule Poxa.SubscriptionTest do
 
   test "subscription to a public channel" do
     expect(Channel, :subscribed?, 2, false)
-    expect(Registry, :subscribe, 1, :registered)
+    expect(Registry, :subscribe!, 1, :registered)
     assert subscribe!(%{"channel" => "public-channel"}, nil) == {:ok, "public-channel"}
     assert validate Registry
   end
@@ -40,7 +40,7 @@ defmodule Poxa.SubscriptionTest do
 
   test "subscription to a private channel" do
     expect(Channel, :subscribed?, 2, false)
-    expect(Registry, :subscribe, 1, :registered)
+    expect(Registry, :subscribe!, 1, :registered)
     expect(AuthSignature, :valid?, 2, true)
     assert subscribe!(%{"channel" => "private-channel",
                         "auth" => "signeddata" }, "SocketId") == {:ok, "private-channel"}
@@ -50,7 +50,7 @@ defmodule Poxa.SubscriptionTest do
 
   test "subscription to a private channel having a channel_data" do
     expect(Channel, :subscribed?, 2, false)
-    expect(Registry, :subscribe, 1, :registered)
+    expect(Registry, :subscribe!, 1, :registered)
     expect(AuthSignature, :valid?, 2, true)
     assert subscribe!(%{"channel" => "private-channel",
                         "auth" => "signeddata",
@@ -99,7 +99,7 @@ defmodule Poxa.SubscriptionTest do
   test "unsubscribe channel being subscribed" do
     expect(Channel, :subscribed?, 2, true)
     expect(Channel, :presence?, 1, false)
-    expect(Registry, :unsubscribe, 1, :ok)
+    expect(Registry, :unsubscribe!, 1, :ok)
 
     assert unsubscribe!(%{"channel" => "a_channel"}) == {:ok, "a_channel"}
 
@@ -116,7 +116,7 @@ defmodule Poxa.SubscriptionTest do
   test "unsubscribe from a presence channel" do
     expect(Channel, :subscribed?, 2, false)
     expect(Channel, :presence?, 1, true)
-    expect(Registry, :unsubscribe, 1, :ok)
+    expect(Registry, :unsubscribe!, 1, :ok)
     expect(PresenceSubscription, :unsubscribe!, 1, {:ok, "presence-channel"})
 
     assert unsubscribe!(%{"channel" => "presence-channel"}) == {:ok, "presence-channel"}

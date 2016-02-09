@@ -1,23 +1,23 @@
 defmodule Poxa.Registry do
 
-  def subscribe(channel) do
-    adapter.register(channel)
+  def subscribe!(channel) do
+    adapter.register!(channel)
   end
 
-  def subscribe(channel, {user_id, user_info}) do
-    adapter.register(channel, {user_id, user_info})
+  def subscribe!(channel, {user_id, user_info}) do
+    adapter.register!(channel, {user_id, user_info})
   end
 
-  def unsubscribe(channel) do
-    adapter.unregister(channel)
+  def unsubscribe!(channel) do
+    adapter.unregister!(channel)
   end
 
-  def send_event(channel, {caller, message}) do
-    adapter.send_event(channel, {caller, message})
+  def send_event!(channel, {caller, message}) do
+    adapter.send_event!(channel, {caller, message})
   end
 
-  def send_event(channel, {caller, message, socket_id}) do
-    adapter.send_event(channel, {caller, message, socket_id})
+  def send_event!(channel, {caller, message, socket_id}) do
+    adapter.send_event!(channel, {caller, message, socket_id})
   end
 
   def users(channel) do
@@ -68,12 +68,12 @@ defmodule Poxa.Registry do
     adapter.clean_up
   end
 
-  @callback register(String.t) :: any
-  @callback register(String.t, Map.t) :: any
+  @callback register!(String.t) :: any
+  @callback register!(String.t, Map.t) :: any
 
-  @callback unregister(String.t) :: any
+  @callback unregister!(String.t) :: any
 
-  @callback send_event(String.t, Map.t) :: any
+  @callback send_event!(String.t, Map.t) :: any
 
   @callback users(String.t) :: Map.t
 

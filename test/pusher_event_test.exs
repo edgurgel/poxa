@@ -119,7 +119,7 @@ defmodule Poxa.PusherEventTest do
   end
 
   test "sending message to a channel" do
-    expect(Registry, :send_event, [{["channel123", {self, :msg, nil}], :ok}])
+    expect(Registry, :send_event!, [{["channel123", {self, :msg, nil}], :ok}])
     expected = %{channel: "channel123", data: "data", event: "event"}
     expect(JSX, :encode!, [{[expected], :msg}])
     event = %PusherEvent{channels: ["channel123"], data: "data", name: "event"}
@@ -132,7 +132,7 @@ defmodule Poxa.PusherEventTest do
   test "sending message to channels excluding a socket id" do
     expected = %{channel: "channel123", data: %{}, event: "event"}
     expect(JSX, :encode!, [{[expected], :msg}])
-    expect(Registry, :send_event, [{["channel123", {self, :msg, "SocketId"}], :ok}])
+    expect(Registry, :send_event!, [{["channel123", {self, :msg, "SocketId"}], :ok}])
 
     assert publish(%PusherEvent{data: %{}, channels: ["channel123"], name: "event", socket_id: "SocketId"}) == :ok
 

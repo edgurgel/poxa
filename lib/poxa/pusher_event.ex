@@ -193,7 +193,7 @@ defmodule Poxa.PusherEvent do
 
   defp publish_event_to_channel(event, channel) do
     message = build_message(event, channel) |> encode!
-    Registry.send_event(channel, {self, message, event.socket_id})
+    Registry.send_event!(channel, {self, message, event.socket_id})
   end
 
   defp build_message(event, channel) do

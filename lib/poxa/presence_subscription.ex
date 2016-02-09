@@ -32,9 +32,9 @@ defmodule Poxa.PresenceSubscription do
       {user_id, user_info} = extract_userid_and_userinfo(decoded_channel_data)
       unless Registry.in_presence_channel?(user_id, channel) do
         message = PusherEvent.presence_member_added(channel, user_id, user_info)
-        Registry.send_event(channel, {self, message})
+        Registry.send_event!(channel, {self, message})
       end
-      Registry.subscribe(channel, {user_id, user_info})
+      Registry.subscribe!(channel, {user_id, user_info})
     end
     %__MODULE__{channel: channel, channel_data: channel_data(channel)}
   end
@@ -86,7 +86,7 @@ defmodule Poxa.PresenceSubscription do
 
   defp presence_member_removed(channel, user_id) do
     message = PusherEvent.presence_member_removed(channel, user_id)
-    Registry.send_event(channel, {self, message})
+    Registry.send_event!(channel, {self, message})
   end
 
   defp only_one_connection_on_user_id?(channel, user_id) do
