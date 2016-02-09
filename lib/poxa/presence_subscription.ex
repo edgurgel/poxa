@@ -40,9 +40,7 @@ defmodule Poxa.PresenceSubscription do
   end
 
   defp channel_data(channel) do
-    for {_pid, {user_id, user_info}} <- :gproc.lookup_values({:p, :l, {:pusher, channel}}) do
-      {user_id, user_info}
-    end |> Enum.uniq(fn {user_id, _} -> user_id end)
+    Registry.channel_data(channel)
   end
 
   defp extract_userid_and_userinfo(channel_data) do
@@ -98,7 +96,6 @@ defmodule Poxa.PresenceSubscription do
   end
 
   defp only_one_connection_on_user_id?(channel, user_id) do
-    match = {{:p, :l, {:pusher, channel}}, :_, {user_id, :_}}
-    :gproc.select_count([{match, [], [true]}]) == 1
+    Registry.connection_count(channel, user_id) == 1
   end
 end

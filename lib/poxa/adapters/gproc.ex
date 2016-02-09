@@ -55,6 +55,17 @@ defmodule Poxa.Adapter.GProc do
     select([{match, [], [:'$1']}]) |> Enum.uniq
   end
 
+  def channel_data(channel) do
+    for {_pid, {user_id, user_info}} <- lookup_values({:p, :l, {:pusher, channel}}) do
+      {user_id, user_info}
+    end |> Enum.uniq(fn {user_id, _} -> user_id end)
+  end
+
+  def connection_count(channel, user_id) do
+    match = {{:p, :l, {:pusher, channel}}, :_, {user_id, :_}}
+    select_count([{match, [], [true]}])
+  end
+
   def clean_up, do: goodbye
 
   defp find_users(channel) do

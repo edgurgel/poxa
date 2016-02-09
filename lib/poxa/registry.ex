@@ -55,6 +55,16 @@ defmodule Poxa.Registry do
     adapter.channels(pid)
   end
 
+  def channel_data(channel) do
+    adapter = get_adapter
+    adapter.channel_data(channel)
+  end
+
+  def connection_count(channel, user_id) do
+    adapter = get_adapter
+    adapter.connection_count(channel, user_id)
+  end
+
   def clean_up do
     adapter = get_adapter
     adapter.clean_up
@@ -78,6 +88,10 @@ defmodule Poxa.Registry do
   @callback subscribed?(String.t, PID.t) :: boolean
 
   @callback channels(pid) :: Map.t
+
+  @callback channel_data(String.t) :: Map.t
+
+  @callback connection_count(String.t, Integer.t) :: Integer.t
 
   @callback clean_up() :: any
 
