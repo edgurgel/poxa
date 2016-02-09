@@ -16,7 +16,7 @@ defmodule Poxa.Registry do
   defcallback unregister(String.t) :: any
 
   defp get_adapter do
-    adapter = Application.get_env(:adapter)
+    adapter = Application.get_env(:poxa, :adapter)
     case adapter do
         "gproc" -> Poxa.Adapter.GProc
         _ -> raise "no adapter found"
