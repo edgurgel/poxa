@@ -76,8 +76,7 @@ defmodule Poxa.PresenceSubscription do
   """
   @spec check_and_remove :: :ok
   def check_and_remove do
-    match = {{:p, :l, {:pusher, :'$1'}}, self, {:'$2', :_}}
-    channel_user_id = :gproc.select([{match, [], [[:'$1',:'$2']]}])
+    channel_user_id = Registry.subscriptions
     for [channel, user_id] <- channel_user_id,
       presence?(channel), only_one_connection_on_user_id?(channel, user_id) do
         presence_member_removed(channel, user_id)

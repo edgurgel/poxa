@@ -60,6 +60,10 @@ defmodule Poxa.Registry do
     adapter.fetch_subscription(channel)
   end
 
+  def subscriptions do
+    adapter.subscriptions
+  end
+
   def clean_up do
     adapter.clean_up
   end
@@ -80,6 +84,8 @@ defmodule Poxa.Registry do
   @callback subscription_count(String.t) :: Integer.t
 
   @callback subscribed?(String.t, PID.t) :: boolean
+
+  @callback subscriptions() :: Map.t
 
   @callback channels(pid) :: Map.t
 

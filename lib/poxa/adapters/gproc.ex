@@ -49,6 +49,11 @@ defmodule Poxa.Adapter.GProc do
     select_count([{match, [], [true]}]) != 0
   end
 
+  def subscriptions do
+    match = {{:p, :l, {:pusher, :'$1'}}, self, {:'$2', :_}}
+    select([{match, [], [[:'$1',:'$2']]}])
+  end
+
   def channels(pid \\ :_) do
     match = {{:p, :l, {:pusher, :'$1'}}, pid, :_}
     select([{match, [], [:'$1']}]) |> Enum.uniq
