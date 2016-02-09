@@ -7,6 +7,7 @@ defmodule Poxa.Subscription do
   alias Poxa.PresenceSubscription
   alias Poxa.Channel
   alias Poxa.PusherEvent
+  alias Poxa.Registry
   require Logger
 
   @doc """
@@ -64,7 +65,7 @@ defmodule Poxa.Subscription do
       Logger.info "Already subscribed #{inspect self} on channel #{channel}"
     else
       Logger.info "Registering #{inspect self} to channel #{channel}"
-      Poxa.Registry.subscribe(channel)
+      Registry.subscribe(channel)
     end
     {:ok, channel}
   end
@@ -79,7 +80,7 @@ defmodule Poxa.Subscription do
       if Channel.presence?(channel) do
         PresenceSubscription.unsubscribe!(channel);
       end
-      Poxa.Registry.unsubscribe(channel)
+      Registry.unsubscribe(channel)
     else
       Logger.debug "Not subscribed to"
     end
