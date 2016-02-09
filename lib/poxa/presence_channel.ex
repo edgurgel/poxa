@@ -1,6 +1,6 @@
 defmodule Poxa.PresenceChannel do
   @moduledoc """
-  This module holds functions that are related to presence channel users information
+  This module holds functions that are related to presence channel users information.
   """
 
   alias Poxa.Registry
