@@ -72,18 +72,18 @@ defmodule Poxa.Adapter.GProc do
 
   def in_presence_channel?(user_id, channel) do
     match = {{:p, :l, {:pusher, channel}}, :_, {user_id, :_}}
-    :gproc.select_count([{match, [], [true]}]) != 0
+    select_count([{match, [], [true]}]) != 0
   end
 
   def fetch_subscription(channel) do
-    :gproc.get_value({:p, :l, {:pusher, channel}})
+    get_value({:p, :l, {:pusher, channel}})
   end
 
   def clean_up, do: goodbye
 
   defp find_users(channel) do
     match = {{:p, :l, {:pusher, channel}}, :_, :'$1'}
-    :gproc.select([{match, [], [:'$1']}])
+    select([{match, [], [:'$1']}])
     |> Enum.uniq(fn {user_id, _} -> user_id end)
   end
 end
