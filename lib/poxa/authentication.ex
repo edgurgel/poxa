@@ -1,6 +1,6 @@
 defmodule Poxa.Authentication do
   @moduledoc """
-  A module that hold authentication validation using Signaturex
+  This module encapsulates authentication validation logic using Signaturex.
   """
 
   @doc """
