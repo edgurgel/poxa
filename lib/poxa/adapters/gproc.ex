@@ -1,5 +1,5 @@
 defmodule Poxa.Adapter.GProc do
-  @behavour Poxa.Registry
+  @behaviour Poxa.Registry
   @moduledoc """
   """
 
