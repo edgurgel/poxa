@@ -5,6 +5,8 @@ defmodule Poxa.Channel do
   Channels can be public, private or presence channels.
   """
 
+  alias Poxa.Registry
+
   @doc """
   Returns true if the channel name is valid and false otherwise
 
@@ -88,8 +90,7 @@ defmodule Poxa.Channel do
   """
   @spec occupied?(binary) :: boolean
   def occupied?(channel) do
-    match = {{:p, :l, {:pusher, channel}}, :_, :_}
-    :gproc.select_count([{match, [], [true]}]) != 0
+    Registry.occupied?(channel)
   end
 
   @doc """
@@ -97,8 +98,7 @@ defmodule Poxa.Channel do
   """
   @spec all(pid | :_) :: [binary]
   def all(pid \\ :_) do
-    match = {{:p, :l, {:pusher, :'$1'}}, pid, :_}
-    :gproc.select([{match, [], [:'$1']}]) |> Enum.uniq
+    Registry.channels(pid)
   end
 
   @doc """
@@ -106,8 +106,7 @@ defmodule Poxa.Channel do
   """
   @spec subscribed?(binary, pid) :: boolean
   def subscribed?(channel, pid) do
-    match = {{:p, :l, {:pusher, channel}}, pid, :_}
-    :gproc.select_count([{match, [], [true]}]) != 0
+    Registry.subscribed?(channel, pid)
   end
 
   @doc """
@@ -115,7 +114,6 @@ defmodule Poxa.Channel do
   """
   @spec subscription_count(binary) :: non_neg_integer
   def subscription_count(channel) do
-    match = {{:p, :l, {:pusher, channel}}, :_, :_}
-    :gproc.select_count([{match, [], [true]}])
+    Registry.subscription_count(channel)
   end
 end

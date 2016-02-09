@@ -1,5 +1,4 @@
 defmodule Poxa.Registry do
-  use Behaviour
 
   def subscribe(channel) do
     adapter = get_adapter
@@ -36,15 +35,52 @@ defmodule Poxa.Registry do
     adapter.user_count(channel)
   end
 
-  defcallback register(String.t) :: any
-  defcallback register(String.t, Map.t) :: any
+  def occupied?(channel) do
+    adapter = get_adapter
+    adapter.occupied?(channel)
+  end
 
-  defcallback unregister(String.t) :: any
+  def subscription_count(channel) do
+    adapter = get_adapter
+    adapter.subscription_count(channel)
+  end
 
-  defcallback send_event(String.t, Map.t) :: any
+  def subscribed?(channel, pid) do
+    adapter = get_adapter
+    adapter.subscribed?(channel, pid)
+  end
 
-  defcallback users(String.t) :: any
-  defcallback user_count(String.t) :: any
+  def channels(pid \\ :_) do
+    adapter = get_adapter
+    adapter.channels(pid)
+  end
+
+  def clean_up do
+    adapter = get_adapter
+    adapter.clean_up
+  end
+
+  @callback register(String.t) :: any
+  @callback register(String.t, Map.t) :: any
+
+  @callback unregister(String.t) :: any
+
+  @callback send_event(String.t, Map.t) :: any
+
+  @callback users(String.t) :: Map.t
+
+  @callback user_count(String.t) :: Integer.t
+
+  @callback occupied?(String.t) :: boolean
+
+  @callback subscription_count(String.t) :: Integer.t
+
+  @callback subscribed?(String.t, PID.t) :: boolean
+
+  @callback channels(pid) :: Map.t
+
+  @callback clean_up() :: any
+
 
   defp get_adapter do
     adapter = Application.get_env(:poxa, :adapter)

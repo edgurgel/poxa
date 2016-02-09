@@ -15,6 +15,7 @@ defmodule Poxa.WebsocketHandler do
   alias Poxa.Channel
   alias Poxa.Time
   alias Poxa.SocketId
+  alias Poxa.Registry
 
   @max_protocol 7
   @min_protocol 5
@@ -161,7 +162,7 @@ defmodule Poxa.WebsocketHandler do
     channels = Channel.all(self)
     Event.notify(:disconnected, %{socket_id: socket_id, channels: channels, duration: duration})
     PresenceSubscription.check_and_remove
-    :gproc.goodbye
+    Registry.clean_up
     :ok
   end
 end

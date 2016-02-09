@@ -10,7 +10,7 @@ defmodule Poxa.Adapter.GProc do
   end
 
   def register(channel, {user_id, user_info}) do
-    :gproc.reg({:p, :l, {:pusher, channel}}, {user_id, user_info})
+    reg({:p, :l, {:pusher, channel}}, {user_id, user_info})
   end
 
   def unregister(channel) do
@@ -34,6 +34,28 @@ defmodule Poxa.Adapter.GProc do
     find_users(channel)
     |> Enum.count
   end
+
+  def occupied?(channel) do
+    match = {{:p, :l, {:pusher, channel}}, :_, :_}
+    select_count([{match, [], [true]}]) != 0
+  end
+
+  def subscription_count(channel) do
+    match = {{:p, :l, {:pusher, channel}}, :_, :_}
+    select_count([{match, [], [true]}])
+  end
+
+  def subscribed?(channel, pid) do
+    match = {{:p, :l, {:pusher, channel}}, pid, :_}
+    select_count([{match, [], [true]}]) != 0
+  end
+
+  def channels(pid \\ :_) do
+    match = {{:p, :l, {:pusher, :'$1'}}, pid, :_}
+    select([{match, [], [:'$1']}]) |> Enum.uniq
+  end
+
+  def clean_up, do: goodbye
 
   defp find_users(channel) do
     match = {{:p, :l, {:pusher, channel}}, :_, :'$1'}
