@@ -4,6 +4,7 @@ defmodule Poxa.SubscriptionTest do
   alias Poxa.PresenceSubscription
   alias Poxa.Channel
   alias Poxa.PusherEvent
+  alias Poxa.Registry
   import :meck
   import Poxa.Subscription
 
@@ -12,16 +13,16 @@ defmodule Poxa.SubscriptionTest do
     new AuthSignature
     new PusherEvent
     new Channel, [:passthrough]
-    new :gproc
+    new Registry
     on_exit fn -> unload end
     :ok
   end
 
   test "subscription to a public channel" do
     expect(Channel, :subscribed?, 2, false)
-    expect(:gproc, :reg, 1, :registered)
+    expect(Registry, :subscribe, 1, :registered)
     assert subscribe!(%{"channel" => "public-channel"}, nil) == {:ok, "public-channel"}
-    assert validate :gproc
+    assert validate Registry
   end
 
   test "subscription to a missing channel name" do
@@ -39,28 +40,28 @@ defmodule Poxa.SubscriptionTest do
 
   test "subscription to a private channel" do
     expect(Channel, :subscribed?, 2, false)
-    expect(:gproc, :reg, 1, :registered)
+    expect(Registry, :subscribe, 1, :registered)
     expect(AuthSignature, :valid?, 2, true)
     assert subscribe!(%{"channel" => "private-channel",
                         "auth" => "signeddata" }, "SocketId") == {:ok, "private-channel"}
     assert validate AuthSignature
-    assert validate :gproc
+    assert validate Registry
   end
 
   test "subscription to a private channel having a channel_data" do
     expect(Channel, :subscribed?, 2, false)
-    expect(:gproc, :reg, 1, :registered)
+    expect(Registry, :subscribe, 1, :registered)
     expect(AuthSignature, :valid?, 2, true)
     assert subscribe!(%{"channel" => "private-channel",
                         "auth" => "signeddata",
                         "channel_data" => "{\"user_id\" : \"id123\", \"user_info\" : \"info456\"}"}, "SocketId") == {:ok, "private-channel"}
     assert validate AuthSignature
-    assert validate :gproc
+    assert validate Registry
   end
 
   test "subscription to a presence channel" do
     expect(Channel, :subscribed?, 2, false)
-    expect(:gproc, :lookup_values, 1, :values) # subscribed? returns false
+    expect(Registry, :in_presence_channel?, 2, :values) # subscribed? returns false
     expect(AuthSignature, :valid?, 2, true)
     expect(PresenceSubscription, :subscribe!, 2, :ok)
 
@@ -70,7 +71,7 @@ defmodule Poxa.SubscriptionTest do
 
     assert validate AuthSignature
     assert validate PresenceSubscription
-    assert validate :gproc
+    assert validate Registry
   end
 
   test "subscription to a private-channel having bad authentication" do
@@ -98,11 +99,11 @@ defmodule Poxa.SubscriptionTest do
   test "unsubscribe channel being subscribed" do
     expect(Channel, :subscribed?, 2, true)
     expect(Channel, :presence?, 1, false)
-    expect(:gproc, :unreg, 1, :ok)
+    expect(Registry, :unsubscribe, 1, :ok)
 
     assert unsubscribe!(%{"channel" => "a_channel"}) == {:ok, "a_channel"}
 
-    assert validate :gproc
+    assert validate Registry
   end
 
   test "unsubscribe channel being not subscribed" do
@@ -115,12 +116,12 @@ defmodule Poxa.SubscriptionTest do
   test "unsubscribe from a presence channel" do
     expect(Channel, :subscribed?, 2, false)
     expect(Channel, :presence?, 1, true)
-    expect(:gproc, :unreg, 1, :ok)
+    expect(Registry, :unsubscribe, 1, :ok)
     expect(PresenceSubscription, :unsubscribe!, 1, {:ok, "presence-channel"})
 
     assert unsubscribe!(%{"channel" => "presence-channel"}) == {:ok, "presence-channel"}
 
     assert validate PresenceSubscription
-    assert validate :gproc
+    assert validate Registry
   end
 end

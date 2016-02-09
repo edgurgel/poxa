@@ -7,6 +7,7 @@ defmodule Poxa.WebsocketHandlerTest do
   alias Poxa.Time
   alias Poxa.Channel
   alias Poxa.SocketId
+  alias Poxa.Registry
   import :meck
   import Poxa.WebsocketHandler
   alias Poxa.WebsocketHandler.State
@@ -290,13 +291,13 @@ defmodule Poxa.WebsocketHandlerTest do
     expect(Time, :stamp, 0, 100)
     expect(Event, :notify, [{[:disconnected, %{socket_id: :socket_id, channels: :channels, duration: 90}], :ok}])
     expect(PresenceSubscription, :check_and_remove, 0, :ok)
-    expect(:gproc, :goodbye, 0, :ok)
+    expect(Registry, :clean_up, 0, :ok)
 
     state = %State{socket_id: :socket_id, time: 10}
 
     assert websocket_terminate(:reason, :req, state) == :ok
 
-    assert validate [Event, PresenceSubscription, :gproc]
+    assert validate [Event, PresenceSubscription, Registry]
   end
 
   test "websocket termination without a socket_id" do
