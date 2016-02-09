@@ -1,4 +1,9 @@
 defmodule Poxa.Registry do
+  @moduledoc """
+  An interface to retrieve and use the various Registry adapters.
+  Adapters need to implement the Registry behaviour, which include the
+  required set of commands needed by the web api and web socket handler.
+  """
 
   def subscribe!(channel) do
     adapter.register!(channel)
