@@ -30,7 +30,7 @@ defmodule Poxa.PresenceSubscription do
     else
       Logger.info "Registering #{inspect self} to channel #{channel}"
       {user_id, user_info} = extract_userid_and_userinfo(decoded_channel_data)
-      unless user_id_already_on_presence_channel(user_id, channel) do
+      unless Registry.in_presence_channel?(user_id, channel) do
         message = PusherEvent.presence_member_added(channel, user_id, user_info)
         Registry.send_event(channel, {self, message})
       end
@@ -51,11 +51,6 @@ defmodule Poxa.PresenceSubscription do
 
   defp sanitize_user_id(user_id) when is_binary(user_id), do: user_id
   defp sanitize_user_id(user_id), do: JSX.encode!(user_id)
-
-  defp user_id_already_on_presence_channel(user_id, channel) do
-    match = {{:p, :l, {:pusher, channel}}, :_, {user_id, :_}}
-    :gproc.select_count([{match, [], [true]}]) != 0
-  end
 
   @doc """
   Unsubscribe from a presence channel, possibly triggering presence_member_removed

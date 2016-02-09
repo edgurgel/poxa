@@ -65,6 +65,11 @@ defmodule Poxa.Adapter.GProc do
     select_count([{match, [], [true]}])
   end
 
+  def in_presence_channel?(user_id, channel) do
+    match = {{:p, :l, {:pusher, channel}}, :_, {user_id, :_}}
+    :gproc.select_count([{match, [], [true]}]) != 0
+  end
+
   def clean_up, do: goodbye
 
   defp find_users(channel) do

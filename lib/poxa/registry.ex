@@ -52,6 +52,10 @@ defmodule Poxa.Registry do
     adapter.connection_count(channel, user_id)
   end
 
+  def in_presence_channel?(user_id, channel) do
+    adapter.in_presence_channel?(user_id, channel)
+  end
+
   def clean_up do
     adapter.clean_up
   end
@@ -78,6 +82,8 @@ defmodule Poxa.Registry do
   @callback channel_data(String.t) :: Map.t
 
   @callback connection_count(String.t, Integer.t) :: Integer.t
+
+  @callback in_presence_channel?(String.t, PID.t) :: boolean
 
   @callback clean_up() :: any
 
