@@ -26,12 +26,25 @@ defmodule Poxa.Registry do
     adapter.send_event(channel, {caller, message, socket_id})
   end
 
+  def users(channel) do
+    adapter = get_adapter
+    adapter.users(channel)
+  end
+
+  def user_count(channel) do
+    adapter = get_adapter
+    adapter.user_count(channel)
+  end
+
   defcallback register(String.t) :: any
   defcallback register(String.t, Map.t) :: any
 
   defcallback unregister(String.t) :: any
 
   defcallback send_event(String.t, Map.t) :: any
+
+  defcallback users(String.t) :: any
+  defcallback user_count(String.t) :: any
 
   defp get_adapter do
     adapter = Application.get_env(:poxa, :adapter)
