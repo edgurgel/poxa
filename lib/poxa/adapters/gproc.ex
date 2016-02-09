@@ -36,8 +36,7 @@ defmodule Poxa.Adapter.GProc do
   end
 
   def occupied?(channel) do
-    match = {{:p, :l, {:pusher, channel}}, :_, :_}
-    select_count([{match, [], [true]}]) != 0
+    subscription_count(channel) != 0
   end
 
   def subscription_count(channel) do
