@@ -1,11 +1,21 @@
 language: elixir
+
 elixir:
-    - 1.0.0
+  - 1.2.0
+  - 1.2.1
+  - 1.2.2
+
 otp_release:
-  - 17.0
-  - 17.1
+  - 18.0
+  - 18.1
+  - 18.2
+
+sudo: false
+
 env:
   - MIX_ENV=test
+
 after_script:
+  - mix credo -a
   - mix deps.get --only docs
   - MIX_ENV=docs mix inch.report

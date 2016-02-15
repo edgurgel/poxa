@@ -7,6 +7,7 @@ defmodule Poxa.WebsocketHandler do
 
   More info on Pusher protocol at: http://pusher.com/docs/pusher_protocol
   """
+
   require Logger
   alias Poxa.PusherEvent
   alias Poxa.Event
@@ -15,11 +16,15 @@ defmodule Poxa.WebsocketHandler do
   alias Poxa.Channel
   alias Poxa.Time
   alias Poxa.SocketId
+  alias Poxa.Registry
 
   @max_protocol 7
   @min_protocol 5
 
   defmodule State do
+    @moduledoc """
+    A simple module to house some State (struct).
+    """
     defstruct [:socket_id, :time]
   end
 
@@ -70,9 +75,11 @@ defmodule Poxa.WebsocketHandler do
   More info: http://pusher.com/docs/pusher_protocol
   """
   def websocket_handle({:text, json}, req, state) do
-    JSX.decode!(json) |> handle_pusher_event(req, state)
+    json
+    |> JSX.decode!
+    |> handle_pusher_event(req, state)
   end
-  def websocket_handle({:ping, _}, req, state), do: { :ok, req, state }
+  def websocket_handle({:ping, _}, req, state), do: {:ok, req, state}
 
   defp handle_pusher_event(decoded_json, req, state) do
     handle_pusher_event(decoded_json["event"], decoded_json, req, state)
@@ -161,12 +168,15 @@ defmodule Poxa.WebsocketHandler do
     channels = Channel.all(self)
     Event.notify(:disconnected, %{socket_id: socket_id, channels: channels, duration: duration})
     PresenceSubscription.check_and_remove
-    :gproc.goodbye
+    Registry.clean_up
     :ok
   end
 end
 
 defmodule Poxa.Time do
+  @moduledoc """
+  A simple home for a time helper function
+  """
   def stamp do
     {mega, sec, _micro} = :os.timestamp()
     mega * 1000000 + sec

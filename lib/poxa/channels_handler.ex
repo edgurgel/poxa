@@ -29,7 +29,9 @@ defmodule Poxa.ChannelsHandler do
   """
   def malformed_request(req, _state) do
     {info, req} = :cowboy_req.qs_val("info", req, "")
-    attributes = String.split(info, ",")
+    attributes =
+      info
+      |> String.split(",")
       |> Enum.reject(&(&1 == ""))
     {channel, req} = :cowboy_req.binding(:channel_name, req, nil)
     if channel do
@@ -100,8 +102,8 @@ defmodule Poxa.ChannelsHandler do
   end
 
   defp index(filter, attributes, req, state) do
-    channels = channels(filter, attributes)
-    {JSX.encode!(channels: channels), req, state}
+    channel_list = channels(filter, attributes)
+    {JSX.encode!(channels: channel_list), req, state}
   end
 
   defp channels(filter, attributes) do

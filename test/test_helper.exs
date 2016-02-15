@@ -26,7 +26,7 @@ defmodule SpawnHelper do
     end
   end
 
-  def register_to_channel(channel, value \\ :undefined) do
-    :gproc.reg({:p, :l, {:pusher, channel}}, value)
-  end
+  def register_to_channel(channel),             do: Poxa.Registry.subscribe!(channel)
+  def register_to_channel(channel, :undefined), do: register_to_channel(channel)
+  def register_to_channel(channel, value),      do: Poxa.Registry.subscribe!(channel, value)
 end

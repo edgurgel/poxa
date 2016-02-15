@@ -1,5 +1,11 @@
 defmodule Poxa.Console.WSHandler do
   @behaviour :cowboy_websocket_handler
+  @moduledoc """
+  A separate websocket handler for the admin console.
+  All messages which are processed by Poxa will be relayed to the admin
+  console for viewing and monitoring.
+  """
+
   require Logger
   alias Poxa.Authentication
 

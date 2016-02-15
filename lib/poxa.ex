@@ -56,7 +56,7 @@ defmodule Poxa do
         if Enum.all?([:port, :certfile, :keyfile], &Keyword.has_key?(ssl_config, &1)) do
           ssl_port = Keyword.get(ssl_config, :port)
           if ssl_port do
-            {:ok, _} = :cowboy.start_https(:https, 100, ssl_config, [env: [dispatch: dispatch] ])
+            {:ok, _} = :cowboy.start_https(:https, 100, ssl_config, [env: [dispatch: dispatch]])
             Logger.info "Starting Poxa using SSL on port #{ssl_port}"
           else
             Logger.info "SSL not configured/started"

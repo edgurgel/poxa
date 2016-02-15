@@ -6,6 +6,7 @@ defmodule Poxa.AuthSignature do
 
   require Logger
   alias Poxa.CryptoHelper
+  alias Poxa.Authentication
 
   @doc """
   Validate auth signature as described at: http://pusher.com/docs/auth_signatures .
@@ -16,7 +17,7 @@ defmodule Poxa.AuthSignature do
     case String.split(auth, ":", parts: 2) do
       [app_key, remote_signed_data] ->
         signed_data = sign_data(to_sign)
-        Poxa.Authentication.check_key(app_key) and signed_data == remote_signed_data
+        Authentication.check_key(app_key) and signed_data == remote_signed_data
       _ -> false
     end
   end

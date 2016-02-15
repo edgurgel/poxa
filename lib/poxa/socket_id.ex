@@ -1,4 +1,8 @@
 defmodule Poxa.SocketId do
+  @moduledoc """
+  Helper macros for generating and verifying socket ids.
+  """
+
   @doc """
   Generates a string on the form 123.456
   """

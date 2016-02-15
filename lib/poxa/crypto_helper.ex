@@ -1,4 +1,8 @@
 defmodule Poxa.CryptoHelper do
+  @moduledoc """
+  Some simple helper macros used during authentication.
+  """
+
   @doc """
   Compute a SHA-256 MAC message authentication code from app_secret and data to sign.
   """
@@ -12,7 +16,9 @@ defmodule Poxa.CryptoHelper do
   """
   @spec md5_to_string(binary) :: binary
   def md5_to_string(data) do
-    data |> md5 |> Base.encode16(case: :lower)
+    data
+    |> md5
+    |> Base.encode16(case: :lower)
   end
 
   defp md5(data), do: :crypto.hash(:md5, data)

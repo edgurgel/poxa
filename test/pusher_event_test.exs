@@ -3,6 +3,7 @@ defmodule Poxa.PusherEventTest do
   import :meck
   import Poxa.PusherEvent
   alias Poxa.PusherEvent
+  alias Poxa.Registry
 
   setup do
     on_exit fn -> unload end
@@ -118,23 +119,23 @@ defmodule Poxa.PusherEventTest do
   end
 
   test "sending message to a channel" do
-    expect(:gproc, :send, [{[{:p, :l, {:pusher, "channel123"}}, {self, :msg, nil}], :ok}])
+    expect(Registry, :send_event!, [{["channel123", {self, :msg, nil}], :ok}])
     expected = %{channel: "channel123", data: "data", event: "event"}
     expect(JSX, :encode!, [{[expected], :msg}])
     event = %PusherEvent{channels: ["channel123"], data: "data", name: "event"}
 
     assert publish(event) == :ok
 
-    assert validate [:gproc, JSX]
+    assert validate [Registry, JSX]
   end
 
   test "sending message to channels excluding a socket id" do
     expected = %{channel: "channel123", data: %{}, event: "event"}
     expect(JSX, :encode!, [{[expected], :msg}])
-    expect(:gproc, :send, [{[{:p, :l, {:pusher, "channel123"}}, {self, :msg, "SocketId"}], :ok}])
+    expect(Registry, :send_event!, [{["channel123", {self, :msg, "SocketId"}], :ok}])
 
     assert publish(%PusherEvent{data: %{}, channels: ["channel123"], name: "event", socket_id: "SocketId"}) == :ok
 
-    assert validate [:gproc, JSX]
+    assert validate [Registry, JSX]
   end
 end

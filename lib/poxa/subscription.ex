@@ -3,10 +3,12 @@ defmodule Poxa.Subscription do
   This module contains functions to handle subscription and unsubscription
   on channels, public, private and presence channels.
   """
+
   alias Poxa.AuthSignature
   alias Poxa.PresenceSubscription
   alias Poxa.Channel
   alias Poxa.PusherEvent
+  alias Poxa.Registry
   require Logger
 
   @doc """
@@ -64,7 +66,7 @@ defmodule Poxa.Subscription do
       Logger.info "Already subscribed #{inspect self} on channel #{channel}"
     else
       Logger.info "Registering #{inspect self} to channel #{channel}"
-      :gproc.reg({:p, :l, {:pusher, channel}})
+      Registry.subscribe!(channel)
     end
     {:ok, channel}
   end
@@ -79,7 +81,7 @@ defmodule Poxa.Subscription do
       if Channel.presence?(channel) do
         PresenceSubscription.unsubscribe!(channel);
       end
-      :gproc.unreg({:p, :l, {:pusher, channel}});
+      Registry.unsubscribe!(channel)
     else
       Logger.debug "Not subscribed to"
     end

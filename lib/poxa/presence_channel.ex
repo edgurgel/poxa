@@ -1,7 +1,9 @@
 defmodule Poxa.PresenceChannel do
   @moduledoc """
-  This module holds functions that are related to presence channel users information
+  This module holds functions that are related to presence channel users information.
   """
+
+  alias Poxa.Registry
 
   @doc """
   This function returns the user ids currently subscribed to a presence channel
@@ -10,10 +12,7 @@ defmodule Poxa.PresenceChannel do
   """
   @spec users(binary) :: [binary | integer]
   def users(channel) do
-    match = {{:p, :l, {:pusher, channel}}, :_, :'$1'}
-    :gproc.select([{match, [], [:'$1']}])
-    |> Enum.uniq(fn {user_id, _} -> user_id end)
-    |> Enum.map(fn {user_id, _} -> user_id end)
+    Registry.users(channel)
   end
 
   @doc """
@@ -21,9 +20,6 @@ defmodule Poxa.PresenceChannel do
   """
   @spec user_count(binary) :: non_neg_integer
   def user_count(channel) do
-    match = {{:p, :l, {:pusher, channel}}, :_, :'$1'}
-    :gproc.select([{match, [], [:'$1']}])
-    |> Enum.uniq(fn {user_id, _} -> user_id end)
-    |> Enum.count
+    Registry.user_count(channel)
   end
 end

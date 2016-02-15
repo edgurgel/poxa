@@ -1,4 +1,10 @@
 defmodule Poxa.Console do
+  @moduledoc """
+  This module is added by Poxa.Console.WsHandler as a monitored handler to
+  Poxa.Event. All events and messages sent through Poxa are sent to the admin
+  console UI for debugging purposes.
+  """
+
   import JSX, only: [encode!: 1]
   use GenEvent
 
@@ -42,11 +48,11 @@ defmodule Poxa.Console do
   end
 
   defp message(type, socket_id, details) do
-    %{ type: type, socket: socket_id, details: details, time: time }
+    %{type: type, socket: socket_id, details: details, time: time}
   end
 
   defp time do
-    {_, {hour, min, sec}} = :erlang.localtime
-    :io_lib.format("~2w:~2..0w:~2..0w", [hour, min, sec]) |> to_string
+    {_, {hour, minute, second}} = :erlang.localtime
+    :io_lib.format("~2w:~2..0w:~2..0w", [hour, minute, second]) |> to_string
   end
 end

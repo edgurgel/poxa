@@ -6,6 +6,7 @@ defmodule Poxa.EventHandler do
 
   More info on Pusher events at: http://pusher.com/docs/rest_api
   """
+
   alias Poxa.Authentication
   alias Poxa.PusherEvent
   alias Poxa.Event

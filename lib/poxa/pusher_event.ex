@@ -6,6 +6,7 @@ defmodule Poxa.PusherEvent do
   """
 
   alias Poxa.PresenceSubscription
+  alias Poxa.Registry
   import JSX, only: [encode!: 1]
 
   @doc """
@@ -59,16 +60,16 @@ defmodule Poxa.PusherEvent do
   def subscription_succeeded(channel) when is_binary(channel) do
     %{event: "pusher_internal:subscription_succeeded",
       channel: channel,
-      data: %{} } |> encode!
+      data: %{}} |> encode!
   end
 
   def subscription_succeeded(%PresenceSubscription{channel: channel, channel_data: channel_data}) do
-    {ids, _Hash} = :lists.unzip(channel_data)
+    {ids, _hash} = :lists.unzip(channel_data)
     count = Enum.count(ids)
     data = %{presence: %{ids: ids, hash: channel_data, count: count}} |> encode!
     %{event: "pusher_internal:subscription_succeeded",
       channel: channel,
-      data: data } |> encode!
+      data: data} |> encode!
   end
 
   @subscription_error %{event: "pusher:subscription_error", data: %{}} |> encode!
@@ -95,7 +96,7 @@ defmodule Poxa.PusherEvent do
   """
   @spec pusher_error(binary, integer | nil) :: binary
   def pusher_error(message, code \\ nil) do
-    %{ event: "pusher:error", data: %{ message: message, code: code } } |> encode!
+    %{event: "pusher:error", data: %{message: message, code: code}} |> encode!
   end
 
   @pong %{event: "pusher:pong", data: %{}} |> encode!
@@ -192,7 +193,7 @@ defmodule Poxa.PusherEvent do
 
   defp publish_event_to_channel(event, channel) do
     message = build_message(event, channel) |> encode!
-    :gproc.send({:p, :l, {:pusher, channel}}, {self, message, event.socket_id})
+    Registry.send_event!(channel, {self, message, event.socket_id})
   end
 
   defp build_message(event, channel) do
