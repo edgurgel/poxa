@@ -106,8 +106,8 @@ defmodule Poxa.Registry do
 
 
   defp adapter do
-    adapter = Application.get_env(:poxa, :adapter)
-    case adapter do
+    selected_adapter = Application.get_env(:poxa, :adapter)
+    case selected_adapter do
     "gproc" ->
       Poxa.Adapter.GProc
     _ ->
