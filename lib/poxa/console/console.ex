@@ -1,4 +1,10 @@
 defmodule Poxa.Console do
+  @moduledoc """
+  This module is added by Poxa.Console.WsHandler as a monitored handler to
+  Poxa.Event. All events and messages sent through Poxa are sent to the admin
+  console UI for debugging purposes.
+  """
+
   import JSX, only: [encode!: 1]
   use GenEvent
 
