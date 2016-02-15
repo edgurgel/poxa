@@ -22,6 +22,9 @@ defmodule Poxa.WebsocketHandler do
   @min_protocol 5
 
   defmodule State do
+    @moduledoc """
+    A simple module to house some State (struct).
+    """
     defstruct [:socket_id, :time]
   end
 
@@ -171,6 +174,9 @@ defmodule Poxa.WebsocketHandler do
 end
 
 defmodule Poxa.Time do
+  @moduledoc """
+  A simple home for a time helper function
+  """
   def stamp do
     {mega, sec, _micro} = :os.timestamp()
     mega * 1000000 + sec

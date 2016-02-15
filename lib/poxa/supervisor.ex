@@ -1,5 +1,8 @@
 defmodule Poxa.Supervisor do
   use Supervisor
+  @moduledoc """
+  A simple supervisor for the Poxa.Event GenEvent.
+  """
 
   @doc false
   def start_link do
@@ -14,4 +17,3 @@ defmodule Poxa.Supervisor do
     supervise children, strategy: :one_for_one
   end
 end
-
