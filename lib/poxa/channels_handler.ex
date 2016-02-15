@@ -29,7 +29,9 @@ defmodule Poxa.ChannelsHandler do
   """
   def malformed_request(req, _state) do
     {info, req} = :cowboy_req.qs_val("info", req, "")
-    attributes = String.split(info, ",")
+    attributes =
+      info
+      |> String.split(",")
       |> Enum.reject(&(&1 == ""))
     {channel, req} = :cowboy_req.binding(:channel_name, req, nil)
     if channel do

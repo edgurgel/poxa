@@ -16,7 +16,9 @@ defmodule Poxa.CryptoHelper do
   """
   @spec md5_to_string(binary) :: binary
   def md5_to_string(data) do
-    data |> md5 |> Base.encode16(case: :lower)
+    data
+    |> md5
+    |> Base.encode16(case: :lower)
   end
 
   defp md5(data), do: :crypto.hash(:md5, data)
