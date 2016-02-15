@@ -26,12 +26,14 @@ defmodule Poxa.Adapter.GProc do
   end
 
   def users(channel) do
-    find_users(channel)
+    channel
+    |> find_users
     |> Enum.map(fn {user_id, _} -> user_id end)
   end
 
   def user_count(channel) do
-    find_users(channel)
+    channel
+    |> find_users
     |> Enum.count
   end
 
