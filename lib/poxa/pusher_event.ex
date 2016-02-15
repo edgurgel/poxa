@@ -60,7 +60,7 @@ defmodule Poxa.PusherEvent do
   def subscription_succeeded(channel) when is_binary(channel) do
     %{event: "pusher_internal:subscription_succeeded",
       channel: channel,
-      data: %{} } |> encode!
+      data: %{}} |> encode!
   end
 
   def subscription_succeeded(%PresenceSubscription{channel: channel, channel_data: channel_data}) do
@@ -69,7 +69,7 @@ defmodule Poxa.PusherEvent do
     data = %{presence: %{ids: ids, hash: channel_data, count: count}} |> encode!
     %{event: "pusher_internal:subscription_succeeded",
       channel: channel,
-      data: data } |> encode!
+      data: data} |> encode!
   end
 
   @subscription_error %{event: "pusher:subscription_error", data: %{}} |> encode!
@@ -96,7 +96,7 @@ defmodule Poxa.PusherEvent do
   """
   @spec pusher_error(binary, integer | nil) :: binary
   def pusher_error(message, code \\ nil) do
-    %{ event: "pusher:error", data: %{ message: message, code: code } } |> encode!
+    %{event: "pusher:error", data: %{message: message, code: code}} |> encode!
   end
 
   @pong %{event: "pusher:pong", data: %{}} |> encode!
