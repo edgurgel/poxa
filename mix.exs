@@ -24,6 +24,7 @@ defmodule Poxa.Mixfile do
       {:pusher, "~> 0.1.0", only: :test},
       {:exrm, "~> 0.19.2", only: :prod},
       {:edip, "~> 0.4", only: :prod},
-      {:inch_ex, only: :docs} ]
+      {:inch_ex, only: :docs},
+      {:credo, "~> 0.2", only: [:dev, :test]} ]
   end
 end
