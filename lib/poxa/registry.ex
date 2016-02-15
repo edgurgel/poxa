@@ -108,8 +108,10 @@ defmodule Poxa.Registry do
   defp adapter do
     adapter = Application.get_env(:poxa, :adapter)
     case adapter do
-        "gproc" -> Poxa.Adapter.GProc
-        _ -> raise "no adapter found"
+    "gproc" ->
+      Poxa.Adapter.GProc
+    _ ->
+      raise "no adapter found"
     end
   end
 end
