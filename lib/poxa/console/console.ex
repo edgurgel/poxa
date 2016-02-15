@@ -46,7 +46,7 @@ defmodule Poxa.Console do
   end
 
   defp time do
-    {_, {hour, min, sec}} = :erlang.localtime
-    :io_lib.format("~2w:~2..0w:~2..0w", [hour, min, sec]) |> to_string
+    {_, {hour, minute, second}} = :erlang.localtime
+    :io_lib.format("~2w:~2..0w:~2..0w", [hour, minute, second]) |> to_string
   end
 end
