@@ -36,11 +36,8 @@ defmodule Poxa.PresenceSubscription do
       end
       Registry.subscribe!(channel, {user_id, user_info})
     end
-    %__MODULE__{channel: channel, channel_data: channel_data(channel)}
-  end
-
-  defp channel_data(channel) do
-    Registry.channel_data(channel)
+    registry_channel_data = Registry.channel_data(channel)
+    %__MODULE__{channel: channel, channel_data: registry_channel_data}
   end
 
   defp extract_userid_and_userinfo(channel_data) do
