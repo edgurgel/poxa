@@ -64,7 +64,7 @@ defmodule Poxa.PusherEvent do
   end
 
   def subscription_succeeded(%PresenceSubscription{channel: channel, channel_data: channel_data}) do
-    {ids, _Hash} = :lists.unzip(channel_data)
+    {ids, _hash} = :lists.unzip(channel_data)
     count = Enum.count(ids)
     data = %{presence: %{ids: ids, hash: channel_data, count: count}} |> encode!
     %{event: "pusher_internal:subscription_succeeded",
