@@ -100,8 +100,8 @@ defmodule Poxa.ChannelsHandler do
   end
 
   defp index(filter, attributes, req, state) do
-    channels = channels(filter, attributes)
-    {JSX.encode!(channels: channels), req, state}
+    channel_list = channels(filter, attributes)
+    {JSX.encode!(channels: channel_list), req, state}
   end
 
   defp channels(filter, attributes) do
