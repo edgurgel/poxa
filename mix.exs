@@ -10,7 +10,7 @@ defmodule Poxa.Mixfile do
   end
 
   def application do
-    [ applications: [ :logger, :crypto, :gproc, :cowboy, :asn1, :public_key, :ssl, :exjsx, :signaturex, :httpoison ],
+    [ applications: [ :logger, :crypto, :gproc, :cowboy, :asn1, :public_key, :ssl, :exjsx, :signaturex, :httpoison, :watcher ],
       mod: { Poxa, [] } ]
   end
 
@@ -25,6 +25,7 @@ defmodule Poxa.Mixfile do
       {:exrm, "~> 0.19.2", only: :prod},
       {:edip, "~> 0.4", only: :prod},
       {:inch_ex, only: :docs},
-      {:httpoison, "~> 0.8"} ]
+      {:httpoison, "~> 0.8"},
+      {:watcher, "~> 1.0.0"} ]
   end
 end
