@@ -5,13 +5,13 @@ defmodule Poxa.ChannelTest do
   doctest Poxa.Channel
 
   test "occupied? returns false for empty channel" do
-    refute occupied?("a channel")
+    refute occupied?("unoccupied channel")
   end
 
   test "occupied? returns true for populated channel" do
-    register_to_channel("a channel")
+    register_to_channel("a populated channel")
 
-    assert occupied?("a channel")
+    assert occupied?("a populated channel")
   end
 
   test "list all channels" do
@@ -19,34 +19,33 @@ defmodule Poxa.ChannelTest do
     register_to_channel("channel2")
     spawn_registered_process("channel3")
 
-    assert "channel1" in all
-    assert "channel2" in all
-    assert "channel3" in all
+    expected = Enum.into(~w(channel1 channel2 channel3), MapSet.new)
+    assert MapSet.equal?(Enum.into(all, MapSet.new), expected)
   end
 
   test "list channels of a pid" do
-    register_to_channel("channel1")
-    register_to_channel("channel2")
-    register_to_channel("channel3")
+    register_to_channel("channel_1")
+    register_to_channel("channel_2")
+    register_to_channel("channel_3")
 
-    assert all(self) == ["channel1", "channel2", "channel3"]
+    assert all(self) == ["channel_1", "channel_2", "channel_3"]
   end
 
   test "channel is subscribed? returning true" do
-    register_to_channel("channel")
+    register_to_channel("subscribed channel")
 
-    assert subscribed?("channel", self)
+    assert subscribed?("subscribed channel", self)
   end
 
   test "channel is subscribed returning false" do
-    refute subscribed?("channel", self)
+    refute subscribed?("an unoccupied channel", self)
   end
 
   test "subscription_count on channel" do
-    register_to_channel("channel")
-    spawn_registered_process("channel")
+    register_to_channel("the channel")
+    spawn_registered_process("the channel")
 
-    assert subscription_count("channel") == 2
+    assert subscription_count("the channel") == 2
   end
 
   test "valid? return true for valid characters" do
