@@ -5,10 +5,9 @@ defmodule Poxa.WebHook do
   alias Poxa.CryptoHelper
 
   @doc false
-  def handle_event(%{event: :connected}, []) do
-    # It cannot trigger any webhook event
-    {:ok, []}
-  end
+  # Events that cannot trigger any webhook event
+  def handle_event(%{event: :api_message}, []), do: {:ok, []}
+  def handle_event(%{event: :connected}, []), do: {:ok, []}
 
   def handle_event(%{event: :disconnected, channels: channels}, []) do
     for c <- channels, !Channel.occupied?(c) do
@@ -28,9 +27,12 @@ defmodule Poxa.WebHook do
     end |> send_web_hook
   end
 
-  def handle_event(%{event: :api_message}, []) do
-    # It cannot trigger any webhook event
-    {:ok, []}
+  def handle_event(%{event: :member_added, channel: channel, user_id: user_id}, []) do
+    WebHookEvent.member_added(channel, user_id) |> send_web_hook
+  end
+
+  def handle_event(%{event: :member_removed, channel: channel, user_id: user_id}, []) do
+    WebHookEvent.member_removed(channel, user_id) |> send_web_hook
   end
 
   def handle_event(%{event: :client_event_message, socket_id: socket_id, channels: channels, name: name, data: data}, []) do
