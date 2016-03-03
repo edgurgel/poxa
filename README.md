@@ -45,10 +45,9 @@ How do I speak 'poxa'?
 
 * [ ] SockJS support;
 * [x] Complete REST api;
-* [ ] Mimic pusher error codes;
-* [ ] Integration test using pusher-js or other client library;
+* [x] Mimic pusher error codes;
+* [x] Integration test using pusher-js or other client library;
 * [x] Web hooks;
-* [ ] Specify types signature to functions and use dialyzer to check them on Travis;
 * [ ] Add 'Vacated' and 'Occupied' events to Console;
 * [X] Use GenEvent to generate Console events so other handlers can be attached (Web hook for example);
 * [ ] Turn Poxa on a distributed server with multiple nodes;
