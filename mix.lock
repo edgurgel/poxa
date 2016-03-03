@@ -25,4 +25,5 @@
   "relx": {:hex, :relx, "3.1.0"},
   "signaturex": {:hex, :signaturex, "0.0.8"},
   "ssl_verify_hostname": {:hex, :ssl_verify_hostname, "1.0.5"},
-  "websocket_client": {:git, "git://github.com/jeremyong/websocket_client.git", "2b8d9805306d36f22330f432ae6472f1f2625c30", []}}
+  "watcher": {:hex, :watcher, "1.0.0"},
+  "websocket_client": {:git, "https://github.com/jeremyong/websocket_client.git", "2b8d9805306d36f22330f432ae6472f1f2625c30", []}}

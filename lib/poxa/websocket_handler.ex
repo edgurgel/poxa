@@ -106,7 +106,7 @@ defmodule Poxa.WebsocketHandler do
     channel = List.first(event.channels)
     if Channel.private_or_presence?(channel) and Channel.subscribed?(channel, self) do
       PusherEvent.publish(event)
-      Event.notify(:client_event_message, %{socket_id: socket_id, channels: event.channels, name: event.name})
+      Event.notify(:client_event_message, %{socket_id: socket_id, channels: event.channels, name: event.name, data: event.data})
     end
     {:ok, req, state}
   end
