@@ -45,4 +45,16 @@ defmodule Poxa.ConsoleTest do
 
     assert_received %{details: "Channels: [\"channel\"], Event: event_message", socket: "socket_id", time: _, type: "Client Event Message"}
   end
+
+  test "member_added" do
+    handle_event(%{event: :member_added, channel: "presence-channel", user_id: "user_id"}, self)
+
+    assert_received %{details: "Channel: \"presence-channel\", UserId: \"user_id\"", socket: nil, time: _, type: "Member added"}
+  end
+
+  test "member_removed" do
+    handle_event(%{event: :member_removed, channel: "presence-channel", user_id: "user_id"}, self)
+
+    assert_received %{details: "Channel: \"presence-channel\", UserId: \"user_id\"", socket: nil, time: _, type: "Member removed"}
+  end
 end
