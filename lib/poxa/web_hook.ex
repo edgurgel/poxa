@@ -41,6 +41,7 @@ defmodule Poxa.WebHook do
     end |> send_web_hook
   end
 
+  defp send_web_hook(event) when not is_list(event), do: send_web_hook([event])
   defp send_web_hook([]), do: {:ok, []}
   defp send_web_hook(events) do
     body = JSX.encode! %{time_ms: time_ms, events: events}
@@ -55,6 +56,7 @@ defmodule Poxa.WebHook do
     {:ok, app_key} = Application.fetch_env(:poxa, :app_key)
     {:ok, app_secret} = Application.fetch_env(:poxa, :app_secret)
     %{
+      "Content-Type"       => "application/json",
       "X-Pusher-Key"       => app_key,
       "X-Pusher-Signature" => CryptoHelper.hmac256_to_string(app_secret, body)
     }
