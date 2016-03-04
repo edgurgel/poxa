@@ -5,10 +5,9 @@ defmodule Poxa.WebHook do
   alias Poxa.CryptoHelper
 
   @doc false
-  def handle_event(%{event: :connected}, []) do
-    # It cannot trigger any webhook event
-    {:ok, []}
-  end
+  # Events that cannot trigger any webhook event
+  def handle_event(%{event: :api_message}, []), do: {:ok, []}
+  def handle_event(%{event: :connected}, []), do: {:ok, []}
 
   def handle_event(%{event: :disconnected, channels: channels}, []) do
     for c <- channels, !Channel.occupied?(c) do
@@ -28,9 +27,12 @@ defmodule Poxa.WebHook do
     end |> send_web_hook
   end
 
-  def handle_event(%{event: :api_message}, []) do
-    # It cannot trigger any webhook event
-    {:ok, []}
+  def handle_event(%{event: :member_added, channel: channel, user_id: user_id}, []) do
+    WebHookEvent.member_added(channel, user_id) |> send_web_hook
+  end
+
+  def handle_event(%{event: :member_removed, channel: channel, user_id: user_id}, []) do
+    WebHookEvent.member_removed(channel, user_id) |> send_web_hook
   end
 
   def handle_event(%{event: :client_event_message, socket_id: socket_id, channels: channels, name: name, data: data}, []) do
@@ -39,6 +41,7 @@ defmodule Poxa.WebHook do
     end |> send_web_hook
   end
 
+  defp send_web_hook(event) when not is_list(event), do: send_web_hook([event])
   defp send_web_hook([]), do: {:ok, []}
   defp send_web_hook(events) do
     body = JSX.encode! %{time_ms: time_ms, events: events}
@@ -53,6 +56,7 @@ defmodule Poxa.WebHook do
     {:ok, app_key} = Application.fetch_env(:poxa, :app_key)
     {:ok, app_secret} = Application.fetch_env(:poxa, :app_secret)
     %{
+      "Content-Type"       => "application/json",
       "X-Pusher-Key"       => app_key,
       "X-Pusher-Signature" => CryptoHelper.hmac256_to_string(app_secret, body)
     }
