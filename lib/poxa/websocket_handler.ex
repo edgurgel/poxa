@@ -159,9 +159,9 @@ defmodule Poxa.WebsocketHandler do
   def websocket_terminate(_reason, _req, %State{socket_id: socket_id, time: time}) do
     duration = Time.stamp - time
     channels = Channel.all(self)
-    Event.notify(:disconnected, %{socket_id: socket_id, channels: channels, duration: duration})
     PresenceSubscription.check_and_remove
     :gproc.goodbye
+    Event.notify(:disconnected, %{socket_id: socket_id, channels: channels, duration: duration})
     :ok
   end
 end
