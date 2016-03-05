@@ -24,6 +24,7 @@ defmodule Poxa.WebHookTest do
 
   test "connected" do
     assert {:ok, []} == handle_event(%{event: :connected}, [])
+    refute_received _
   end
 
   test "disconnected" do
@@ -32,32 +33,23 @@ defmodule Poxa.WebHookTest do
       "channel_2" -> true
     end
     assert {:ok, []} == handle_event(%{event: :disconnected, channels: ~w(channel_1 channel_2)}, [])
-    assert_received %{
-      url: "web_hook_url",
-      body: %{"events" => [%{"channel" => "channel_1", "name" => "channel_vacated"}]},
-      headers: _headers
-    }
+    refute_received _
   end
 
-  test "subscribed sends channel_occupied event" do
+  test "subscribed" do
     expect Channel, :subscription_count, fn _ -> 1 end
     assert {:ok, []} == handle_event(%{event: :subscribed, channel: "my_channel"}, [])
-    assert_received %{
-      url: "web_hook_url",
-      body: %{"events" => [%{"channel" => "my_channel", "name" => "channel_occupied"}]},
-      headers: _headers
-    }
+    refute_received _
   end
 
-  test "subscribed does not send channel_occupied event" do
-    expect Channel, :subscription_count, fn _ -> 2 end
-    assert {:ok, []} == handle_event(%{event: :subscribed, channel: "my_channel"}, [])
-    refute_received %{url: _url, body: _body, headers: _headers}
-  end
-
-  test "unsubscribed sends channel_vacated event" do
+  test "unsubscribed" do
     expect Channel, :occupied?, fn _ -> false end
     assert {:ok, []} == handle_event(%{event: :unsubscribed, channel: "my_channel"}, [])
+    refute_received _
+  end
+
+  test "channel_vacated" do
+    assert {:ok, []} == handle_event(%{event: :channel_vacated, channel: "my_channel"}, [])
     assert_received %{
       url: "web_hook_url",
       body: %{"events" => [%{"channel" => "my_channel", "name" => "channel_vacated"}]},
@@ -65,10 +57,13 @@ defmodule Poxa.WebHookTest do
     }
   end
 
-  test "unsubscribed does not send channel_vacated event" do
-    expect Channel, :occupied?, fn _ -> true end
-    assert {:ok, []} == handle_event(%{event: :unsubscribed, channel: "my_channel"}, [])
-    refute_received %{url: _url, body: _body, headers: _headers}
+  test "channel_occupied" do
+    assert {:ok, []} == handle_event(%{event: :channel_occupied, channel: "my_channel"}, [])
+    assert_received %{
+      url: "web_hook_url",
+      body: %{"events" => [%{"channel" => "my_channel", "name" => "channel_occupied"}]},
+      headers: _headers
+    }
   end
 
   test "client_event_message" do

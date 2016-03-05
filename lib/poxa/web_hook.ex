@@ -1,30 +1,15 @@
 defmodule Poxa.WebHook do
   use GenEvent
-  alias Poxa.Channel
   alias Poxa.WebHookEvent
   alias Poxa.CryptoHelper
 
   @doc false
-  # Events that cannot trigger any webhook event
-  def handle_event(%{event: :api_message}, []), do: {:ok, []}
-  def handle_event(%{event: :connected}, []), do: {:ok, []}
-
-  def handle_event(%{event: :disconnected, channels: channels}, []) do
-    for c <- channels, !Channel.occupied?(c) do
-      WebHookEvent.channel_vacated(c)
-    end |> send_web_hook
+  def handle_event(%{event: :channel_vacated, channel: channel}, []) do
+    WebHookEvent.channel_vacated(channel) |> send_web_hook
   end
 
-  def handle_event(%{event: :subscribed, channel: channel}, []) do
-    for c <- [channel], Channel.subscription_count(c) == 1 do
-      WebHookEvent.channel_occupied(c)
-    end |> send_web_hook
-  end
-
-  def handle_event(%{event: :unsubscribed, channel: channel}, []) do
-    for c <- [channel], !Channel.occupied?(c) do
-      WebHookEvent.channel_vacated(c)
-    end |> send_web_hook
+  def handle_event(%{event: :channel_occupied, channel: channel}, []) do
+    WebHookEvent.channel_occupied(channel) |> send_web_hook
   end
 
   def handle_event(%{event: :member_added, channel: channel, user_id: user_id}, []) do
@@ -40,6 +25,9 @@ defmodule Poxa.WebHook do
       WebHookEvent.client_event(c, name, data, socket_id, nil)
     end |> send_web_hook
   end
+
+  # Events that cannot trigger any webhook event
+  def handle_event(_, []), do: {:ok, []}
 
   defp send_web_hook(event) when not is_list(event), do: send_web_hook([event])
   defp send_web_hook([]), do: {:ok, []}
