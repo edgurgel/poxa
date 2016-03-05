@@ -46,6 +46,16 @@ defmodule Poxa.Console do
     {:ok, pid}
   end
 
+  def handle_event(%{event: :channel_vacated, channel: channel, socket_id: socket_id}, pid) do
+    send_message("Channel vacated", socket_id, "Channel: #{inspect channel}", pid)
+    {:ok, pid}
+  end
+
+  def handle_event(%{event: :channel_occupied, channel: channel, socket_id: socket_id}, pid) do
+    send_message("Channel occupied", socket_id, "Channel: #{inspect channel}", pid)
+    {:ok, pid}
+  end
+
   defp send_message(type, socket_id, details, pid) do
     msg = message(type, socket_id, details) |> encode!
     send(pid, msg)
