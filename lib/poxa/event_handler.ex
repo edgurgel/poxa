@@ -80,7 +80,7 @@ defmodule Poxa.EventHandler do
   @doc false
   def post(req, %{event: event}) do
     PusherEvent.publish(event)
-    Event.notify(:api_message, %{channels: event.channels, name: event.name})
+    Event.notify(:api_message, %{channels: event.channels, name: event.name, socket_id: nil})
     req = :cowboy_req.set_resp_body("{}", req)
     {true, req, nil}
   end

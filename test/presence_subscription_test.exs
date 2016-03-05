@@ -7,8 +7,7 @@ defmodule Poxa.PresenceSubscriptionTest do
   alias Poxa.PresenceSubscription
 
   setup do
-    new PusherEvent
-    new :gproc
+    new [PusherEvent, :gproc, Poxa.Event]
     on_exit fn -> unload end
     :ok
   end
@@ -19,15 +18,15 @@ defmodule Poxa.PresenceSubscriptionTest do
     expect(:gproc, :send, 2, :sent)
     expect(:gproc, :reg, 2, :registered)
     expect(PusherEvent, :presence_member_added, 3, :event_message)
+    expect(Poxa.Event, :notify, [:member_added, %{channel: "presence-channel", user_id: "id123"}], :ok)
+
     user = {"id123", "info456"}
     other_user = {"id", "info"}
     expect(:gproc, :lookup_values, 1, [{:pid, user}, {:other_pid, other_user}])
 
     assert subscribe!("presence-channel", "{ \"user_id\" : \"id123\", \"user_info\" : \"info456\" }") == %PresenceSubscription{channel: "presence-channel", channel_data: [user, other_user]}
 
-    assert validate Channel
-    assert validate PusherEvent
-    assert validate :gproc
+    assert validate [Channel, PusherEvent, :gproc, Poxa.Event]
   end
 
   test "subscribe to a presence channel already subscribed" do
@@ -60,9 +59,11 @@ defmodule Poxa.PresenceSubscriptionTest do
     expect(:gproc, :get_value, 1, {:userid, :userinfo})
     expect(:gproc, :send, 2, :sent)
     expect(PusherEvent, :presence_member_removed, 2, :event_message)
+    expect(Poxa.Event, :notify, [:member_removed, %{channel: "presence-channel", user_id: :userid}], :ok)
+
     assert unsubscribe!("presence-channel") == {:ok, "presence-channel"}
-    assert validate PusherEvent
-    assert validate :gproc
+
+    assert validate [PusherEvent, :gproc, Poxa.Event]
   end
 
   test "unsubscribe to presence channel being not subscribed" do
@@ -87,9 +88,11 @@ defmodule Poxa.PresenceSubscriptionTest do
     expect(:gproc, :select_count, 1, 1)
     expect(PusherEvent, :presence_member_removed, 2, :msg)
     expect(:gproc, :send, 2, :ok)
+    expect(Poxa.Event, :notify, [:member_removed, %{channel: "presence-channel", user_id: :userid}], :ok)
+
     assert check_and_remove == :ok
-    assert validate PusherEvent
-    assert validate :gproc
+
+    assert validate [PusherEvent, :gproc, Poxa.Event]
   end
 
   test "check subscribed presence channels and remove having more than one connection on userid" do

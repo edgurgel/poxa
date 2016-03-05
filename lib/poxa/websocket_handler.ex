@@ -126,6 +126,8 @@ defmodule Poxa.WebsocketHandler do
     # Unique identifier for the connection
     socket_id = SocketId.generate!
 
+    SocketId.register!(socket_id)
+
     {origin, req} = :cowboy_req.host_url(req)
     Event.notify(:connected, %{socket_id: socket_id, origin: origin})
 

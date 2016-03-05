@@ -1,6 +1,14 @@
 defmodule Poxa.EventTest do
   use ExUnit.Case
+  import :meck
   alias Poxa.Event
+  alias Poxa.SocketId
+
+  setup do
+    new SocketId
+    on_exit fn -> unload end
+    :ok
+  end
 
   defmodule TestHandler do
     use GenEvent
@@ -15,15 +23,27 @@ defmodule Poxa.EventTest do
     end
   end
 
-  test "notifies handler" do
+  test "notifies handler with a socket_id" do
     :ok = Event.add_handler({TestHandler, self}, self)
+    :ok = Event.notify(:successful_handling, %{socket_id: :socket_id, data: :map})
+    assert_receive %{event: :successful_handling,
+                     data: :map,
+                     socket_id: :socket_id}
+  end
+
+  test "notifies handler without a socket_id" do
+    :ok = Event.add_handler({TestHandler, self}, self)
+
+    expect(SocketId, :mine, 0, :socket_id)
+
     :ok = Event.notify(:successful_handling, %{data: :map})
-    assert_receive %{event: :successful_handling, data: :map}
+    assert_receive %{event: :successful_handling, data: :map, socket_id: :socket_id}
+    assert validate(SocketId)
   end
 
   test "handler failures are notified" do
     :ok = Event.add_handler({TestHandler, self}, self)
-    :ok = Event.notify(:failed_handling, %{})
+    :ok = Event.notify(:failed_handling, %{socket_id: :socket_id})
     assert_receive {:gen_event_EXIT, _, _}
   end
 end

@@ -45,6 +45,7 @@ defmodule Poxa.WebsocketHandlerTest do
     expect(:cowboy_req, :host_url, 1, {:host_url, :req2})
     expect(PusherEvent, :connection_established, 1, :connection_established)
     expect(SocketId, :generate!, 0, "123.456")
+    expect(SocketId, :register!, ["123.456"], true)
     expect(Event, :notify, [{[:connected, %{socket_id: "123.456", origin: :host_url}], :ok}])
     expect(Time, :stamp, 0, 123)
 

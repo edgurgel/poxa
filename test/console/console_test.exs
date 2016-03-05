@@ -47,15 +47,15 @@ defmodule Poxa.ConsoleTest do
   end
 
   test "member_added" do
-    handle_event(%{event: :member_added, channel: "presence-channel", user_id: "user_id"}, self)
+    handle_event(%{event: :member_added, socket_id: "socket_id", channel: "presence-channel", user_id: "user_id"}, self)
 
-    assert_received %{details: "Channel: \"presence-channel\", UserId: \"user_id\"", socket: nil, time: _, type: "Member added"}
+    assert_received %{details: "Channel: \"presence-channel\", UserId: \"user_id\"", socket: "socket_id", time: _, type: "Member added"}
   end
 
   test "member_removed" do
-    handle_event(%{event: :member_removed, channel: "presence-channel", user_id: "user_id"}, self)
+    handle_event(%{event: :member_removed, socket_id: "socket_id", channel: "presence-channel", user_id: "user_id"}, self)
 
-    assert_received %{details: "Channel: \"presence-channel\", UserId: \"user_id\"", socket: nil, time: _, type: "Member removed"}
+    assert_received %{details: "Channel: \"presence-channel\", UserId: \"user_id\"", socket: "socket_id", time: _, type: "Member removed"}
   end
 
   test "channel_occupied" do
