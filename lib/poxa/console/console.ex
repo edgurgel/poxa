@@ -36,13 +36,13 @@ defmodule Poxa.Console do
     {:ok, pid}
   end
 
-  def handle_event(%{event: :member_added, channel: channel, user_id: user_id}, pid) do
-    send_message("Member added", nil, "Channel: #{inspect channel}, UserId: #{inspect user_id}", pid)
+  def handle_event(%{event: :member_added, channel: channel, socket_id: socket_id, user_id: user_id}, pid) do
+    send_message("Member added", socket_id, "Channel: #{inspect channel}, UserId: #{inspect user_id}", pid)
     {:ok, pid}
   end
 
-  def handle_event(%{event: :member_removed, channel: channel, user_id: user_id}, pid) do
-    send_message("Member removed", nil, "Channel: #{inspect channel}, UserId: #{inspect user_id}", pid)
+  def handle_event(%{event: :member_removed, channel: channel, socket_id: socket_id, user_id: user_id}, pid) do
+    send_message("Member removed", socket_id, "Channel: #{inspect channel}, UserId: #{inspect user_id}", pid)
     {:ok, pid}
   end
 
