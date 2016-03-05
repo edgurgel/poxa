@@ -11,9 +11,11 @@ defmodule Poxa.Supervisor do
   """
   def init([]) do
     {:ok, web_hook} = Application.fetch_env(:poxa, :web_hook)
-    children = [worker(GenEvent, [[name: Poxa.Event]])]
+    event_worker = worker(GenEvent, [[name: Poxa.Event]])
+    subscription_worker = worker(Watcher, [Poxa.Event, Poxa.SubscriptionHandler, []], [id: Poxa.SubscriptionHandler])
+    children = [event_worker, subscription_worker]
     if web_hook do
-      web_wook_worker = worker(Watcher, [Poxa.Event, Poxa.WebHook, []])
+      web_wook_worker = worker(Watcher, [Poxa.Event, Poxa.WebHook, []], [id: Poxa.WebHook])
       children = children ++ [web_wook_worker]
     end
     supervise children, strategy: :one_for_one
