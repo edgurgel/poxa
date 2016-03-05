@@ -48,7 +48,7 @@ How do I speak 'poxa'?
 * [x] Mimic pusher error codes;
 * [x] Integration test using pusher-js or other client library;
 * [x] Web hooks;
-* [ ] Add 'Vacated' and 'Occupied' events to Console;
+* [x] Add 'Vacated' and 'Occupied' events to Console;
 * [X] Use GenEvent to generate Console events so other handlers can be attached (Web hook for example);
 * [ ] Turn Poxa on a distributed server with multiple nodes;
 
