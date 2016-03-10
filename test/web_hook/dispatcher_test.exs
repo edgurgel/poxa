@@ -1,8 +1,8 @@
-defmodule Poxa.WebHookDispatcherTest do
+defmodule Poxa.WebHook.DispatcherTest do
   use ExUnit.Case
-  alias Poxa.WebHookEventTable
+  alias Poxa.WebHook.EventTable
   import :meck
-  import Poxa.WebHookDispatcher
+  import Poxa.WebHook.Dispatcher
 
   @table_name :web_hook_events
 
@@ -24,17 +24,17 @@ defmodule Poxa.WebHookDispatcherTest do
 
   setup do
     case :ets.info(@table_name) do
-      :undefined -> WebHookEventTable.init
+      :undefined -> EventTable.init
       _ -> :ets.delete_all_objects(@table_name)
     end
     :ok
   end
 
   test "sends ready events on timeout" do
-    WebHookEventTable.insert(~w(event_1 event_2))
-    WebHookEventTable.insert("delayed_event", 10000)
+    EventTable.insert(~w(event_1 event_2))
+    EventTable.insert("delayed_event", 10000)
     assert handle_info(:timeout, nil) == {:noreply, nil, 1500}
-    assert ~w(delayed_event) == WebHookEventTable.all
+    assert ~w(delayed_event) == EventTable.all
     assert_received %{
       url: "web_hook_url",
       body: %{

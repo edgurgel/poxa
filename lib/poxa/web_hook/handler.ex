@@ -1,11 +1,12 @@
-defmodule Poxa.WebHook do
+defmodule Poxa.WebHook.Handler do
   @moduledoc """
   This module is a event handler that deals with events as they happen 
   and then adds them to the web hook event table.
   """
+
   use GenEvent
-  alias Poxa.WebHookEvent
-  alias Poxa.WebHookEventTable
+  alias Poxa.WebHook.EventData
+  alias Poxa.WebHook.EventTable
 
   @delay 1500
 
@@ -14,29 +15,29 @@ defmodule Poxa.WebHook do
 
   @doc false
   def handle_event(%{event: :channel_vacated, channel: channel}, state) do
-    WebHookEvent.channel_vacated(channel) |> WebHookEventTable.insert(@delay)
+    EventData.channel_vacated(channel) |> EventTable.insert(@delay)
     {:ok, state}
   end
 
   def handle_event(%{event: :channel_occupied, channel: channel}, state) do
-    WebHookEvent.channel_occupied(channel) |> WebHookEventTable.insert
+    EventData.channel_occupied(channel) |> EventTable.insert
     {:ok, state}
   end
 
   def handle_event(%{event: :member_added, channel: channel, user_id: user_id}, state) do
-    WebHookEvent.member_added(channel, user_id) |> WebHookEventTable.insert
+    EventData.member_added(channel, user_id) |> EventTable.insert
     {:ok, state}
   end
 
   def handle_event(%{event: :member_removed, channel: channel, user_id: user_id}, state) do
-    WebHookEvent.member_removed(channel, user_id) |> WebHookEventTable.insert(@delay)
+    EventData.member_removed(channel, user_id) |> EventTable.insert(@delay)
     {:ok, state}
   end
 
   def handle_event(%{event: :client_event_message, socket_id: socket_id, channels: channels, name: name, data: data}, state) do
     for c <- channels do
-      WebHookEvent.client_event(c, name, data, socket_id, nil)
-    end |> WebHookEventTable.insert
+      EventData.client_event(c, name, data, socket_id, nil)
+    end |> EventTable.insert
     {:ok, state}
   end
 

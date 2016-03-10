@@ -1,11 +1,12 @@
-defmodule Poxa.WebHookDispatcher do
+defmodule Poxa.WebHook.Dispatcher do
   @moduledoc """
   This module models the behaviour of a process used to send the web hook requests.
   It retrieves events from the ETS table and removes them on success.
   """
+
   use GenServer
 
-  alias Poxa.WebHookEventTable
+  alias Poxa.WebHook.EventTable
   alias Poxa.CryptoHelper
 
   @timeout 1500
@@ -17,11 +18,11 @@ defmodule Poxa.WebHookDispatcher do
 
   @doc false
   def handle_info(:timeout, state) do
-    case WebHookEventTable.ready do
+    case EventTable.ready do
       {_, [] } -> {:noreply, state, @timeout}
       {timestamp, events} ->
         :ok = send_web_hook!(events)
-        WebHookEventTable.clear_older(timestamp)
+        EventTable.clear_older(timestamp)
         {:noreply, state, @timeout}
     end
   end
@@ -30,7 +31,7 @@ defmodule Poxa.WebHookDispatcher do
   Starts the GenServer with timeout of 1.5 seconds. After this time, the events will be sent.
   """
   def init(state) do
-    WebHookEventTable.init
+    EventTable.init
     {:ok, state, @timeout}
   end
 

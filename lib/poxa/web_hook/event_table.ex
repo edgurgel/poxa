@@ -1,4 +1,4 @@
-defmodule Poxa.WebHookEventTable do
+defmodule Poxa.WebHook.EventTable do
   @moduledoc """
   This module provides functions to initialize and manipulate a table of events
   to be sent to the web hook.
