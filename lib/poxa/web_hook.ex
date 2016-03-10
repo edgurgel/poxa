@@ -7,13 +7,10 @@ defmodule Poxa.WebHook do
   alias Poxa.WebHookEvent
   alias Poxa.WebHookEventTable
 
-  @delay 3000
+  @delay 1500
 
   @doc false
-  def init(_) do
-    WebHookEventTable.init
-    {:ok, nil}
-  end
+  def init(_), do: {:ok, nil}
 
   @doc false
   def handle_event(%{event: :channel_vacated, channel: channel}, state) do
