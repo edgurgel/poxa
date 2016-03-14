@@ -3,21 +3,23 @@ defmodule Poxa.Supervisor do
 
   @doc false
   def start_link do
-    :supervisor.start_link({:local, __MODULE__}, __MODULE__, [])
+    Supervisor.start_link(__MODULE__, [])
   end
 
   @doc """
-  The supervisor will spawn a GenEvent named Poxa.Event
+  The supervisor will spawn a `GenEvent` named `Poxa.Event` and also a `Watcher`
+  to monitor a `Poxa.SubscriptionHandler`. If the web hook URL is configured,
+  it will also spawn a supervisor to take care of the processes related to web
+  hooks.
   """
   def init([]) do
     {:ok, web_hook} = Application.fetch_env(:poxa, :web_hook)
     event_worker = worker(GenEvent, [[name: Poxa.Event]])
-    subscription_worker = worker(Watcher, [Poxa.Event, Poxa.SubscriptionHandler, []], [id: Poxa.SubscriptionHandler])
+    subscription_worker = worker(Watcher, [Poxa.Event, Poxa.SubscriptionHandler, []])
     children = [event_worker, subscription_worker]
     if web_hook do
-      web_wook_watcher = worker(Watcher, [Poxa.Event, Poxa.WebHook.Handler, []], [id: Poxa.WebHook.Handler])
-      web_wook_dispatcher = worker(Poxa.WebHook.Dispatcher, [])
-      children = children ++ [web_wook_watcher, web_wook_dispatcher]
+      web_wook_supervisor = worker(Poxa.WebHook.Supervisor, [])
+      children = children ++ [web_wook_supervisor]
     end
     supervise children, strategy: :one_for_one
   end
