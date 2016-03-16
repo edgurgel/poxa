@@ -19,6 +19,7 @@ How do I speak 'poxa'?
 - [TODO](#todo)
 - [Typical usage](#typical-usage)
 - [Release](#release)
+- [Using Docker](#using-docker)
 - [Your application](#your-application)
 - [Deploying on Heroku](#deploying-on-heroku)
 - [Console](#console)
