@@ -87,29 +87,25 @@ defmodule Poxa.Channel do
   Returns true if the channel has at least 1 subscription
   """
   @spec occupied?(binary) :: boolean
-  def occupied?(channel), do: subscribed?(channel)
+  def occupied?(channel), do: member?(channel)
 
   @doc """
   Returns the list of channels the `pid` is subscribed
   """
   @spec all(pid | :_) :: [binary]
-  def all(pid \\ :_) do
-    match = {{:p, :l, {:pusher, :'$1'}}, pid, :_}
-    :gproc.select([{match, [], [:'$1']}]) |> Enum.uniq
-  end
+  def all(pid \\ :_), do: Poxa.registry.channels(pid)
 
   @doc """
-  Returns true if `pid` is subscribed to `channel` and false otherwise
+  Returns a boolean indicating if the user identified by `identifier` is subscribed to the channel.
   """
-  @spec subscribed?(binary, pid | :_) :: boolean
-  def subscribed?(channel, pid \\ :_), do: subscription_count(channel, pid) != 0
+  @spec member?(binary, pid | :_ |  PresenceSubscription.user_id) :: boolean
+  def member?(channel, identifier \\ :_), do: subscription_count(channel, identifier) != 0
 
   @doc """
   Returns how many connections are opened on the `channel`
   """
   @spec subscription_count(binary, pid | :_) :: non_neg_integer
   def subscription_count(channel, pid \\ :_) do
-    match = {{:p, :l, {:pusher, channel}}, pid, :_}
-    :gproc.select_count([{match, [], [true]}])
+    Poxa.registry.subscription_count(channel, pid)
   end
 end

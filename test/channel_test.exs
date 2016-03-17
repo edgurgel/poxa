@@ -27,18 +27,19 @@ defmodule Poxa.ChannelTest do
     register_to_channel("channel_1")
     register_to_channel("channel_2")
     register_to_channel("channel_3")
+    spawn_registered_process("channel4")
 
     assert all(self) == ["channel_1", "channel_2", "channel_3"]
   end
 
-  test "channel is subscribed? returning true" do
+  test "channel is member? returning true" do
     register_to_channel("subscribed channel")
 
-    assert subscribed?("subscribed channel", self)
+    assert member?("subscribed channel", self)
   end
 
   test "channel is subscribed returning false" do
-    refute subscribed?("an unoccupied channel", self)
+    refute member?("an unoccupied channel", self)
   end
 
   test "subscription_count on channel" do

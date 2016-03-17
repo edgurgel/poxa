@@ -13,11 +13,11 @@ defmodule Poxa.SocketIdTest do
 
   test "register!" do
     SocketId.register!("my_socket_id")
-    assert :gproc.get_value({:p, :l, :socket_id}) == "my_socket_id"
+    assert Poxa.registry.fetch(:socket_id) == "my_socket_id"
   end
 
   test "mine" do
-    :gproc.reg({:p, :l, :socket_id}, "my_socket_id")
+    Poxa.registry.register!(:socket_id, "my_socket_id")
     assert SocketId.mine == "my_socket_id"
   end
 

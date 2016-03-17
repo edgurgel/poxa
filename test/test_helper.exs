@@ -1,4 +1,5 @@
 ExUnit.start
+ExUnit.configure(exclude: :pending)
 
 defmodule Connection do
   def connect do
@@ -27,6 +28,6 @@ defmodule SpawnHelper do
   end
 
   def register_to_channel(channel, value \\ :undefined) do
-    :gproc.reg({:p, :l, {:pusher, channel}}, value)
+    Poxa.registry.register!(channel, value)
   end
 end

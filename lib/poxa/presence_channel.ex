@@ -10,20 +10,12 @@ defmodule Poxa.PresenceChannel do
   """
   @spec users(binary) :: [binary | integer]
   def users(channel) do
-    match = {{:p, :l, {:pusher, channel}}, :_, :'$1'}
-    :gproc.select([{match, [], [:'$1']}])
-    |> Enum.uniq(fn {user_id, _} -> user_id end)
-    |> Enum.map(fn {user_id, _} -> user_id end)
+    for {user_id, _} <- Poxa.registry.unique_subscriptions(channel), do: user_id
   end
 
   @doc """
   Returns the number of unique users on a presence channel
   """
   @spec user_count(binary) :: non_neg_integer
-  def user_count(channel) do
-    match = {{:p, :l, {:pusher, channel}}, :_, :'$1'}
-    :gproc.select([{match, [], [:'$1']}])
-    |> Enum.uniq(fn {user_id, _} -> user_id end)
-    |> Enum.count
-  end
+  def user_count(channel), do: channel |> users |> Enum.count
 end
