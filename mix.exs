@@ -26,6 +26,7 @@ defmodule Poxa.Mixfile do
       {:edip, "~> 0.4", only: :prod},
       {:inch_ex, "~> 0.5.1", only: :docs},
       {:httpoison, "~> 0.8"},
+      {:ex2ms, "~> 1.4.0"},
       {:watcher, "~> 1.0.0"} ]
   end
 end

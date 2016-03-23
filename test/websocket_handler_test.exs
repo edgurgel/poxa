@@ -18,6 +18,7 @@ defmodule Poxa.WebsocketHandlerTest do
   end
 
   setup do
+    new Poxa.registry
     on_exit fn -> unload end
     :ok
   end
@@ -184,7 +185,7 @@ defmodule Poxa.WebsocketHandlerTest do
     expect(JSX, :decode!, [{[:client_event_json], decoded_json}])
     expect(PusherEvent, :build_client_event, [{[decoded_json, :socket_id], {:ok, event}}])
     expect(PusherEvent, :publish, 1, :ok)
-    expect(Channel, :subscribed?, 2, true)
+    expect(Channel, :member?, 2, true)
     expect(Event, :notify, [{[:client_event_message, %{socket_id: :socket_id, channels: ["presence-channel"], name: "client-event"}], :ok}])
 
     state = %State{socket_id: :socket_id}
@@ -201,7 +202,7 @@ defmodule Poxa.WebsocketHandlerTest do
     expect(JSX, :decode!, [{[:client_event_json], decoded_json}])
     expect(PusherEvent, :build_client_event, [{[decoded_json, :socket_id], {:ok, event}}])
     expect(PusherEvent, :publish, 1, :ok)
-    expect(Channel, :subscribed?, 2, true)
+    expect(Channel, :member?, 2, true)
     expect(Event, :notify, [{[:client_event_message, %{socket_id: :socket_id, channels: ["private-channel"], name: "client-event"}], :ok}])
 
     state = %State{socket_id: :socket_id}
@@ -217,7 +218,7 @@ defmodule Poxa.WebsocketHandlerTest do
     event = %PusherEvent{channels: ["private-not-subscribed"], name: "client-event"}
     expect(JSX, :decode!, [{[:client_event_json], decoded_json}])
     expect(PusherEvent, :build_client_event, [{[decoded_json, :socket_id], {:ok, event}}])
-    expect(Channel, :subscribed?, 2, false)
+    expect(Channel, :member?, 2, false)
 
     state = %State{socket_id: :socket_id}
 
@@ -290,14 +291,14 @@ defmodule Poxa.WebsocketHandlerTest do
     expect(Channel, :all, 1, :channels)
     expect(Time, :stamp, 0, 100)
     expect(Event, :notify, [{[:disconnected, %{socket_id: :socket_id, channels: :channels, duration: 90}], :ok}])
-    expect(PresenceSubscription, :check_and_remove, 0, :ok)
-    expect(:gproc, :goodbye, 0, :ok)
+    expect(PresenceSubscription, :check_and_remove, 0, 1)
+    expect(Poxa.registry, :clean_up, 0, :ok)
 
     state = %State{socket_id: :socket_id, time: 10}
 
     assert websocket_terminate(:reason, :req, state) == :ok
 
-    assert validate [Event, PresenceSubscription, :gproc]
+    assert validate [Event, PresenceSubscription, Poxa.registry]
   end
 
   test "websocket termination without a socket_id" do

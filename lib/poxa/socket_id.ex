@@ -28,7 +28,7 @@ defmodule Poxa.SocketId do
   """
   @spec register!(String.t) :: true
   def register!(socket_id) do
-    :gproc.reg({:p, :l, :socket_id}, socket_id)
+    Poxa.registry.register!(:socket_id, socket_id)
   end
 
   @doc """
@@ -38,6 +38,6 @@ defmodule Poxa.SocketId do
   """
   @spec mine :: String.t
   def mine do
-    :gproc.get_value({:p, :l, :socket_id})
+    Poxa.registry.fetch(:socket_id)
   end
 end

@@ -6,6 +6,10 @@ defmodule Poxa do
   use Application
   require Logger
 
+  @registry_adapter Poxa.Registry.adapter
+
+  def registry, do: @registry_adapter
+
   def start(_type, _args) do
     dispatch = :cowboy_router.compile([
       {:_, [ { '/ping', Poxa.PingHandler, [] },
@@ -40,8 +44,10 @@ defmodule Poxa do
       {:ok, app_id} = Application.fetch_env(:poxa, :app_id)
       {:ok, app_secret} = Application.fetch_env(:poxa, :app_secret)
       {:ok, port} = Application.fetch_env(:poxa, :port)
+      {:ok, registry_adapter} = Application.fetch_env(:poxa, :registry_adapter)
       {:ok, %{app_key: app_key, app_id: app_id,
-              app_secret: app_secret, port: to_integer(port)}}
+              app_secret: app_secret, port: to_integer(port),
+              registry_adapter: registry_adapter}}
     rescue
       MatchError -> :invalid_configuration
     end

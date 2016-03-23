@@ -16,7 +16,7 @@ defmodule Poxa.PresenceSubscription do
 
   alias Poxa.PusherEvent
   alias Poxa.Event
-  import Poxa.Channel, only: [presence?: 1, subscribed?: 2]
+  import Poxa.Channel, only: [presence?: 1, member?: 2]
   require Logger
 
   @doc """
@@ -25,25 +25,19 @@ defmodule Poxa.PresenceSubscription do
   @spec subscribe!(binary, :jsx.json_term) :: __MODULE__.t
   def subscribe!(channel, channel_data) do
     decoded_channel_data = JSX.decode!(channel_data)
-    if subscribed?(channel, self) do
+    if member?(channel, self) do
       Logger.info "Already subscribed #{inspect self} on channel #{channel}"
     else
       Logger.info "Registering #{inspect self} to channel #{channel}"
       {user_id, user_info} = extract_userid_and_userinfo(decoded_channel_data)
-      unless user_id_already_on_presence_channel(user_id, channel) do
+      unless Poxa.Channel.member?(channel, user_id) do
         Event.notify(:member_added, %{channel: channel, user_id: user_id})
         message = PusherEvent.presence_member_added(channel, user_id, user_info)
-        :gproc.send({:p, :l, {:pusher, channel}}, {self, message})
+        Poxa.registry.send!(message, channel, self)
       end
-      :gproc.reg({:p, :l, {:pusher, channel}}, {user_id, user_info})
+      Poxa.registry.register!(channel, {user_id, user_info})
     end
-    %__MODULE__{channel: channel, channel_data: channel_data(channel)}
-  end
-
-  defp channel_data(channel) do
-    for {_pid, {user_id, user_info}} <- :gproc.lookup_values({:p, :l, {:pusher, channel}}) do
-      {user_id, user_info}
-    end |> Enum.uniq(fn {user_id, _} -> user_id end)
+    %__MODULE__{channel: channel, channel_data: Poxa.registry.unique_subscriptions(channel)}
   end
 
   defp extract_userid_and_userinfo(channel_data) do
@@ -55,18 +49,13 @@ defmodule Poxa.PresenceSubscription do
   defp sanitize_user_id(user_id) when is_binary(user_id), do: user_id
   defp sanitize_user_id(user_id), do: JSX.encode!(user_id)
 
-  defp user_id_already_on_presence_channel(user_id, channel) do
-    match = {{:p, :l, {:pusher, channel}}, :_, {user_id, :_}}
-    :gproc.select_count([{match, [], [true]}]) != 0
-  end
-
   @doc """
-  Unsubscribe from a presence channel, possibly triggering presence_member_removed
+  Unsubscribe from a presence channel, possibly triggering `presence_member_removed`.
   It respects multiple connections from the same user id
   """
   @spec unsubscribe!(binary) :: {:ok, binary}
   def unsubscribe!(channel) do
-    case :gproc.get_value({:p, :l, {:pusher, channel}}) do
+    case Poxa.registry.fetch(channel) do
       {user_id, _} ->
         if only_one_connection_on_user_id?(channel, user_id) do
           presence_member_removed(channel, user_id)
@@ -82,25 +71,21 @@ defmodule Poxa.PresenceSubscription do
 
   If the connection is the only one, fire up the member_removed event
   """
-  @spec check_and_remove :: :ok
+  @spec check_and_remove :: non_neg_integer
   def check_and_remove do
-    match = {{:p, :l, {:pusher, :'$1'}}, self, {:'$2', :_}}
-    channel_user_id = :gproc.select([{match, [], [[:'$1',:'$2']]}])
-    for [channel, user_id] <- channel_user_id,
+    for [channel, user_id] <- Poxa.registry.subscriptions(self),
       presence?(channel), only_one_connection_on_user_id?(channel, user_id) do
         presence_member_removed(channel, user_id)
-    end
-    :ok
+    end |> Enum.count
   end
 
   defp presence_member_removed(channel, user_id) do
     Event.notify(:member_removed, %{channel: channel, user_id: user_id})
     message = PusherEvent.presence_member_removed(channel, user_id)
-    :gproc.send({:p, :l, {:pusher, channel}}, {self, message})
+    Poxa.registry.send!(message, channel, self)
   end
 
   defp only_one_connection_on_user_id?(channel, user_id) do
-    match = {{:p, :l, {:pusher, channel}}, :_, {user_id, :_}}
-    :gproc.select_count([{match, [], [true]}]) == 1
+    Poxa.registry.subscription_count(channel, user_id) == 1
   end
 end

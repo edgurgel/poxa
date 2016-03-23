@@ -12,6 +12,9 @@ elixir:
 sudo: false
 env:
   - MIX_ENV=test
+env:
+  matrix:
+    - POXA_REGISTRY_ADAPTER=gproc
 after_script:
   - mix deps.get --only docs
   - MIX_ENV=docs mix inch.report
