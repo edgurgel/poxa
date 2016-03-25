@@ -8,7 +8,7 @@ defmodule Poxa.Event do
 
   It adds the socket_id if not available
   """
-  @spec notify(atom, Map.t) :: :ok
+  @spec notify(atom, map) :: :ok
   def notify(event, %{socket_id: _socket_id} = data) do
     GenEvent.notify(Poxa.Event, Map.put(data, :event, event))
   end

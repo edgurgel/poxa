@@ -6,7 +6,13 @@ defmodule Poxa.Mixfile do
       version: "0.6.0",
       name: "Poxa",
       elixir: "~> 1.1",
-      deps: deps ]
+      deps: deps,
+      dialyzer: [
+        plt_add_apps: ~w(cowboy exjsx gproc httpoison signaturex),
+        plt_file: ".local.plt",
+        flags: ~w(-Wunmatched_returns -Werror_handling -Wrace_conditions -Wno_opaque --fullpath --statistics)
+      ]
+    ]
   end
 
   def application do
@@ -27,6 +33,7 @@ defmodule Poxa.Mixfile do
       {:inch_ex, "~> 0.5.1", only: :docs},
       {:httpoison, "~> 0.8"},
       {:ex2ms, "~> 1.4.0"},
-      {:watcher, "~> 1.0.0"} ]
+      {:watcher, "~> 1.0.0"},
+      {:dialyxir, "~> 0.3", only: [:dev, :test]}]
   end
 end

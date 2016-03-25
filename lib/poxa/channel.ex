@@ -1,4 +1,6 @@
 defmodule Poxa.Channel do
+  alias Poxa.PresenceSubscription
+
   @moduledoc """
   A module to work with channels
 
@@ -98,13 +100,13 @@ defmodule Poxa.Channel do
   @doc """
   Returns a boolean indicating if the user identified by `identifier` is subscribed to the channel.
   """
-  @spec member?(binary, pid | :_ |  PresenceSubscription.user_id) :: boolean
+  @spec member?(binary, pid | :_ | PresenceSubscription.user_id) :: boolean
   def member?(channel, identifier \\ :_), do: subscription_count(channel, identifier) != 0
 
   @doc """
   Returns how many connections are opened on the `channel`
   """
-  @spec subscription_count(binary, pid | :_) :: non_neg_integer
+  @spec subscription_count(binary, pid | :_ | PresenceSubscription.user_id) :: non_neg_integer
   def subscription_count(channel, pid \\ :_) do
     Poxa.registry.subscription_count(channel, pid)
   end

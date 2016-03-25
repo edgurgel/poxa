@@ -40,6 +40,7 @@ defmodule Poxa.PresenceSubscription do
     %__MODULE__{channel: channel, channel_data: Poxa.registry.unique_subscriptions(channel)}
   end
 
+  @spec extract_userid_and_userinfo(map) :: {user_id, user_info}
   defp extract_userid_and_userinfo(channel_data) do
     user_id = sanitize_user_id(channel_data["user_id"])
     user_info = channel_data["user_info"]
