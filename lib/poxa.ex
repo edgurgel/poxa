@@ -24,7 +24,7 @@ defmodule Poxa do
     case load_config do
       {:ok, config} ->
         Logger.info "Starting Poxa using app_key: #{config.app_key}, app_id: #{config.app_id}, app_secret: #{config.app_secret} on port #{config.port}"
-        {:ok, _} = :cowboy.start_http(:http, 100,
+        {:ok, _} = :cowboy.start_http(:poxa, 100,
                                       [port: config.port],
                                       [env: [dispatch: dispatch]])
         run_ssl(dispatch)
@@ -36,7 +36,9 @@ defmodule Poxa do
 
   end
 
-  def stop(_State), do: :ok
+  def stop(_State) do
+    :ok = :cowboy.stop_listener(:poxa)
+  end
 
   defp load_config do
     try do

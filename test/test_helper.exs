@@ -11,23 +11,3 @@ defmodule Connection do
     {:ok, pid, socket_id}
   end
 end
-
-defmodule SpawnHelper do
-  def spawn_registered_process(channel, value \\ :undefined) do
-    parent = self
-    spawn_link fn ->
-      register_to_channel(channel, value)
-      send parent, :registered
-      receive do
-        _ -> :wait
-      end
-    end
-    receive do
-      :registered -> :ok
-    end
-  end
-
-  def register_to_channel(channel, value \\ :undefined) do
-    Poxa.registry.register!(channel, value)
-  end
-end

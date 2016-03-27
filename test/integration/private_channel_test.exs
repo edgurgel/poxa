@@ -1,15 +1,21 @@
 defmodule Poxa.Integration.PrivateChannelTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case
 
   @moduletag :integration
 
-  setup do
-    {:ok, pid, socket_id} = Connection.connect
+  setup_all do
+    Application.ensure_all_started(:poxa)
     Application.ensure_all_started(:pusher)
     Pusher.configure!("localhost", 8080, "app_id", "app_key", "secret")
-    on_exit fn ->
-      PusherClient.disconnect! pid
-    end
+    on_exit fn -> Application.stop(:poxa) end
+    :ok
+  end
+
+  setup do
+    {:ok, pid, socket_id} = Connection.connect
+
+    on_exit fn -> PusherClient.disconnect! pid end
+
     {:ok, [pid: pid, socket_id: socket_id]}
   end
 
@@ -29,6 +35,11 @@ defmodule Poxa.Integration.PrivateChannelTest do
     channel = "private-channel"
 
     PusherClient.subscribe!(pid, channel)
+
+    assert_receive %{channel: ^channel,
+                     event: "pusher:subscription_succeeded",
+                     data: %{}}, 1_000
+
     Pusher.trigger("test_event", %{data: 42}, channel)
 
     assert_receive %{channel: ^channel,

@@ -6,6 +6,7 @@ defmodule Poxa.EventTest do
 
   setup do
     new SocketId
+    { :ok, _ } = GenEvent.start_link(name: Poxa.Event)
     on_exit fn -> unload end
     :ok
   end

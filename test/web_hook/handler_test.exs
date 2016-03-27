@@ -71,10 +71,11 @@ defmodule Poxa.WebHook.HandlerTest do
 
   test "client_event_message is saved" do
     assert {:ok, []} == handle_event(%{event: :client_event_message, socket_id: "socket_id", channels: ~w(channel_1 channel_2), name: "my_event", data: "data"}, [])
-    assert EventTable.all == [
+    expected = [
       %{channel: "channel_1", name: "client_event", event: "my_event", data: "data", socket_id: "socket_id"},
       %{channel: "channel_2", name: "client_event", event: "my_event", data: "data", socket_id: "socket_id"},
-    ]
+    ] |> Enum.into(MapSet.new)
+    assert MapSet.equal?(expected, Enum.into(EventTable.all, MapSet.new))
     assert {_, [_, _]} = EventTable.ready
   end
 

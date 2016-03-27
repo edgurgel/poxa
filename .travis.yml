@@ -10,6 +10,8 @@ elixir:
   - 1.2.2
   - 1.1.1
 sudo: false
+script:
+  - MIX_ENV=test mix test --no-start --trace
 env:
   - MIX_ENV=test
 env:
