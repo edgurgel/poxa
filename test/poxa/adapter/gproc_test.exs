@@ -3,7 +3,7 @@ defmodule Poxa.Adapter.GProcTest do
 
   import Poxa.Adapter.GProc
 
-  setup_all do
+  setup do
     Application.start(:gproc)
     on_exit fn -> Application.stop(:gproc) end
     :ok
