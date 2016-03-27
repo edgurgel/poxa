@@ -3,6 +3,12 @@ defmodule Poxa.Adapter.GProcTest do
 
   import Poxa.Adapter.GProc
 
+  setup_all do
+    Application.start(:gproc)
+    on_exit fn -> Application.stop(:gproc) end
+    :ok
+  end
+
   def spawn_registered(channel, execution, value \\ nil) do
     parent = self
     child = spawn_link fn ->
