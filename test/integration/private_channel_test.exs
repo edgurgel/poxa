@@ -29,6 +29,11 @@ defmodule Poxa.Integration.PrivateChannelTest do
     channel = "private-channel"
 
     PusherClient.subscribe!(pid, channel)
+
+    assert_receive %{channel: ^channel,
+                     event: "pusher:subscription_succeeded",
+                     data: %{}}, 1_000
+
     Pusher.trigger("test_event", %{data: 42}, channel)
 
     assert_receive %{channel: ^channel,

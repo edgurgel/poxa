@@ -35,6 +35,11 @@ defmodule Poxa.Integration.PresenceChannelTest do
     channel = "presence-channel"
 
     PusherClient.subscribe!(pid, channel, %PusherClient.User{id: 123})
+
+    assert_receive %{channel: ^channel,
+                     event: "pusher:subscription_succeeded",
+                     data: _}, 1_000
+
     Pusher.trigger("test_event", %{data: 42}, channel)
 
     assert_receive %{channel: ^channel,
@@ -56,6 +61,10 @@ defmodule Poxa.Integration.PresenceChannelTest do
 
     PusherClient.subscribe!(pid, channel,
                             %PusherClient.User{id: 123, info: %{k2: "v2"}})
+
+    assert_receive %{channel: ^channel,
+                     event: "pusher:subscription_succeeded",
+                     data: _}, 1_000
 
     assert_receive %{channel: "presence-channel",
                      data: %{"user_id" => "123", "user_info" => %{"k2" => "v2"}},
@@ -125,6 +134,11 @@ defmodule Poxa.Integration.PresenceChannelTest do
 
     {:ok, other_pid, _} = Connection.connect
     PusherClient.subscribe!(other_pid, channel, %PusherClient.User{id: 123, info: %{k1: "v1"}})
+
+    assert_receive %{channel: ^channel,
+                     event: "pusher:subscription_succeeded",
+                     data: _}, 1_000
+
     PusherClient.unsubscribe!(other_pid, channel)
 
 
