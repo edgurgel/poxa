@@ -1,9 +1,10 @@
 defmodule Poxa.Integration.TriggerEvent do
-  use ExUnit.Case, async: true
+  use ExUnit.Case
 
   @moduletag :integration
 
   setup_all do
+    Application.ensure_all_started(:poxa)
     Application.ensure_all_started(:pusher)
     Pusher.configure!("localhost", 8080, "app_id", "app_key", "secret")
     :ok

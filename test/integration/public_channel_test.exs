@@ -1,15 +1,20 @@
 defmodule Poxa.Integration.PublicChannelTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case
 
   @moduletag :integration
 
-  setup do
-    {:ok, pid, socket_id} = Connection.connect
+  setup_all do
+    Application.ensure_all_started(:poxa)
     Application.ensure_all_started(:pusher)
     Pusher.configure!("localhost", 8080, "app_id", "app_key", "secret")
-    on_exit fn ->
-      PusherClient.disconnect! pid
-    end
+    :ok
+  end
+
+  setup do
+    {:ok, pid, socket_id} = Connection.connect
+
+    on_exit fn -> PusherClient.disconnect! pid end
+
     {:ok, [pid: pid, socket_id: socket_id]}
   end
 
