@@ -29,6 +29,11 @@ defmodule Poxa.Integration.PublicChannelTest do
     channel = "channel"
 
     PusherClient.subscribe!(pid, channel)
+
+    assert_receive %{channel: ^channel,
+                     event: "pusher:subscription_succeeded",
+                     data: %{}}, 1_000
+
     Pusher.trigger("test_event", %{data: 42}, channel)
 
     assert_receive %{channel: ^channel,
@@ -41,6 +46,10 @@ defmodule Poxa.Integration.PublicChannelTest do
     channel = "channel"
 
     PusherClient.subscribe!(pid, channel)
+
+    assert_receive %{channel: ^channel,
+                     event: "pusher:subscription_succeeded",
+                     data: %{}}, 1_000
 
     Pusher.trigger("test_event", %{data: 42}, channel, context[:socket_id])
 
