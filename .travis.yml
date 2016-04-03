@@ -17,6 +17,12 @@ env:
 env:
   matrix:
     - POXA_REGISTRY_ADAPTER=gproc
+before_script:
+  - export PLT_FILENAME=elixir-$TRAVIS_ELIXIR_VERSION-$TRAVIS_OTP_RELEASE.plt
+  - wget -O .local.plt https://s3.amazonaws.com/poxa-plt/travis_elixir_plts/$PLT_FILENAME || true
+script:
+  - mix test
+  - mix dialyzer
 after_script:
   - mix deps.get --only docs
   - MIX_ENV=docs mix inch.report

@@ -18,7 +18,7 @@ defmodule Poxa.SocketId do
   iex> Poxa.SocketId.valid? "123.456:channel-private"
   false
   """
-  @spec valid?(String.t) :: boolean
+  @spec valid?(binary) :: boolean
   def valid?(socket_id) do
     Regex.match?(~r/\A\d+\.\d+\z/, socket_id)
   end
@@ -26,7 +26,7 @@ defmodule Poxa.SocketId do
   @doc """
   Register the `socket_id` as a property of the process
   """
-  @spec register!(String.t) :: true
+  @spec register!(binary) :: true
   def register!(socket_id) do
     Poxa.registry.register!(:socket_id, socket_id)
   end
@@ -36,7 +36,7 @@ defmodule Poxa.SocketId do
 
   It throws an ArgumentError if the process has not socket_id
   """
-  @spec mine :: String.t
+  @spec mine :: binary
   def mine do
     Poxa.registry.fetch(:socket_id)
   end

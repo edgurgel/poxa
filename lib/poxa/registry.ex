@@ -1,35 +1,37 @@
 defmodule Poxa.Registry do
+  alias Poxa.PresenceSubscription
+
   @doc """
   Registers a property for the current process.
   """
-  @callback register!(String.t) :: any
+  @callback register!(binary) :: any
 
   @doc """
   Registers a property for the current process with a given value.
   """
-  @callback register!(String.t, any) :: any
+  @callback register!(binary, any) :: any
 
   @doc """
   Unregisters a property for the current process.
   """
-  @callback unregister!(String.t) :: any
+  @callback unregister!(binary) :: any
 
   @doc """
   Sends a message to a channel and identify it as coming from the given sender.
   """
-  @callback send!(String.t, String.t, PresenceSubscription.user_id | pid) :: any
+  @callback send!(binary, binary, PresenceSubscription.user_id | pid) :: any
 
   @doc """
   Sends a message to a channel and identify it as coming from the given sender
   through a specific socket_id.
   """
-  @callback send!(String.t, String.t, any, String.t) :: any
+  @callback send!(binary, binary, any, binary) :: any
 
   @doc """
   Returns the subscription count of a channel. If a connection identifier is provided,
   it counts only the subscriptions identified by the given identifier.
   """
-  @callback subscription_count(String.t, PresenceSubscription.user_id | pid | :_) :: non_neg_integer
+  @callback subscription_count(binary, PresenceSubscription.user_id | pid | :_) :: non_neg_integer
 
   @doc """
   Returns the presence channel subscriptions of the given process.
@@ -44,12 +46,12 @@ defmodule Poxa.Registry do
   @doc """
   Returns the unique subscriptions of the given channel.
   """
-  @callback unique_subscriptions(String.t) :: list(tuple())
+  @callback unique_subscriptions(binary) :: list(tuple())
 
   @doc """
   Returns the value assigned with the given property.
   """
-  @callback fetch(String.t) :: any
+  @callback fetch(binary) :: any
 
   @doc """
   Cleans up the registry data.

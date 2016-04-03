@@ -47,11 +47,11 @@ defmodule Poxa.WebHook.Dispatcher do
   defp pusher_headers(body) do
     {:ok, app_key} = Application.fetch_env(:poxa, :app_key)
     {:ok, app_secret} = Application.fetch_env(:poxa, :app_secret)
-    %{
-      "Content-Type"       => "application/json",
-      "X-Pusher-Key"       => app_key,
-      "X-Pusher-Signature" => CryptoHelper.hmac256_to_string(app_secret, body)
-    }
+    [
+      "Content-Type",       "application/json",
+      "X-Pusher-Key",       app_key,
+      "X-Pusher-Signature", CryptoHelper.hmac256_to_string(app_secret, body),
+    ]
   end
 
   defp time_ms, do: :erlang.system_time(:milli_seconds)
