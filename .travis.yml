@@ -14,11 +14,13 @@ env:
   matrix:
     - POXA_REGISTRY_ADAPTER=gproc
 before_script:
+  - gem install pronto-dialyzer > /dev/null &
   - export PLT_FILENAME=elixir-$TRAVIS_ELIXIR_VERSION-$TRAVIS_OTP_RELEASE.plt
   - wget -O .local.plt https://s3.amazonaws.com/poxa-plt/travis_elixir_plts/$PLT_FILENAME || true
 script:
   - mix test
-  - mix dialyzer
+  - mix dialyzer -o dialyzer.out && cat dialyzer.out || true
 after_script:
+  - PULL_REQUEST_ID=$TRAVIS_PULL_REQUEST pronto run -f github_pr -c origin/master
   - mix deps.get --only docs
   - MIX_ENV=docs mix inch.report
