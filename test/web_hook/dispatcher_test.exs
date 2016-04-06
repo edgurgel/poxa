@@ -41,11 +41,11 @@ defmodule Poxa.WebHook.DispatcherTest do
         "time_ms" => _,
         "events"  => ~w(event_1 event_2)
       },
-      headers: [
-        "Content-Type",       "application/json",
-        "X-Pusher-Key",       "app_key",
-        "X-Pusher-Signature", _
-      ]
+      headers: %{
+        "Content-Type"       => "application/json",
+        "X-Pusher-Key"       => "app_key",
+        "X-Pusher-Signature" => _
+      }
     }
   end
 end

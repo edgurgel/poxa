@@ -8,6 +8,7 @@ defmodule Poxa.WebHook.Dispatcher do
 
   alias Poxa.WebHook.EventTable
   alias Poxa.CryptoHelper
+  require Logger
 
   @timeout 1500
 
@@ -36,6 +37,7 @@ defmodule Poxa.WebHook.Dispatcher do
   end
 
   defp send_web_hook!(events) do
+    Logger.debug "Sending webhook request."
     body = JSX.encode! %{time_ms: time_ms, events: events}
     {:ok, url} = Application.fetch_env(:poxa, :web_hook)
     case HTTPoison.post(url, body, pusher_headers(body)) do
@@ -47,11 +49,11 @@ defmodule Poxa.WebHook.Dispatcher do
   defp pusher_headers(body) do
     {:ok, app_key} = Application.fetch_env(:poxa, :app_key)
     {:ok, app_secret} = Application.fetch_env(:poxa, :app_secret)
-    [
-      "Content-Type",       "application/json",
-      "X-Pusher-Key",       app_key,
-      "X-Pusher-Signature", CryptoHelper.hmac256_to_string(app_secret, body),
-    ]
+    %{
+      "Content-Type"       => "application/json",
+      "X-Pusher-Key"       => app_key,
+      "X-Pusher-Signature" => CryptoHelper.hmac256_to_string(app_secret, body)
+    }
   end
 
   defp time_ms, do: :erlang.system_time(:milli_seconds)
