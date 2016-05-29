@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.6.0 (2016-05-29)
+
+* Automate docker build: https://hub.docker.com/r/edgurgel/poxa-automated/
+* Webhooks (Thanks to @iurifq 🎉 ) #60 #72
+* Add channel vacated and occupied events to console (Thanks to @iurifq 🎉 ) #70
+* Extract gproc to be an adapter #74
+* Update deps in general
+
+## 0.5.0 (2015-12-14)
+
+* Update `cowboy` and `ranch`
+
 ## 0.4.3 (2015-09-03)
 
 * Add edip dependency to generate docker images
