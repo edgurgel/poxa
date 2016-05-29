@@ -22,7 +22,6 @@ How do I speak 'poxa'?
 - [Release](#release)
 - [Using Docker](#using-docker)
 - [Your application](#your-application)
-- [Deploying on Heroku](#deploying-on-heroku)
 - [Console](#console)
 - [Implementation](#implementation)
 - [Contributing](#contributing)
