@@ -61,20 +61,20 @@ defmodule Poxa do
   defp run_ssl(dispatch) do
     case Application.fetch_env(:poxa, :ssl) do
       {:ok, ssl_config} ->
-        if Enum.all?([:port, :certfile, :keyfile], &Keyword.has_key?(ssl_config, &1)) do
+        if enabled_ssl?(ssl_config) do
           ssl_port = Keyword.get(ssl_config, :port)
           Logger.info "Starting Poxa using SSL on port #{ssl_port}"
           {:ok, _} = :cowboy.start_https(:https, 100, ssl_config, [env: [dispatch: dispatch] ])
-          :ok
         else
-          msg = "Must specify port, certfile and keyfile (cacertfile optional)"
-          Logger.error msg
-          {:error, msg}
+          Logger.info "SSL not configured/started"
         end
       :error ->
-        msg = "SSL not configured/started"
-        Logger.info msg
-        {:error, msg}
+        Logger.info "SSL not configured/started"
     end
+  end
+
+  defp enabled_ssl?(ssl_config) do
+    enabled = Keyword.get(ssl_config, :enabled, false)
+    enabled and Enum.all?([:port, :certfile, :keyfile], &Keyword.has_key?(ssl_config, &1))
   end
 end

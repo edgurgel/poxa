@@ -43,28 +43,30 @@
       hidden: false,
       to: "poxa.web_hook"
      ],
+    "poxa.ssl.enabled": [
+      doc: "HTTPS switch",
+      to: "poxa.ssl.enabled",
+      datatype: :boolean,
+      default: false,
+    ],
     "poxa.ssl.port": [
       doc: "HTTPS port",
       to: "poxa.ssl.port",
-      commented: true,
       datatype: :integer,
     ],
     "poxa.ssl.cacertfile": [
       doc: "PEM-encoded CA certificate path",
       to: "poxa.ssl.cacertfile",
-      commented: true,
       datatype: :binary,
     ],
     "poxa.ssl.certfile": [
       doc: "Path to user certificate",
       to: "poxa.ssl.certfile",
-      commented: true,
       datatype: :binary,
     ],
     "poxa.ssl.keyfile": [
       doc: "Path to the file containing the user's private PEM-encoded key",
       to: "poxa.ssl.keyfile",
-      commented: true,
       datatype: :binary,
     ]
   ],
