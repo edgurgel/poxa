@@ -33,7 +33,7 @@ defmodule Poxa.Mixfile do
       {:conform, "~> 2.0.0"},
       {:conform_exrm, "~> 1.0"},
       {:inch_ex, "~> 0.5.1", only: :docs},
-      {:httpoison, "~> 0.8"},
+      {:httpoison, "~> 0.9"},
       {:ex2ms, "~> 1.4.0"},
       {:watcher, "~> 1.0.0"},
       {:dialyxir, "~> 0.3", only: [:dev, :test]}]
