@@ -17,10 +17,12 @@ defmodule Poxa.Supervisor do
     event_worker = worker(GenEvent, [[name: Poxa.Event]])
     subscription_worker = worker(Watcher, [Poxa.Event, Poxa.SubscriptionHandler, []])
     children = [event_worker, subscription_worker]
-    if web_hook do
-      web_wook_supervisor = worker(Poxa.WebHook.Supervisor, [])
-      children = children ++ [web_wook_supervisor]
-    end
+    children = if web_hook do
+                 web_wook_supervisor = worker(Poxa.WebHook.Supervisor, [])
+                 children ++ [web_wook_supervisor]
+               else
+                 children
+               end
     supervise children, strategy: :one_for_one
   end
 end
