@@ -57,7 +57,7 @@ How do I speak 'poxa'?
 
 Poxa is a standalone elixir server implementation of the Pusher protocol.
 
-You need [Elixir](http://elixir-lang.org) 1.1.1 at least and Erlang 18.0
+You need [Elixir](http://elixir-lang.org) 1.2.6 at least and Erlang 18.0
 
 Clone this repository
 
@@ -238,7 +238,7 @@ Compile:
 mix compile
 ```
 
-The test suite used is the ExUnit and [meck](http://github.com/eproxus/meck) to mock stuff. 
+The test suite used is the ExUnit and [meck](http://github.com/eproxus/meck) to mock stuff.
 
 To run tests:
 
