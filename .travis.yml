@@ -6,8 +6,6 @@ elixir:
   - 1.2.6
   - 1.3.0
 sudo: false
-script:
-  - MIX_ENV=test mix test --no-start --trace
 env:
   - MIX_ENV=test
 env:
@@ -18,7 +16,8 @@ before_script:
   - export PLT_FILENAME=elixir-$TRAVIS_ELIXIR_VERSION-$TRAVIS_OTP_RELEASE.plt
   - wget -O .local.plt https://s3.amazonaws.com/poxa-plt/travis_elixir_plts/$PLT_FILENAME || true
 script:
-  - mix test
+  - MIX_ENV=test mix test --no-start --trace --exclude integration
+  - MIX_ENV=test mix test --trace --only integration
   - mix dialyzer -o dialyzer.out && cat dialyzer.out || true
 after_script:
   - PULL_REQUEST_ID=$TRAVIS_PULL_REQUEST pronto run -f github_pr -c origin/master
