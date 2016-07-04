@@ -1,4 +1,4 @@
-FROM msaraiva/elixir-dev:1.1.1
+FROM msaraiva/elixir-dev:1.2.4
 
 ENV APP_NAME poxa
 
