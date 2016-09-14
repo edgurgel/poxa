@@ -173,7 +173,7 @@ You can change anything on this file and just start the release and this configu
 
 Docker images are automatically built by [Docker Hub](https://hub.docker.com/r/edgurgel/poxa-automated/builds/). They are available at Docker Hub: https://hub.docker.com/r/edgurgel/poxa-automated/tags/
 
-One can generate it just running `docker built -t local/poxa .`.
+One can generate it just running `docker build -t local/poxa .`.
 
 The docker run command should look like this:
 
