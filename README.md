@@ -259,4 +259,5 @@ Thanks to [@bastos](https://github.com/bastos) for the project name :heart:!
 ## Who is using it?
 
 * [Waffle Takeout](https://takeout.waffle.io/)
+* [Tinfoil Security](https://tinfoilsecurity.com/)
 * Add your project/service here! Send a PR! :tada:
