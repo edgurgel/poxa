@@ -22,7 +22,7 @@ defmodule Poxa.Mixfile do
   end
 
   defp deps do
-    [ {:cowboy, "~> 1.0.0" },
+    [ {:cowboy, "~> 1.1.2" },
       {:exjsx, "~> 3.0"},
       {:signaturex, "~> 1.0"},
       {:gproc, "~> 0.3.0"},
