@@ -24,6 +24,8 @@ defmodule Poxa.Mixfile do
   defp deps do
     [ {:cowboy, "~> 1.1.2" },
       {:exjsx, "~> 3.0"},
+      {:relx, "~>3.23.1"},
+      {:erlware_commons, "~> 1.0"},
       {:signaturex, "~> 1.0"},
       {:gproc, "~> 0.3.0"},
       {:meck, "~> 0.8.2", only: :test},
