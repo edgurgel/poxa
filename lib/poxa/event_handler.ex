@@ -62,7 +62,8 @@ defmodule Poxa.EventHandler do
   The event data can't be greater than 10KB
   """
   def valid_entity_length(req, %{event: event} = state) do
-    valid = byte_size(event.data) <= 10_000
+    {:ok, payload_limit} = Application.fetch_env(:poxa, :payload_limit)
+    valid = byte_size(event.data) <= payload_limit
     req = if valid do
             req
           else
