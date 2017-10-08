@@ -38,7 +38,7 @@ defmodule Poxa.WebHook.Dispatcher do
 
   defp send_web_hook!(events) do
     Logger.debug "Sending webhook request."
-    body = JSX.encode! %{time_ms: time_ms, events: events}
+    body = Poison.encode! %{time_ms: time_ms(), events: events}
     {:ok, url} = Application.fetch_env(:poxa, :web_hook)
     case HTTPoison.post(url, body, pusher_headers(body)) do
       {:ok, _} -> :ok

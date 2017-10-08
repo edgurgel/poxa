@@ -31,7 +31,7 @@ defmodule Poxa.WebHook.EventTable do
   def insert(events, delay) do
     Enum.filter events, fn(event) ->
       if delete_corresponding(event) == 0 do
-        :ets.insert(@table_name, {time_ms + delay, event})
+        :ets.insert(@table_name, {time_ms() + delay, event})
       end
     end
   end
@@ -45,7 +45,7 @@ defmodule Poxa.WebHook.EventTable do
   This function returns all events in the ETS table that are ready to be sent
   for a given `timestamp`.
   """
-  def ready(timestamp \\ time_ms + 1), do: {timestamp, filter_events [{:<, :"$1", timestamp}]}
+  def ready(timestamp \\ time_ms() + 1), do: {timestamp, filter_events [{:<, :"$1", timestamp}]}
 
   defp filter_events(filter) do
     select(@table_name, [{{:"$1", :"$2"}, filter, [:"$2"]}])

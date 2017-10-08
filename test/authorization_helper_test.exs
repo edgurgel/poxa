@@ -7,7 +7,7 @@ defmodule Poxa.AuthorizarionHelperTest do
   setup do
     new Authentication
     new :cowboy_req
-    on_exit fn -> unload end
+    on_exit fn -> unload() end
     :ok
   end
 

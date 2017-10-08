@@ -13,7 +13,7 @@ defmodule Poxa.SubscriptionTest do
     new PusherEvent
     new Channel, [:passthrough]
     new Poxa.registry
-    on_exit fn -> unload end
+    on_exit fn -> unload() end
     :ok
   end
 

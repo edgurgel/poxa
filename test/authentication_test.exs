@@ -6,7 +6,7 @@ defmodule Poxa.AuthenticationTest do
   setup do
     new Application
     new Signaturex
-    on_exit fn -> unload end
+    on_exit fn -> unload() end
     :ok
   end
 

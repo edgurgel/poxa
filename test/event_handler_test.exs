@@ -7,43 +7,43 @@ defmodule Poxa.EventHandlerTest do
   import Poxa.EventHandler
 
   setup do
-    on_exit fn -> unload end
+    on_exit fn -> unload() end
     :ok
   end
 
   test "malformed_request with valid data" do
     event = %PusherEvent{}
     expect(:cowboy_req, :body, 1, {:ok, :body, :req1})
-    expect(JSX, :decode, 1, {:ok, :data})
+    expect(Poison, :decode, 1, {:ok, :data})
     expect(PusherEvent, :build, [{[:data], {:ok, event}}])
 
     assert malformed_request(:req, :state) == {false, :req1, %{body: :body, event: event}}
 
     assert validate :cowboy_req
-    assert validate JSX
+    assert validate Poison
   end
 
   test "malformed_request with invalid JSON" do
     expect(:cowboy_req, :body, 1, {:ok, :body, :req1})
     expect(:cowboy_req, :set_resp_body, 2, :req2)
-    expect(JSX, :decode, 1, :error)
+    expect(Poison, :decode, 1, :error)
 
     assert malformed_request(:req, :state) == {true, :req2, :state}
 
     assert validate :cowboy_req
-    assert validate JSX
+    assert validate Poison
   end
 
   test "malformed_request with invalid data" do
     expect(:cowboy_req, :body, 1, {:ok, :body, :req1})
     expect(:cowboy_req, :set_resp_body, 2, :req2)
-    expect(JSX, :decode, 1, {:ok, :data})
+    expect(Poison, :decode, 1, {:ok, :data})
     expect(PusherEvent, :build, [{[:data], {:error, :reason}}])
 
     assert malformed_request(:req, :state) == {true, :req2, :state}
 
     assert validate :cowboy_req
-    assert validate JSX
+    assert validate Poison
   end
 
   test "is_authorized with failing authentication" do
