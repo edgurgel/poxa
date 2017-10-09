@@ -56,10 +56,8 @@ defmodule Poxa.EventHandler do
     {authorized, req, state}
   end
 
-  @invalid_data_size_json JSX.encode!(%{error: "Data key must be smaller than 10KB"})
-
   @doc """
-  The event data can't be greater than 10KB
+  The event data can't be greater than payload_limit which defaults to 10KB
   """
   def valid_entity_length(req, %{event: event} = state) do
     {:ok, payload_limit} = Application.fetch_env(:poxa, :payload_limit)
@@ -67,7 +65,7 @@ defmodule Poxa.EventHandler do
     req = if valid do
             req
           else
-            :cowboy_req.set_resp_body(@invalid_data_size_json, req)
+            :cowboy_req.set_resp_body(invalid_data_size_json(payload_limit), req)
           end
     {valid, req, state}
   end
@@ -88,5 +86,10 @@ defmodule Poxa.EventHandler do
     Event.notify(:api_message, %{channels: event.channels, name: event.name, socket_id: nil})
     req = :cowboy_req.set_resp_body("{}", req)
     {true, req, nil}
+  end
+
+  @doc false
+  defp invalid_data_size_json(payload_limit) do
+    JSX.encode!(%{error: "Data key must be smaller than #{payload_limit}B"})
   end
 end
