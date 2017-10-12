@@ -25,14 +25,14 @@ defmodule Poxa.Mixfile do
     [ {:cowboy, "~> 1.1.2" },
       {:poison, "~> 3.0"},
       {:signaturex, "~> 1.3"},
-      {:gproc, "~> 0.3.0"},
+      {:gproc, "~> 0.6"},
       {:meck, "~> 0.8.2", only: :test},
       {:pusher_client, github: "edgurgel/pusher_client", only: :test},
       {:pusher, "~> 0.1", only: :test},
       {:distillery, "~> 1.4", runtime: false},
       {:conform, "~> 2.0"},
       {:httpoison, "~> 0.9"},
-      {:ex2ms, "~> 1.4.0"},
+      {:ex2ms, "~> 1.5"},
       {:watcher, "~> 1.1.0"},
       {:dialyxir, "~> 0.3", only: [:dev, :test]}]
   end
