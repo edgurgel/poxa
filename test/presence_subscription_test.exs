@@ -8,7 +8,7 @@ defmodule Poxa.PresenceSubscriptionTest do
 
   setup do
     new [PusherEvent, Poxa.registry, Poxa.Event]
-    on_exit fn -> unload end
+    on_exit fn -> unload() end
     :ok
   end
 
@@ -92,7 +92,7 @@ defmodule Poxa.PresenceSubscriptionTest do
     expect(Poxa.registry, :send!, 3, :ok)
     expect(Poxa.Event, :notify, [:member_removed, %{channel: "presence-channel", user_id: :userid}], :ok)
 
-    assert check_and_remove == 1
+    assert check_and_remove() == 1
 
     assert validate [PusherEvent, Poxa.registry, Poxa.Event]
   end
@@ -100,13 +100,13 @@ defmodule Poxa.PresenceSubscriptionTest do
   test "check subscribed presence channels and remove having more than one connection on userid" do
     expect(Poxa.registry, :subscriptions, 1, [["presence-channel", :userid]])
     expect(Poxa.registry, :subscription_count, 2, 5)
-    assert check_and_remove == 0
+    assert check_and_remove() == 0
     assert validate [PusherEvent, Poxa.registry]
   end
 
   test "check subscribed presence channels and find nothing to unsubscribe" do
     expect(Poxa.registry, :subscriptions, 1, [])
-    assert check_and_remove == 0
+    assert check_and_remove() == 0
     assert validate Poxa.registry
   end
 end

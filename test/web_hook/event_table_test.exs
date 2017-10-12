@@ -14,40 +14,40 @@ defmodule Poxa.WebHook.EventTableTest do
 
   test "insert includes single event to the table" do
     result = insert("event")
-    assert result == all
+    assert result == all()
   end
 
   test "insert includes event list to the table" do
     result = insert(~w(event1 event2))
-    assert result == all
+    assert result == all()
   end
 
   test "insert does not add channel_occupied event, it removes the corresponding channel_vacated event when it is in the table" do
     vacated_event = %{name: "channel_vacated", channel: "channel"}
     result = insert(vacated_event)
-    assert all == result
+    assert all() == result
     assert [] == insert(%{name: "channel_occupied", channel: "channel"})
-    assert all == []
+    assert all() == []
   end
 
   test "insert does not add member_added event, it removes the corresponding member_removed event when it is in the table" do
     removed_event = %{name: "member_removed", user_id: "123", channel: "channel"}
     result = insert(removed_event)
-    assert all == result
+    assert all() == result
     assert [] == insert(%{name: "member_added", user_id: "123", channel: "channel"})
-    assert all == []
+    assert all() == []
   end
 
   test "ready returns events ready to be sent" do
     result = insert(~w(ready_event), 0)
-    assert result == all
-    assert {_, ~w(ready_event)} = ready
+    assert result == all()
+    assert {_, ~w(ready_event)} = ready()
   end
 
   test "ready does not return events to be delivered in the future" do
     result = insert(~w(ready_event), 0)
     insert(~w(delayed_event), 10000)
-    assert ~w(delayed_event ready_event) == Enum.sort all
-    assert {_, ^result} = ready
+    assert ~w(delayed_event ready_event) == Enum.sort all()
+    assert {_, ^result} = ready()
   end
 end

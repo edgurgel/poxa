@@ -4,7 +4,7 @@ defmodule Poxa.SocketId do
   """
   @spec generate! :: binary
   def generate! do
-    <<part1::32, part2::32>> = :crypto.rand_bytes(8)
+    <<part1::32, part2::32>> = :crypto.strong_rand_bytes(8)
     "#{part1}.#{part2}"
   end
 

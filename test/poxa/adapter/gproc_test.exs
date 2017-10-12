@@ -10,14 +10,14 @@ defmodule Poxa.Adapter.GProcTest do
   end
 
   def spawn_registered(channel, execution, value \\ nil) do
-    parent = self
+    parent = self()
     child = spawn_link fn ->
       if value do
         register!(channel, value)
       else
         register!(channel)
       end
-      send parent, {self, :registered}
+      send parent, {self(), :registered}
       execution.()
     end
     assert_receive {^child, :registered}
@@ -43,28 +43,28 @@ defmodule Poxa.Adapter.GProcTest do
   end
 
   test "send message to registered processes" do
-    parent = self
+    parent = self()
     child = spawn_registered("channel", fn ->
       receive do
         {^parent, msg} ->
-          send parent, {self, msg}
+          send parent, {self(), msg}
       end
     end)
 
-    send!(:msg, "channel", self)
+    send!(:msg, "channel", self())
     assert_receive {^child, :msg}
   end
 
   test "send message to registered processes with socket_id" do
-    parent = self
+    parent = self()
     child = spawn_registered("channel", fn ->
       receive do
         {^parent, msg, socket_id} ->
-          send parent, {self, msg, socket_id}
+          send parent, {self(), msg, socket_id}
       end
     end)
 
-    send!(:msg, "channel", self, :socket_id)
+    send!(:msg, "channel", self(), :socket_id)
     assert_receive {^child, :msg, :socket_id}
   end
 
@@ -85,7 +85,7 @@ defmodule Poxa.Adapter.GProcTest do
   test "subscriptions" do
     register!("presence-channel1", {"user123", "userinfo"})
     register!("presence-channel2", {"user234", "userinfo"})
-    assert subscriptions(self) == [
+    assert subscriptions(self()) == [
       ["presence-channel1", "user123"],
       ["presence-channel2", "user234"]
     ]
@@ -100,7 +100,7 @@ defmodule Poxa.Adapter.GProcTest do
     child_channel1 = spawn_registered("channel1", execution)
     child_channel2 = spawn_registered("channel2", execution)
 
-    assert channels == ["channel1", "channel2"]
+    assert channels() == ["channel1", "channel2"]
     assert channels(child_channel1) == ["channel1"]
     assert channels(child_channel2) == ["channel2"]
   end
@@ -115,7 +115,7 @@ defmodule Poxa.Adapter.GProcTest do
     spawn_registered("channel", execution, {"user1", "different user1 info"})
     spawn_registered("channel", execution, {"user2", "user2 info"})
 
-    [{"user1", _}, {"user2", "user2 info"}] = unique_subscriptions("channel")
+    %{ "user1" => "different user1 info", "user2" => "user2 info" } = unique_subscriptions("channel")
   end
 
   test "subscription_count" do

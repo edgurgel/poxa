@@ -46,7 +46,7 @@ defmodule Poxa.Registry do
   @doc """
   Returns the unique subscriptions of the given channel.
   """
-  @callback unique_subscriptions(binary) :: list(tuple())
+  @callback unique_subscriptions(binary) :: Map.t
 
   @doc """
   Returns the value assigned with the given property.

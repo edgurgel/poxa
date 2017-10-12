@@ -6,56 +6,56 @@ defmodule Poxa.PusherEventTest do
 
   setup do
     new Poxa.registry
-    on_exit fn -> unload end
+    on_exit fn -> unload() end
     :ok
   end
 
   doctest Poxa.PusherEvent
 
   test "connection established output" do
-    json ="{\"data\":\"{\\\"activity_timeout\\\":120,\\\"socket_id\\\":\\\"SocketId\\\"}\",\"event\":\"pusher:connection_established\"}"
+    json = "{\"event\":\"pusher:connection_established\",\"data\":\"{\\\"socket_id\\\":\\\"SocketId\\\",\\\"activity_timeout\\\":120}\"}"
     assert connection_established("SocketId") == json
   end
 
   test "subscription established output" do
-    json = "{\"channel\":\"channel\",\"data\":{},\"event\":\"pusher_internal:subscription_succeeded\"}"
+    json = "{\"event\":\"pusher_internal:subscription_succeeded\",\"data\":{},\"channel\":\"channel\"}"
     assert subscription_succeeded("channel") == json
   end
 
   test "subscription error output" do
-    json = "{\"data\":{},\"event\":\"pusher:subscription_error\"}"
-    assert subscription_error == json
+    json = "{\"event\":\"pusher:subscription_error\",\"data\":{}}"
+    assert subscription_error() == json
   end
 
   test "pusher error output" do
-    json = "{\"data\":{\"code\":null,\"message\":\"An error\"},\"event\":\"pusher:error\"}"
+    json = "{\"event\":\"pusher:error\",\"data\":{\"message\":\"An error\",\"code\":null}}"
     assert pusher_error("An error") == json
   end
 
   test "pusher error with code output" do
-    json = "{\"data\":{\"code\":123,\"message\":\"An error\"},\"event\":\"pusher:error\"}"
+    json = "{\"event\":\"pusher:error\",\"data\":{\"message\":\"An error\",\"code\":123}}"
     assert pusher_error("An error", 123) == json
   end
 
   test "pong output" do
-    json ="{\"data\":{},\"event\":\"pusher:pong\"}"
-    assert pong == json
+    json = "{\"event\":\"pusher:pong\",\"data\":{}}"
+    assert pong() == json
   end
 
   test "presence member added output" do
-    json ="{\"channel\":\"channel\",\"data\":\"{\\\"user_id\\\":\\\"userid\\\",\\\"user_info\\\":\\\"userinfo\\\"}\",\"event\":\"pusher_internal:member_added\"}"
+    json = "{\"event\":\"pusher_internal:member_added\",\"data\":\"{\\\"user_info\\\":\\\"userinfo\\\",\\\"user_id\\\":\\\"userid\\\"}\",\"channel\":\"channel\"}"
     assert presence_member_added("channel", "userid", "userinfo") == json
   end
 
   test "presence member removed output" do
-    json ="{\"channel\":\"channel\",\"data\":\"{\\\"user_id\\\":\\\"userid\\\"}\",\"event\":\"pusher_internal:member_removed\"}"
+    json = "{\"event\":\"pusher_internal:member_removed\",\"data\":\"{\\\"user_id\\\":\\\"userid\\\"}\",\"channel\":\"channel\"}"
     assert presence_member_removed("channel", "userid") == json
   end
 
   test "presence subscription succeeded" do
-    json = "{\"channel\":\"presence-channel\",\"data\":\"{\\\"presence\\\":{\\\"count\\\":1,\\\"hash\\\":{\\\"userid\\\":\\\"userinfo\\\"},\\\"ids\\\":[\\\"userid\\\"]}}\",\"event\":\"pusher_internal:subscription_succeeded\"}"
+    json = "{\"event\":\"pusher_internal:subscription_succeeded\",\"data\":\"{\\\"presence\\\":{\\\"ids\\\":[\\\"userid\\\"],\\\"hash\\\":{\\\"userid\\\":{\\\"user\\\":\\\"info\\\"}},\\\"count\\\":1}}\",\"channel\":\"presence-channel\"}"
     subscription = %Poxa.PresenceSubscription{channel: "presence-channel",
-                                              channel_data: [{"userid", "userinfo"}]}
+                                              channel_data: %{"userid" => %{ "user" => "info"}}}
     assert subscription_succeeded(subscription) == json
   end
 
@@ -119,23 +119,23 @@ defmodule Poxa.PusherEventTest do
   end
 
   test "sending message to a channel" do
-    expect(Poxa.registry, :send!, [{[:msg, "channel123", self, nil], :ok}])
+    expect(Poxa.registry, :send!, [{[:msg, "channel123", self(), nil], :ok}])
     expected = %{channel: "channel123", data: "data", event: "event"}
-    expect(JSX, :encode!, [{[expected], :msg}])
+    expect(Poison, :encode!, [{[expected], :msg}])
     event = %PusherEvent{channels: ["channel123"], data: "data", name: "event"}
 
     assert publish(event) == :ok
 
-    assert validate [Poxa.registry, JSX]
+    assert validate [Poxa.registry, Poison]
   end
 
   test "sending message to channels excluding a socket id" do
     expected = %{channel: "channel123", data: %{}, event: "event"}
-    expect(JSX, :encode!, [{[expected], :msg}])
-    expect(Poxa.registry, :send!, [{[:msg, "channel123", self, "SocketId"], :ok}])
+    expect(Poison, :encode!, [{[expected], :msg}])
+    expect(Poxa.registry, :send!, [{[:msg, "channel123", self(), "SocketId"], :ok}])
 
     assert publish(%PusherEvent{data: %{}, channels: ["channel123"], name: "event", socket_id: "SocketId"}) == :ok
 
-    assert validate [Poxa.registry, JSX]
+    assert validate [Poxa.registry, Poison]
   end
 end

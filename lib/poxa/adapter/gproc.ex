@@ -49,18 +49,18 @@ defmodule Poxa.Adapter.GProc do
   def channels(pid \\ :_) do
     Ex2ms.fun do
       {{:p, :l, {:pusher, channel}}, ^pid, _} -> channel
-    end |> select |> Enum.uniq
+    end |> select |> Enum.uniq_by(&(&1))
   end
 
   def unique_subscriptions(channel) do
-    for {_pid, {user_id, user_info}} <- lookup_values({:p, :l, {:pusher, channel}}) do
+    for {_pid, {user_id, user_info}} <- lookup_values({:p, :l, {:pusher, channel}}), into: %{} do
       {user_id, user_info}
-    end |> Enum.uniq(fn {user_id, _} -> user_id end)
+    end
   end
 
   def fetch(key) do
     get_value({:p, :l, {:pusher, key}})
   end
 
-  def clean_up, do: goodbye
+  def clean_up, do: goodbye()
 end

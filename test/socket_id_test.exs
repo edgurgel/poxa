@@ -6,7 +6,7 @@ defmodule Poxa.SocketIdTest do
 
   setup do
     new Poxa.registry
-    on_exit fn -> unload end
+    on_exit fn -> unload() end
     :ok
   end
 
