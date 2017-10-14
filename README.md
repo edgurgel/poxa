@@ -122,6 +122,14 @@ config :poxa,
         keyfile: "priv/ssl/server.key"]
 ```
 
+Optionally you can specify a payload limit. The default value is 10kb. To change it pass
+```
+PAYLOAD_LIMIT=20000
+```
+where 20000 is number of bytes.
+
+You can also specify this value via `payload_limit` in your config file (e.g. my_config.exs) as you would for other variables.
+
 ## Release
 
 This is the preferred way to deploy a Poxa server.
