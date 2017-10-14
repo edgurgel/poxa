@@ -14,7 +14,7 @@ defmodule Poxa.WebHook.HandlerTest do
 
     new Channel
 
-    on_exit fn -> unload end
+    on_exit fn -> unload() end
     :ok
   end
 

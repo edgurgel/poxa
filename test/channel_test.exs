@@ -6,7 +6,7 @@ defmodule Poxa.ChannelTest do
 
   setup do
     new Poxa.registry
-    on_exit fn -> unload end
+    on_exit fn -> unload() end
     :ok
   end
 
@@ -30,32 +30,32 @@ defmodule Poxa.ChannelTest do
     channels = ~w(channel1 channel2 channel3)
     expect(Poxa.registry, :channels, [:_], ~w(channel1 channel2 channel3))
 
-    assert all == channels
+    assert all() == channels
 
     assert validate Poxa.registry
   end
 
   test "list channels of a pid" do
     channels = ~w(channel1 channel2 channel3)
-    expect(Poxa.registry, :channels, [self], ~w(channel1 channel2 channel3))
+    expect(Poxa.registry, :channels, [self()], ~w(channel1 channel2 channel3))
 
-    assert all(self) == channels
+    assert all(self()) == channels
 
     assert validate Poxa.registry
   end
 
   test "channel is member? returning true" do
-    expect(Poxa.registry, :subscription_count, ["channel", self], 1)
+    expect(Poxa.registry, :subscription_count, ["channel", self()], 1)
 
-    assert member?("channel", self)
+    assert member?("channel", self())
 
     assert validate Poxa.registry
   end
 
   test "channel is subscribed returning false" do
-    expect(Poxa.registry, :subscription_count, ["channel", self], 0)
+    expect(Poxa.registry, :subscription_count, ["channel", self()], 0)
 
-    refute member?("channel", self)
+    refute member?("channel", self())
 
     assert validate Poxa.registry
   end

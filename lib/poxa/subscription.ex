@@ -14,7 +14,7 @@ defmodule Poxa.Subscription do
   Returns {:ok, channel} to public and private channels and
   a PresenceSubscription to a presence channel
   """
-  @spec subscribe!(:jsx.json_term, binary) :: {:ok, binary}
+  @spec subscribe!(term, binary) :: {:ok, binary}
     | PresenceSubscription.t
     | {:error, binary}
   def subscribe!(data, socket_id) do
@@ -60,10 +60,10 @@ defmodule Poxa.Subscription do
 
   defp subscribe_channel(channel) do
     Logger.info "Subscribing to channel #{channel}"
-    if Channel.member?(channel, self) do
-      Logger.info "Already subscribed #{inspect self} on channel #{channel}"
+    if Channel.member?(channel, self()) do
+      Logger.info "Already subscribed #{inspect self()} on channel #{channel}"
     else
-      Logger.info "Registering #{inspect self} to channel #{channel}"
+      Logger.info "Registering #{inspect self()} to channel #{channel}"
       Poxa.registry.register!(channel)
     end
     {:ok, channel}
@@ -72,10 +72,10 @@ defmodule Poxa.Subscription do
   @doc """
   Unsubscribe from a channel always returning :ok
   """
-  @spec unsubscribe!(:jsx.json_term) :: {:ok, binary}
+  @spec unsubscribe!(term) :: {:ok, binary}
   def unsubscribe!(data) do
     channel = data["channel"]
-    if Channel.member?(channel, self) do
+    if Channel.member?(channel, self()) do
       if Channel.presence?(channel) do
         PresenceSubscription.unsubscribe!(channel);
       end

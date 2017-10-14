@@ -36,16 +36,16 @@ defmodule Poxa.WebsocketHandler do
     case :application.get_env(:poxa, :app_key) do
       {:ok, ^app_key} ->
         if supported_protocol?(protocol) do
-          send self, :start
+          send self(), :start
           {:ok, req, nil}
         else
           Logger.error "Protocol #{protocol} not supported"
-          send self, :start_error
+          send self(), :start_error
           {:ok, req, {4007, "Unsupported protocol version"}}
         end
       {:ok, expected_app_key} ->
         Logger.error "Invalid app_key, expected #{expected_app_key}, found #{app_key}"
-          send self, :start_error
+          send self(), :start_error
           {:ok, req, {4001, "Application does not exist"}}
     end
   end
@@ -70,7 +70,7 @@ defmodule Poxa.WebsocketHandler do
   More info: http://pusher.com/docs/pusher_protocol
   """
   def websocket_handle({:text, json}, req, state) do
-    JSX.decode!(json) |> handle_pusher_event(req, state)
+    Poison.decode!(json) |> handle_pusher_event(req, state)
   end
   def websocket_handle({:ping, _}, req, state), do: { :ok, req, state }
 
@@ -104,7 +104,7 @@ defmodule Poxa.WebsocketHandler do
   defp handle_pusher_event("client-" <> _event_name, decoded_json, req, %State{socket_id: socket_id} = state) do
     {:ok, event} = PusherEvent.build_client_event(decoded_json, socket_id)
     channel = List.first(event.channels)
-    if Channel.private_or_presence?(channel) and Channel.member?(channel, self) do
+    if Channel.private_or_presence?(channel) and Channel.member?(channel, self()) do
       PusherEvent.publish(event)
       Event.notify(:client_event_message, %{socket_id: socket_id, channels: event.channels, name: event.name, data: event.data})
     end
@@ -160,7 +160,7 @@ defmodule Poxa.WebsocketHandler do
   def websocket_terminate(_reason, _req, nil), do: :ok
   def websocket_terminate(_reason, _req, %State{socket_id: socket_id, time: time}) do
     duration = Time.stamp - time
-    channels = Channel.all(self)
+    channels = Channel.all(self())
     PresenceSubscription.check_and_remove
     Poxa.registry.clean_up
     Event.notify(:disconnected, %{socket_id: socket_id, channels: channels, duration: duration})

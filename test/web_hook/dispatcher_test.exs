@@ -13,12 +13,12 @@ defmodule Poxa.WebHook.DispatcherTest do
 
     new HTTPoison
     expect HTTPoison, :post, fn url, body, headers ->
-      args_map = %{url: url, body: JSX.decode!(body), headers: headers}
-      send(self, args_map)
+      args_map = %{url: url, body: Poison.decode!(body), headers: headers}
+      send(self(), args_map)
       {:ok, args_map}
     end
 
-    on_exit fn -> unload end
+    on_exit fn -> unload() end
     :ok
   end
 

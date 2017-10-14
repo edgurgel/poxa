@@ -45,7 +45,7 @@ defmodule Poxa.Integration.PublicChannelTest do
                      data: %{"data" => 42}}, 1_000
   end
 
-  test "subscribe to a public channel and trigger event excluding itself", context do
+  test "subscribe to a public channel and trigger event excluding itself()", context do
     pid = context[:pid]
     channel = "channel"
 

@@ -16,7 +16,7 @@ defmodule Poxa.EventHandler do
 
   def allowed_methods(req, state), do: {["POST"], req, state}
 
-  @invalid_event_json JSX.encode!(%{error: "Event must have channel(s), name, and data"})
+  @invalid_event_json Poison.encode!(%{error: "Event must have channel(s), name, and data"})
 
   @doc """
   If the body is not JSON or not a valid PusherEvent this function will
@@ -24,7 +24,7 @@ defmodule Poxa.EventHandler do
   """
   def malformed_request(req, state) do
     {:ok, body, req} = :cowboy_req.body(req)
-    case JSX.decode(body) do
+    case Poison.decode(body) do
       {:ok, data} ->
         case PusherEvent.build(data) do
           {:ok, event} -> {false, req, %{body: body, event: event}}
@@ -38,7 +38,7 @@ defmodule Poxa.EventHandler do
     end
   end
 
-  @authentication_error_json JSX.encode!(%{error: "Authentication error"})
+  @authentication_error_json Poison.encode!(%{error: "Authentication error"})
 
   @doc """
   More info http://pusher.com/docs/rest_api#authentication
@@ -55,6 +55,9 @@ defmodule Poxa.EventHandler do
           end
     {authorized, req, state}
   end
+
+
+  @invalid_data_size_json Poison.encode!(%{error: "Data key must be smaller than 10KB"})
 
   @doc """
   The event data can't be greater than payload_limit which defaults to 10KB

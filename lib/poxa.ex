@@ -21,7 +21,7 @@ defmodule Poxa do
              { '/apps/:app_id/channels/:channel_name/users', Poxa.UsersHandler, [] },
              { '/app/:app_key', Poxa.WebsocketHandler, [] } ] }
     ])
-    case load_config do
+    case load_config() do
       {:ok, config} ->
         Logger.info "Starting Poxa using app_key: #{config.app_key}, app_id: #{config.app_id}, app_secret: #{config.app_secret} on port #{config.port}"
         {:ok, _} = :cowboy.start_http(:poxa, 100,

@@ -1,5 +1,5 @@
 defmodule Poxa.Console do
-  import JSX, only: [encode!: 1]
+  import Poison, only: [encode!: 1]
   use GenEvent
 
   @doc false
@@ -62,7 +62,7 @@ defmodule Poxa.Console do
   end
 
   defp message(type, socket_id, details) do
-    %{ type: type, socket: socket_id, details: details, time: time }
+    %{ type: type, socket: socket_id, details: details, time: time() }
   end
 
   defp time do

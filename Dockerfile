@@ -1,16 +1,18 @@
-FROM msaraiva/elixir-dev:1.2.4
+FROM elixir:1.5.2-alpine
 
 ENV APP_NAME poxa
+ENV MIX_ENV prod
 
-RUN apk --update add erlang-xmerl erlang-crypto erlang-sasl && rm -rf /var/cache/apk/*
+RUN apk --update add bash git erlang-xmerl erlang-crypto erlang-sasl && rm -rf /var/cache/apk/*
 
 COPY . /source
 WORKDIR /source
 
 RUN mix local.hex --force && mix local.rebar --force
-RUN MIX_ENV=prod mix deps.get
-RUN MIX_ENV=prod mix compile
-RUN MIX_ENV=prod mix release --verbosity=verbose --no-confirm-missing
-RUN mkdir /app && cp -r rel/$APP_NAME /app && rm -rf /source
+RUN mix deps.get
+RUN mix compile
+RUN mix release
 
-CMD trap exit TERM; /app/$APP_NAME/bin/$APP_NAME foreground & wait
+RUN mkdir /app && cp -r _build/prod/rel/$APP_NAME /app && rm -rf /source
+
+CMD /app/$APP_NAME/bin/$APP_NAME foreground

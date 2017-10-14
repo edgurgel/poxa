@@ -7,11 +7,11 @@ defmodule Poxa.SubscriptionHandlerTest do
 
   setup_all do
     expect Event, :notify, fn event, event_data ->
-      send(self, {event, event_data})
+      send(self(), {event, event_data})
       :ok
     end
 
-    on_exit fn -> unload end
+    on_exit fn -> unload() end
     :ok
   end
 

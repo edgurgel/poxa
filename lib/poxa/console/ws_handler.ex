@@ -13,7 +13,7 @@ defmodule Poxa.Console.WSHandler do
     {qs_vals, req} = :cowboy_req.qs_vals(req)
 
     if Authentication.check(method, path, "", qs_vals) do
-      :ok = Poxa.Event.add_handler({Poxa.Console, self}, self)
+      :ok = Poxa.Event.add_handler({Poxa.Console, self()}, self())
       {:ok, req, nil}
     else
       Logger.error "Failed to authenticate on Console Websocket"
@@ -31,7 +31,7 @@ defmodule Poxa.Console.WSHandler do
 
   @doc false
   def websocket_terminate(_reason, _req, _state) do
-    Poxa.Event.remove_handler({Poxa.Console, self}, self)
+    Poxa.Event.remove_handler({Poxa.Console, self()}, self())
     :ok
   end
 end
