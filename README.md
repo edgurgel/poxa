@@ -157,7 +157,7 @@ $ _build/prod/rel/poxa/bin/poxa start
 
 ### Release configuration
 
-Starting from Poxa 0.3.1 the configuration can be done on `./releases/0.3.1/poxa.conf` considering 0.3.1 is the release version.
+Starting from Poxa 0.7.0 the configuration can be done on `_build/prod/rel/poxa/releases/0.7.0/poxa.conf` considering 0.7.0 is the release version.
 
 You should see a file like this:
 
@@ -196,7 +196,7 @@ The .conf file is not the only way to configure a release. The following environ
 Even if the file is not used at all, an empty file must exist or you will get this error:
 
 ```
-missing .conf, expected it at /Users/eduardo/workspace/poxa/_build/dev/rel/poxa/releases/0.7.0/poxa.conf
+missing .conf, expected it at /Users/eduardo/workspace/poxa/_build/prod/rel/poxa/releases/0.7.0/poxa.conf
 ```
 
 It is very important that the .conf file does not have the same configuration. For example if both `PORT` and `poxa.port` (inside the .conf file) are defined, then the file will have precedence.
