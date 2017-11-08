@@ -11,6 +11,7 @@ WORKDIR /source
 RUN mix local.hex --force && mix local.rebar --force
 RUN mix deps.get
 RUN mix compile
+RUN echo "" > config/poxa.prod.conf
 RUN mix release
 
 RUN mkdir /app && cp -r _build/prod/rel/$APP_NAME /app && rm -rf /source
