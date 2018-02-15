@@ -81,7 +81,7 @@ defmodule Poxa.ChannelsHandler do
   defp show(channel, attributes, req, state) do
     occupied = Channel.occupied?(channel)
     attribute_list = mount_attribute_list(attributes, channel)
-    {Poison.encode!([occupied: occupied] ++ attribute_list), req, state}
+    {Poison.encode!(Enum.into([occupied: occupied] ++ attribute_list, %{})), req, state}
   end
 
   defp mount_attribute_list(attributes, channel) do
@@ -101,7 +101,7 @@ defmodule Poxa.ChannelsHandler do
 
   defp index(filter, attributes, req, state) do
     channels = channels(filter, attributes)
-    {Poison.encode!(channels: channels), req, state}
+    {Poison.encode!(%{:channels => channels}), req, state}
   end
 
   defp channels(filter, attributes) do
