@@ -8,6 +8,7 @@ defmodule Poxa.ChannelsHandlerTest do
   setup do
     new Poison
     new :cowboy_req
+    new Channel, [:passthrough]
     on_exit fn -> unload() end
     :ok
   end
@@ -106,7 +107,7 @@ defmodule Poxa.ChannelsHandlerTest do
     expect(Channel, :occupied?, 1, true)
     expect(Channel, :subscription_count, 1, 5)
     expected = %{:occupied => true, :subscription_count => 5}
-    expect(Poison, :encode!, [{[expected], :encoded_json}])
+    expect(Poison, :encode!, [expected], :encoded_json)
 
     assert get_json(:req, {:one, :channel, ["subscription_count"]}) == {:encoded_json, :req, nil}
 
@@ -118,7 +119,7 @@ defmodule Poxa.ChannelsHandlerTest do
     expect(Channel, :occupied?, 1, true)
     expect(PresenceChannel, :user_count, 1, 3)
     expected = %{:occupied => true, :user_count => 3}
-    expect(Poison, :encode!, [{[expected], :encoded_json}])
+    expect(Poison, :encode!, [expected], :encoded_json)
 
     assert get_json(:req, {:one, :channel, ["user_count"]}) == {:encoded_json, :req, nil}
 
@@ -131,8 +132,8 @@ defmodule Poxa.ChannelsHandlerTest do
     expect(Channel, :occupied?, 1, true)
     expect(Channel, :subscription_count, 1, 5)
     expect(PresenceChannel, :user_count, 1, 3)
-    expected = %{:occupied => true, :subscription_count => 5, :user_count => 3}
-    expect(Poison, :encode!, [{[expected], :encoded_json}])
+    expected = %{occupied: true, subscription_count: 5, user_count: 3}
+    expect(Poison, :encode!, [expected], :encoded_json)
 
     assert get_json(:req, {:one, :channel, ["subscription_count", "user_count"]}) == {:encoded_json, :req, nil}
 
@@ -144,10 +145,9 @@ defmodule Poxa.ChannelsHandlerTest do
   test "get_json on every single channel" do
     expect(:cowboy_req, :qs_val, 3, {nil, :req})
     expect(Channel, :all, 0, ["presence-channel", "private-channel"])
-    expect(Channel, :presence?, 1, true)
-    expect(PresenceChannel, :user_count, 1, 3)
-    expected = %{:channels => [{"presence-channel", user_count: 3}]}
-    expect(Poison, :encode!, [{[expected], :encoded_json}])
+    expect(PresenceChannel, :user_count, ["presence-channel"], 3)
+    expected = %{channels: %{"presence-channel" => %{user_count: 3}}}
+    expect(Poison, :encode!, [expected], :encoded_json)
 
     assert get_json(:req, {:all, nil, ["user_count"]}) == {:encoded_json, :req, nil}
 
@@ -159,8 +159,8 @@ defmodule Poxa.ChannelsHandlerTest do
   test "get_json on every single channel with filter" do
     expect(Channel, :all, 0, ["presence-channel", "poxa-channel"])
     expect(Channel, :matches?, 2, seq([false, true]))
-    expected = %{:channels => [{"poxa-channel", []}]}
-    expect(Poison, :encode!, [{[expected], :encoded_json}])
+    expected = %{channels:  %{"poxa-channel" => %{}}}
+    expect(Poison, :encode!, [expected], :encoded_json)
 
     assert get_json(:req, {:all, 'poxa-', []}) == {:encoded_json, :req, nil}
 

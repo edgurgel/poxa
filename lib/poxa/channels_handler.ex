@@ -81,21 +81,20 @@ defmodule Poxa.ChannelsHandler do
   defp show(channel, attributes, req, state) do
     occupied = Channel.occupied?(channel)
     attribute_list = mount_attribute_list(attributes, channel)
-    {Poison.encode!(Enum.into([occupied: occupied] ++ attribute_list, %{})), req, state}
+    {Poison.encode!(Map.merge(%{occupied: occupied}, attribute_list)), req, state}
   end
 
   defp mount_attribute_list(attributes, channel) do
-    attribute_list =
+    attributes_data =
       if Enum.member?(attributes, "subscription_count") do
-        [subscription_count: Channel.subscription_count(channel)]
+        %{subscription_count: Channel.subscription_count(channel)}
       else
-        []
+        %{}
       end
-    attribute_list ++
       if Enum.member?(attributes, "user_count") do
-        [user_count: PresenceChannel.user_count(channel)]
+        Map.put(attributes_data, :user_count, PresenceChannel.user_count(channel))
       else
-        []
+        attributes_data
       end
   end
 
@@ -105,7 +104,7 @@ defmodule Poxa.ChannelsHandler do
   end
 
   defp channels(filter, attributes) do
-    for channel <- Channel.all, filter_channel(channel, filter) do
+    for channel <- Channel.all, filter_channel(channel, filter), into: %{} do
       {channel, mount_attribute_list(attributes, channel)}
     end
   end
