@@ -90,7 +90,14 @@
       env_var: "SSL_KEYFILE",
       default: "",
       datatype: :binary,
-    ]
+    ],
+    "poxa.payload_limit": [
+      doc: "Payload limit for a message",
+      to: "poxa.payload_limit",
+      env_var: "PAYLOAD_LIMIT",
+      default: 10_000,
+      datatype: :integer,
+    ],
   ],
   transforms: [],
   validators: []
