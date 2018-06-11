@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.7.2 (2018-06-11)
+
+* Add payload configuration (PAYLOAD_LIMIT) #123
+
+## 0.7.1 (2018-02-21)
+
+* Remove secret from logs #114
+* Fix Channels handler json encoding #119 #117
+
+## 0.7.0 (2018-01-14)
+
+* Update all the things! #105
+* Ability to change payload limit #107
+
+
 ## 0.6.0 (2016-05-29)
 
 * Automate docker build: https://hub.docker.com/r/edgurgel/poxa-automated/
