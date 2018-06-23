@@ -53,7 +53,7 @@ defmodule Poxa.EventHandlerTest do
     expect(:cowboy_req, :path, 1, {:path, :req3})
     expect(:cowboy_req, :set_resp_body, 2, :req4)
 
-    assert is_authorized(:req, %{body: :body}) == {false, :req4, %{body: :body}}
+    assert is_authorized(:req, %{body: :body}) == {{false, "Authentication error"}, :req4, %{body: :body}}
 
     assert validate Authentication
     assert validate :cowboy_req
