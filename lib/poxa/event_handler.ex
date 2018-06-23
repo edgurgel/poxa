@@ -47,13 +47,12 @@ defmodule Poxa.EventHandler do
     {qs_vals, req} = :cowboy_req.qs_vals(req)
     {method, req} = :cowboy_req.method(req)
     {path, req} = :cowboy_req.path(req)
-    authorized = Authentication.check(method, path, body, qs_vals)
-    req = if authorized do
-            req
-          else
-            :cowboy_req.set_resp_body(@authentication_error_json, req)
-          end
-    {authorized, req, state}
+    if Authentication.check(method, path, body, qs_vals) do
+      {true, req, state}
+    else
+      req = :cowboy_req.set_resp_body(@authentication_error_json, req)
+      {{false, "Authentication error"}, req, state}
+    end
   end
 
 

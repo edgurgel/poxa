@@ -5,8 +5,11 @@ defmodule Poxa.Integration.TriggerEvent do
 
   setup_all do
     Application.ensure_all_started(:pusher)
-    Pusher.configure!("localhost", 8080, "app_id", "app_key", "secret")
     :ok
+  end
+
+  setup do
+    Pusher.configure!("localhost", 8080, "app_id", "app_key", "secret")
   end
 
   test "trigger event returns 200" do
@@ -24,6 +27,14 @@ defmodule Poxa.Integration.TriggerEvent do
   test "trigger event returns 400 on invalid socket_id" do
     [channel, socket_id] = ["channel", "123456"]
 
+    assert Pusher.trigger("test_event", %{}, channel, socket_id) == :error
+  end
+
+
+  test "trigger event returns 401 on invalid authentication" do
+    [channel, socket_id] = ["channel", "123.456"]
+
+    Pusher.configure!("localhost", 8080, "app_id", "app_key", "wrong_secret")
     assert Pusher.trigger("test_event", %{}, channel, socket_id) == :error
   end
 end
