@@ -17,7 +17,7 @@ defmodule Poxa.Supervisor do
     event_worker = worker(GenEvent, [[name: Poxa.Event]])
     subscription_worker = worker(Watcher, [Poxa.Event, Poxa.SubscriptionHandler, []])
     children = [event_worker, subscription_worker]
-    children = if web_hook do
+    children = if to_string(web_hook) != "" do
                  web_wook_supervisor = worker(Poxa.WebHook.Supervisor, [])
                  children ++ [web_wook_supervisor]
                else
