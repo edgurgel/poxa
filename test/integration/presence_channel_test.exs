@@ -49,6 +49,8 @@ defmodule Poxa.Integration.PresenceChannelTest do
     assert_receive %{channel: ^channel,
                      event: "test_event",
                      data: %{"data" => 42}}, 1_000
+
+    assert Pusher.users(channel) == {:ok, [%{"id" => "123"}]}
   end
 
   test "member_added event on populated presence channel", context do
@@ -73,6 +75,8 @@ defmodule Poxa.Integration.PresenceChannelTest do
     assert_receive %{channel: "presence-channel",
                      data: %{"user_id" => "123", "user_info" => %{"k2" => "v2"}},
                      event: "pusher_internal:member_added"}, 1_000
+
+    assert Pusher.users(channel) == {:ok, [%{"id" => "123"}, %{"id" => "456"}]}
 
     PusherClient.disconnect!(other_pid)
   end
@@ -124,6 +128,8 @@ defmodule Poxa.Integration.PresenceChannelTest do
                      data: %{"user_id" => "456"},
                      event: "pusher_internal:member_removed"}, 1_000
 
+    assert Pusher.users(channel) == {:ok, [%{"id" => "123"}]}
+
     PusherClient.disconnect!(other_pid)
   end
 
@@ -149,6 +155,8 @@ defmodule Poxa.Integration.PresenceChannelTest do
     refute_receive %{channel: "presence-channel",
                      data: %{"user_id" => "123"},
                      event: "pusher_internal:member_removed"}, 1_000
+
+    assert Pusher.users(channel) == {:ok, [%{"id" => "123"}]}
 
     PusherClient.disconnect!(other_pid)
   end
