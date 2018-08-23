@@ -1,9 +1,9 @@
-FROM elixir:1.5.2-alpine
+FROM elixir:1.5.2-alpine AS builder
 
 ENV APP_NAME poxa
 ENV MIX_ENV prod
 
-RUN apk --update add bash git erlang-xmerl erlang-crypto erlang-sasl && rm -rf /var/cache/apk/*
+RUN apk --no-cache add git erlang-xmerl erlang-crypto erlang-sasl
 
 COPY . /source
 WORKDIR /source
@@ -14,6 +14,14 @@ RUN mix compile
 RUN echo "" > config/poxa.prod.conf
 RUN mix release
 
-RUN mkdir /app && cp -r _build/prod/rel/$APP_NAME /app && rm -rf /source
+
+FROM elixir:1.5.2-alpine
+
+ENV APP_NAME poxa
+ENV MIX_ENV prod
+
+RUN apk --no-cache add bash erlang-xmerl erlang-crypto erlang-sasl
+
+COPY --from=builder /source/_build/prod/rel /app
 
 CMD /app/$APP_NAME/bin/$APP_NAME foreground
