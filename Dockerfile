@@ -8,14 +8,16 @@ RUN apk --no-cache add git erlang-xmerl erlang-crypto erlang-sasl
 COPY . /source
 WORKDIR /source
 
-RUN mix local.hex --force && mix local.rebar --force
-RUN mix deps.get
-RUN mix compile
+RUN mix do \
+      local.hex --force, \
+      local.rebar --force, \
+      deps.get, \
+      compile
 RUN echo "" > config/poxa.prod.conf
 RUN mix release
 RUN mkdir -p /app/$APP_NAME
 WORKDIR /app/$APP_NAME
-RUN tar xzf /source/_build/prod/rel/$APP_NAME/releases/0.7.1/$APP_NAME.tar.gz
+RUN tar xzf /source/_build/prod/rel/$APP_NAME/releases/*/$APP_NAME.tar.gz
 
 
 FROM alpine:3.6
