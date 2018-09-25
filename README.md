@@ -208,7 +208,7 @@ One can generate it just running `docker build -t local/poxa .`.
 The docker run command should look like this:
 
 ```
-docker run --rm -p 8080:8080 -v $PWD/mypoxa.conf:/app/poxa/running-config/poxa.conf local/poxa
+docker run --rm --name poxa -p 8080:8080 -v /home/mydir/poxa.conf:/app/poxa/releases/0.8.0/poxa.conf edgurgel/poxa-automated:latest
 ```
 
 ## Your application
