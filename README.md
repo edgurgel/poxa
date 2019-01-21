@@ -268,7 +268,7 @@ Compile:
 mix compile
 ```
 
-The test suite used is the ExUnit and [meck](http://github.com/eproxus/meck) to mock stuff.
+The test suite used is the ExUnit and [Mimic](http://github.com/edgurgel/mimic) to mock stuff.
 
 To run tests:
 
