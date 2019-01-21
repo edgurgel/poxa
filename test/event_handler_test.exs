@@ -3,72 +3,61 @@ defmodule Poxa.EventHandlerTest do
   alias Poxa.PusherEvent
   alias Poxa.Authentication
   alias Poxa.Event
-  import :meck
+  import Mimic
   import Poxa.EventHandler
 
+  setup :verify_on_exit!
+
   setup do
-    on_exit fn -> unload() end
+    stub(:cowboy_req)
+    stub(Poison)
+    stub(PusherEvent)
     :ok
   end
 
   test "malformed_request with valid data" do
     event = %PusherEvent{}
-    expect(:cowboy_req, :body, 1, {:ok, :body, :req1})
-    expect(Poison, :decode, 1, {:ok, :data})
-    expect(PusherEvent, :build, [{[:data], {:ok, event}}])
+    expect(:cowboy_req, :body, fn :req -> {:ok, :body, :req1} end)
+    expect(Poison, :decode, fn :body -> {:ok, :data} end)
+    expect(PusherEvent, :build, fn :data -> {:ok, event} end)
 
     assert malformed_request(:req, :state) == {false, :req1, %{body: :body, event: event}}
-
-    assert validate :cowboy_req
-    assert validate Poison
   end
 
   test "malformed_request with invalid JSON" do
-    expect(:cowboy_req, :body, 1, {:ok, :body, :req1})
-    expect(:cowboy_req, :set_resp_body, 2, :req2)
-    expect(Poison, :decode, 1, :error)
+    expect(:cowboy_req, :body, fn :req -> {:ok, :body, :req1} end)
+    expect(Poison, :decode, fn :body -> :error end)
+    expect(:cowboy_req, :set_resp_body, fn _, _ -> :req2 end)
 
     assert malformed_request(:req, :state) == {true, :req2, :state}
-
-    assert validate :cowboy_req
-    assert validate Poison
   end
 
   test "malformed_request with invalid data" do
-    expect(:cowboy_req, :body, 1, {:ok, :body, :req1})
-    expect(:cowboy_req, :set_resp_body, 2, :req2)
-    expect(Poison, :decode, 1, {:ok, :data})
-    expect(PusherEvent, :build, [{[:data], {:error, :reason}}])
+    expect(:cowboy_req, :body, fn :req -> {:ok, :body, :req1} end)
+    expect(Poison, :decode, fn :body -> {:ok, :data} end)
+    expect(PusherEvent, :build, fn :data -> {:error, :reason} end)
+    expect(:cowboy_req, :set_resp_body, fn _, _ -> :req2 end)
 
     assert malformed_request(:req, :state) == {true, :req2, :state}
-
-    assert validate :cowboy_req
-    assert validate Poison
   end
 
   test "is_authorized with failing authentication" do
-    expect(Authentication, :check, 4, false)
-    expect(:cowboy_req, :qs_vals, 1, {:qsvals, :req2})
-    expect(:cowboy_req, :method, 1, {:method, :req3})
-    expect(:cowboy_req, :path, 1, {:path, :req3})
-    expect(:cowboy_req, :set_resp_body, 2, :req4)
+    expect(:cowboy_req, :qs_vals, fn :req -> {:qsvals, :req2} end)
+    expect(:cowboy_req, :method, fn :req2 -> {:method, :req3} end)
+    expect(:cowboy_req, :path, fn :req3 -> {:path, :req4} end)
+    expect(Authentication, :check, fn _, _, _, _ -> false end)
+    expect(:cowboy_req, :set_resp_body, fn _, :req4 -> :req5 end)
 
-    assert is_authorized(:req, %{body: :body}) == {{false, "Authentication error"}, :req4, %{body: :body}}
-
-    assert validate Authentication
-    assert validate :cowboy_req
+    assert is_authorized(:req, %{body: :body}) == {{false, "Authentication error"}, :req5, %{body: :body}}
   end
 
   test "is_authorized with correct authentication" do
-    expect(Authentication, :check, 4, true)
-    expect(:cowboy_req, :qs_vals, 1, {:qsvals, :req2})
-    expect(:cowboy_req, :method, 1, {:method, :req3})
-    expect(:cowboy_req, :path, 1, {:path, :req3})
+    expect(Authentication, :check, fn _, _, _, _ -> true end)
+    expect(:cowboy_req, :qs_vals, fn :req -> {:qsvals, :req2} end)
+    expect(:cowboy_req, :method, fn :req2 -> {:method, :req3} end)
+    expect(:cowboy_req, :path, fn :req3 -> {:path, :req4} end)
 
-    assert is_authorized(:req, %{body: :body}) == {true, :req3, %{body: :body}}
-
-    assert validate Authentication
-    assert validate :cowboy_req
+    assert is_authorized(:req, %{body: :body}) == {true, :req4, %{body: :body}}
   end
 
   test "valid_entity_length with data key smaller than 10KB" do
@@ -79,23 +68,17 @@ defmodule Poxa.EventHandlerTest do
   test "valid_entity_length with data key bigger than 10KB" do
     data = File.read! "test/more_than_10KB.data"
     event = %PusherEvent{data: data}
-    expect(:cowboy_req, :set_resp_body, 2, :req2)
+    expect(:cowboy_req, :set_resp_body, fn _, :req -> :req2 end)
 
     assert valid_entity_length(:req, %{event: event}) == {false, :req2, %{event: event}}
-
-    assert validate :cowboy_req
   end
 
   test "post event" do
     event = %PusherEvent{}
-    expect(PusherEvent, :publish, [{[event], :ok}])
-    expect(Event, :notify, 2, :ok)
-    expect(:cowboy_req, :set_resp_body, 2, :req2)
+    expect(PusherEvent, :publish, fn ^event -> :ok end)
+    expect(Event, :notify, fn _, _ -> :ok end)
+    expect(:cowboy_req, :set_resp_body, fn _, :req -> :req2 end)
 
     assert post(:req, %{event: event}) == {true, :req2, nil}
-
-    assert validate PusherEvent
-    assert validate :cowboy_req
-    assert validate Event
   end
 end

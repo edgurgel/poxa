@@ -1,7 +1,7 @@
 defmodule Poxa.WebHook.DispatcherTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   alias Poxa.WebHook.EventTable
-  import :meck
+  import Mimic
   import Poxa.WebHook.Dispatcher
 
   @table_name :web_hook_events
@@ -11,16 +11,20 @@ defmodule Poxa.WebHook.DispatcherTest do
     :application.set_env(:poxa, :app_key, "app_key")
     :application.set_env(:poxa, :web_hook, "web_hook_url")
 
-    new HTTPoison
-    expect HTTPoison, :post, fn url, body, headers ->
+    :ok
+  end
+
+  setup do
+    stub HTTPoison, :post, fn url, body, headers ->
       args_map = %{url: url, body: Poison.decode!(body), headers: headers}
       send(self(), args_map)
       {:ok, args_map}
     end
 
-    on_exit fn -> unload() end
     :ok
   end
+
+  setup :verify_on_exit!
 
   setup do
     case :ets.info(@table_name) do

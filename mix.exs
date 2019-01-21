@@ -16,9 +16,7 @@ defmodule Poxa.Mixfile do
   end
 
   def application do
-    [ applications: [ :logger, :crypto, :gproc, :cowboy, :asn1, :public_key,
-                      :ssl, :poison, :signaturex, :httpoison, :watcher, :ex2ms ],
-      mod: { Poxa, [] } ]
+    [ mod: { Poxa, [] } ]
   end
 
   defp deps do
@@ -26,7 +24,7 @@ defmodule Poxa.Mixfile do
       {:poison, "~> 3.0"},
       {:signaturex, "~> 1.3"},
       {:gproc, "~> 0.6"},
-      {:meck, "~> 0.8.2", only: :test},
+      {:mimic, "~> 0.2", only: :test},
       {:pusher_client, github: "edgurgel/pusher_client", only: :test},
       {:pusher, "~> 0.1", only: :test},
       {:distillery, "~> 1.4", runtime: false},

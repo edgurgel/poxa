@@ -1,40 +1,29 @@
 defmodule Poxa.Console.WSHandlerTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   alias Poxa.Authentication
   alias Poxa.Event
-  import :meck
+  import Mimic
   import Poxa.Console.WSHandler
 
-  setup do
-    new Authentication
-    new :cowboy_req
-    new Event
-    on_exit fn -> unload() end
-    :ok
-  end
+  setup :verify_on_exit!
 
   test "websocket_init with correct signature" do
-    expect(:cowboy_req, :method, 1, {:method, :req2})
-    expect(:cowboy_req, :path, 1, {:path, :req3})
-    expect(:cowboy_req, :qs_vals, 1, {:qs_vals, :req4})
-    expect(Authentication, :check, [{[:method, :path, "", :qs_vals], true}])
-    expect(Event, :add_handler, [{[{Poxa.Console, self()}, self()], :ok}])
+    pid = self()
+    expect(:cowboy_req, :method, fn :req -> {:method, :req2} end)
+    expect(:cowboy_req, :path, fn :req2 -> {:path, :req3} end)
+    expect(:cowboy_req, :qs_vals, fn :req3 -> {:qs_vals, :req4} end)
+    expect(Authentication, :check, fn :method, :path, "", :qs_vals -> true end)
+    expect(Event, :add_handler, fn {Poxa.Console, ^pid}, ^pid -> :ok end)
 
     assert websocket_init(:tranport, :req, []) == {:ok, :req4, nil}
-
-    assert validate Authentication
-    assert validate :cowboy_req
   end
 
   test "websocket_init with incorrect signature" do
-    expect(:cowboy_req, :method, 1, {:method, :req2})
-    expect(:cowboy_req, :path, 1, {:path, :req3})
-    expect(:cowboy_req, :qs_vals, 1, {:qs_vals, :req4})
-    expect(Authentication, :check, [{[:method, :path, "", :qs_vals], false}])
+    expect(:cowboy_req, :method, fn :req -> {:method, :req2} end)
+    expect(:cowboy_req, :path, fn :req2 -> {:path, :req3} end)
+    expect(:cowboy_req, :qs_vals, fn :req3 -> {:qs_vals, :req4} end)
+    expect(Authentication, :check, fn :method, :path, "", :qs_vals -> false end)
 
     assert websocket_init(:tranport, :req, []) == {:shutdown, :req4}
-
-    assert validate Authentication
-    assert validate :cowboy_req
   end
 end

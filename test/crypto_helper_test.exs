@@ -1,5 +1,5 @@
 defmodule Poxa.CryptoHelperTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   import Poxa.CryptoHelper
 
   test "hmac256_to_string" do
