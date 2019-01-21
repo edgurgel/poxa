@@ -1,14 +1,10 @@
 defmodule Poxa.PusherEventTest do
-  use ExUnit.Case
-  import :meck
+  use ExUnit.Case, async: true
+  import Mimic
   import Poxa.PusherEvent
   alias Poxa.PusherEvent
 
-  setup do
-    new Poxa.registry
-    on_exit fn -> unload() end
-    :ok
-  end
+  setup :verify_on_exit!
 
   doctest Poxa.PusherEvent
 
@@ -119,23 +115,21 @@ defmodule Poxa.PusherEventTest do
   end
 
   test "sending message to a channel" do
-    expect(Poxa.registry, :send!, [{[:msg, "channel123", self(), nil], :ok}])
+    pid = self()
+    expect(Poxa.registry, :send!, fn :msg, "channel123", ^pid, nil -> :ok end)
     expected = %{channel: "channel123", data: "data", event: "event"}
-    expect(Poison, :encode!, [{[expected], :msg}])
+    expect(Poison, :encode!, fn ^expected -> :msg end)
     event = %PusherEvent{channels: ["channel123"], data: "data", name: "event"}
 
     assert publish(event) == :ok
-
-    assert validate [Poxa.registry, Poison]
   end
 
   test "sending message to channels excluding a socket id" do
+    pid = self()
     expected = %{channel: "channel123", data: %{}, event: "event"}
-    expect(Poison, :encode!, [{[expected], :msg}])
-    expect(Poxa.registry, :send!, [{[:msg, "channel123", self(), "SocketId"], :ok}])
+    expect(Poison, :encode!, fn ^expected -> :msg end)
+    expect(Poxa.registry, :send!, fn :msg, "channel123", ^pid, "SocketId" -> :ok end)
 
     assert publish(%PusherEvent{data: %{}, channels: ["channel123"], name: "event", socket_id: "SocketId"}) == :ok
-
-    assert validate [Poxa.registry, Poison]
   end
 end

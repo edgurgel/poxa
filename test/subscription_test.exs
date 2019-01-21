@@ -1,120 +1,107 @@
 defmodule Poxa.SubscriptionTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   alias Poxa.AuthSignature
   alias Poxa.PresenceSubscription
   alias Poxa.Channel
   alias Poxa.PusherEvent
-  import :meck
+  import Mimic
   import Poxa.Subscription
 
+  setup :verify_on_exit!
+
   setup do
-    new PresenceSubscription
-    new AuthSignature
-    new PusherEvent
-    new Channel, [:passthrough]
-    new Poxa.registry
-    on_exit fn -> unload() end
+    stub(Poxa.registry)
+    stub(AuthSignature)
+    stub(PresenceSubscription)
+    stub(PusherEvent)
     :ok
   end
 
   test "subscription to a public channel" do
-    expect(Channel, :member?, 2, false)
-    expect(Poxa.registry, :register!, 1, :registered)
+    expect(Channel, :member?, fn _, _ -> false end)
+    expect(Poxa.registry, :register!, fn _ -> :registered end)
     assert subscribe!(%{"channel" => "public-channel"}, nil) == {:ok, "public-channel"}
-    assert validate Poxa.registry
   end
 
   test "subscription to a missing channel name" do
-    expect(PusherEvent, :pusher_error, 1, :error_message)
+    expect(PusherEvent, :pusher_error, fn _ -> :error_message end)
 
     assert subscribe!(%{}, nil) == {:error, :error_message}
-
-    assert validate PusherEvent
   end
 
   test "subscription to a public channel but already subscribed" do
-    expect(Channel, :member?, 2, true)
+    pid = self()
+    expect(Channel, :member?, fn "public-channel", ^pid -> true end)
     assert subscribe!(%{"channel" => "public-channel"}, nil) == {:ok, "public-channel"}
   end
 
   test "subscription to a private channel" do
-    expect(Channel, :member?, 2, false)
-    expect(Poxa.registry, :register!, 1, :registered)
-    expect(AuthSignature, :valid?, 2, true)
+    pid = self()
+    expect(Channel, :member?, fn "private-channel", ^pid -> false end)
+    expect(Poxa.registry, :register!, fn _ -> :registered end)
+    expect(AuthSignature, :valid?, fn _, _ -> true end)
+
     assert subscribe!(%{"channel" => "private-channel",
                         "auth" => "signeddata" }, "SocketId") == {:ok, "private-channel"}
-    assert validate [AuthSignature, Poxa.registry]
   end
 
   test "subscription to a private channel having a channel_data" do
-    expect(Channel, :member?, 2, false)
-    expect(Poxa.registry, :register!, 1, :registered)
-    expect(AuthSignature, :valid?, 2, true)
+    pid = self()
+    expect(Channel, :member?, fn "private-channel", ^pid -> false end)
+    expect(Poxa.registry, :register!, fn _ -> :registered end)
+    expect(AuthSignature, :valid?, fn _, _ -> true end)
     assert subscribe!(%{"channel" => "private-channel",
                         "auth" => "signeddata",
                         "channel_data" => "{\"user_id\" : \"id123\", \"user_info\" : \"info456\"}"}, "SocketId") == {:ok, "private-channel"}
-    assert validate [AuthSignature, Poxa.registry]
   end
 
   test "subscription to a presence channel" do
-    expect(Channel, :member?, 2, false)
-    expect(AuthSignature, :valid?, 2, true)
-    expect(PresenceSubscription, :subscribe!, 2, :ok)
+    expect(AuthSignature, :valid?, fn _, _ -> true end)
+    expect(PresenceSubscription, :subscribe!, fn _, _ -> :ok end)
 
     assert subscribe!(%{"channel" => "presence-channel",
                         "auth" => "signeddata",
                         "channel_data" => "{\"user_id\" : \"id123\", \"user_info\" : \"info456\""}, "SocketId") == :ok
 
-    assert validate AuthSignature
-    assert validate PresenceSubscription
   end
 
   test "subscription to a private-channel having bad authentication" do
-    expect(AuthSignature, :valid?, 2, false)
-    expect(PusherEvent, :pusher_error, 1, :error_message)
+    expect(AuthSignature, :valid?, fn _, _ -> false end)
+    expect(PusherEvent, :pusher_error, fn _ -> :error_message end)
 
     assert subscribe!(%{"channel" => "private-channel",
                         "auth" => "signeddate"}, "SocketId") == {:error, :error_message}
-
-    assert validate AuthSignature
-    assert validate PusherEvent
   end
 
   test "subscription to a presence-channel having bad authentication" do
-    expect(AuthSignature, :valid?, 2, false)
-    expect(PusherEvent, :pusher_error, 1, :error_message)
+    expect(AuthSignature, :valid?, fn _, _ -> false end)
+    expect(PusherEvent, :pusher_error, fn _ -> :error_message end)
 
     assert subscribe!(%{"channel" => "presence-channel",
                         "auth" => "signeddate"}, "SocketId") == {:error, :error_message}
-
-    assert validate AuthSignature
-    assert validate PusherEvent
   end
 
   test "unsubscribe channel being subscribed" do
-    expect(Channel, :member?, 2, true)
-    expect(Channel, :presence?, 1, false)
-    expect(Poxa.registry, :unregister!, 1, :ok)
+    pid = self()
+    expect(Channel, :member?, fn "a_channel", ^pid -> true end)
+    expect(Poxa.registry, :unregister!, fn _ -> :ok end)
 
     assert unsubscribe!(%{"channel" => "a_channel"}) == {:ok, "a_channel"}
-
-    assert validate Poxa.registry
   end
 
   test "unsubscribe channel being not subscribed" do
-    expect(Channel, :member?, 2, false)
-    expect(Channel, :presence?, 1, false)
+    pid = self()
+    expect(Channel, :member?, fn "a_channel", ^pid -> false end)
 
     assert unsubscribe!(%{"channel" => "a_channel"}) == {:ok, "a_channel"}
   end
 
   test "unsubscribe from a presence channel" do
-    expect(Channel, :member?, 2, false)
-    expect(Channel, :presence?, 1, true)
-    expect(PresenceSubscription, :unsubscribe!, 1, {:ok, "presence-channel"})
+    pid = self()
+    expect(Channel, :member?, fn "presence-channel", ^pid -> true end)
+    expect(PresenceSubscription, :unsubscribe!, fn "presence-channel" -> {:ok, "presence-channel"} end)
+    expect(Poxa.registry, :unregister!, fn "presence-channel" -> :ok end)
 
     assert unsubscribe!(%{"channel" => "presence-channel"}) == {:ok, "presence-channel"}
-
-    assert validate PresenceSubscription
   end
 end

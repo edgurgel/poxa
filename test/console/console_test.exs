@@ -1,12 +1,10 @@
 defmodule Poxa.ConsoleTest do
-  use ExUnit.Case
-  import :meck
+  use ExUnit.Case, async: true
   import Poxa.Console
+  import Mimic
 
-  setup_all do
-    new Poison
-    expect(Poison, :encode!, &(&1))
-    on_exit fn -> unload() end
+  setup do
+    stub(Poison, :encode!, &(&1))
     :ok
   end
 

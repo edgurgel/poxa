@@ -1,5 +1,5 @@
 defmodule Poxa.WebHook.EventTableTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
   import Poxa.WebHook.EventTable
 
   @table_name :web_hook_events

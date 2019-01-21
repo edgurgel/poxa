@@ -1,5 +1,5 @@
 defmodule Poxa.Adapter.GProcTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   import Poxa.Adapter.GProc
 
