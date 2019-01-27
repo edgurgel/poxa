@@ -1,6 +1,6 @@
 defmodule Poxa.WebHook.Handler do
   @moduledoc """
-  This module is a event handler that deals with events as they happen 
+  This module is a event handler that deals with events as they happen
   and then adds them to the web hook event table.
   """
 
@@ -34,9 +34,9 @@ defmodule Poxa.WebHook.Handler do
     {:ok, state}
   end
 
-  def handle_event(%{event: :client_event_message, socket_id: socket_id, channels: channels, name: name, data: data}, state) do
+  def handle_event(%{event: :client_event_message, socket_id: socket_id, channels: channels, name: name, data: data} = event, state) do
     for c <- channels do
-      EventData.client_event(c, name, data, socket_id, nil)
+      EventData.client_event(c, name, data, socket_id, event[:user_id])
     end |> EventTable.insert
     {:ok, state}
   end
