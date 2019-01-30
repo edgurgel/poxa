@@ -140,8 +140,8 @@ defmodule Poxa.PusherEvent do
       data: data} |> encode!
   end
 
-  defstruct [:channels, :name, :data, :socket_id]
-  @type t :: %Poxa.PusherEvent{channels: list, name: binary,
+  defstruct [:channels, :name, :data, :socket_id, :user_id]
+  @type t :: %Poxa.PusherEvent{channels: list, name: binary, user_id: nil | binary,
                                data: binary | map, socket_id: nil | binary}
 
   @doc """
@@ -161,14 +161,16 @@ defmodule Poxa.PusherEvent do
   """
   @spec build_client_event(map, binary) :: {:ok, Poxa.PusherEvent.t} | {:error, atom}
   def build_client_event(%{"event" => name, "channel" => channel, "data" => data}, socket_id) do
-    build_event([channel], data, name, socket_id)
+    user_id = Poxa.PresenceChannel.my_user_id(channel)
+    build_event([channel], data, name, socket_id, user_id)
   end
   def build_client_event(%{"name" => name, "channel" => channel, "data" => data}, socket_id) do
-    build_event([channel], data, name, socket_id)
+    user_id = Poxa.PresenceChannel.my_user_id(channel)
+    build_event([channel], data, name, socket_id, user_id)
   end
 
-  defp build_event(channels, data, name, socket_id) do
-    event = %Poxa.PusherEvent{channels: channels, data: data, name: name, socket_id: socket_id}
+  defp build_event(channels, data, name, socket_id, user_id \\ nil) do
+    event = %Poxa.PusherEvent{channels: channels, data: data, name: name, socket_id: socket_id, user_id: user_id}
     if valid?(event), do: {:ok, event},
     else: {:error, :invalid_event}
   end

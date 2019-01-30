@@ -97,13 +97,15 @@ defmodule Poxa.PusherEventTest do
     event = %{"channel" => "channel_name",
               "data" => "event_data",
               "name" => "event_etc"}
-    assert build_client_event(event, "123.456") == {:ok, %PusherEvent{name: "event_etc", data: "event_data", channels: ["channel_name"], socket_id: "123.456"}}
+    stub(Poxa.PresenceChannel, :my_user_id, fn _ -> "user-789" end)
+    assert build_client_event(event, "123.456") == {:ok, %PusherEvent{name: "event_etc", data: "event_data", channels: ["channel_name"], socket_id: "123.456", user_id: "user-789"}}
   end
 
   test "build_client_event with invalid excluding socket_id" do
     event = %{"channel" => "channel_name",
               "data" => "event_data",
               "name" => "event_etc"}
+    stub(Poxa.PresenceChannel, :my_user_id, fn _ -> "user-789" end)
     assert build_client_event(event, "123:456") == {:error, :invalid_event}
   end
 
@@ -111,6 +113,8 @@ defmodule Poxa.PusherEventTest do
     event = %{"channel" => "channel:name",
               "data" => "event_data",
               "name" => "event_etc"}
+
+    stub(Poxa.PresenceChannel, :my_user_id, fn _ -> "user-789" end)
     assert build_client_event(event, "123.456") == {:error, :invalid_event}
   end
 

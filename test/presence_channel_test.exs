@@ -25,4 +25,19 @@ defmodule Poxa.PresenceChannelTest do
 
     assert user_count("presence-channel") == 2
   end
+
+  test "return user_id if available" do
+    expect(Poxa.registry, :fetch, fn "presence-channel" ->
+      {:user_id, :user_info}
+    end)
+
+    assert my_user_id("presence-channel") == :user_id
+  end
+
+
+  test "return nil if user_id is not available" do
+    expect(Poxa.registry, :fetch, fn "presence-channel" -> nil end)
+
+    assert my_user_id("presence-channel") == nil
+  end
 end

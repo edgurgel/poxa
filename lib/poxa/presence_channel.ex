@@ -18,4 +18,15 @@ defmodule Poxa.PresenceChannel do
   """
   @spec user_count(binary) :: non_neg_integer
   def user_count(channel), do: channel |> users |> Enum.count
+
+  @doc """
+  Returns user data for a presence channel
+  """
+  @spec my_user_id(binary) :: {binary, map} | nil
+  def my_user_id(channel) do
+    case Poxa.registry.fetch(channel) do
+      {user_id, _} -> user_id
+      _ -> nil
+    end
+  end
 end
