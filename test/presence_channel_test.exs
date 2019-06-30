@@ -1,9 +1,7 @@
 defmodule Poxa.PresenceChannelTest do
   use ExUnit.Case, async: true
-  import Mimic
+  use Mimic
   import Poxa.PresenceChannel
-
-  setup :verify_on_exit!
 
   setup do
     stub(Poxa.registry)

@@ -2,10 +2,8 @@ defmodule Poxa.SubscriptionHandlerTest do
   use ExUnit.Case, async: true
   alias Poxa.Event
   alias Poxa.Channel
-  import Mimic
+  use Mimic
   import Poxa.SubscriptionHandler
-
-  setup :verify_on_exit!
 
   setup do
     stub(Event)

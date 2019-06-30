@@ -1,10 +1,8 @@
 defmodule Poxa.UsersHandlerTest do
   use ExUnit.Case, async: true
   alias Poxa.PresenceChannel
-  import Mimic
+  use Mimic
   import Poxa.UsersHandler
-
-  setup :verify_on_exit!
 
   setup do
     stub(Poison)

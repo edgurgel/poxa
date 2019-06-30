@@ -1,9 +1,7 @@
 defmodule Poxa.AuthenticationTest do
   use ExUnit.Case, async: true
-  import Mimic
+  use Mimic
   import Poxa.Authentication
-
-  setup :verify_on_exit!
 
   setup do
     stub(Signaturex)

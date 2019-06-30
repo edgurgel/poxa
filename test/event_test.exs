@@ -1,10 +1,8 @@
 defmodule Poxa.EventTest do
   use ExUnit.Case, async: true
-  import Mimic
+  use Mimic
   alias Poxa.Event
   alias Poxa.SocketId
-
-  setup :verify_on_exit!
 
   setup do
     stub(SocketId)

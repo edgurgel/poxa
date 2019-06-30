@@ -2,10 +2,8 @@ defmodule Poxa.Console.WSHandlerTest do
   use ExUnit.Case, async: true
   alias Poxa.Authentication
   alias Poxa.Event
-  import Mimic
+  use Mimic
   import Poxa.Console.WSHandler
-
-  setup :verify_on_exit!
 
   test "websocket_init with correct signature" do
     pid = self()

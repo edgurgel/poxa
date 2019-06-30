@@ -1,10 +1,8 @@
 defmodule Poxa.SocketIdTest do
   use ExUnit.Case, async: true
   alias Poxa.SocketId
-  import Mimic
+  use Mimic
   doctest SocketId
-
-  setup :verify_on_exit!
 
   setup do
     stub(Poxa.registry)

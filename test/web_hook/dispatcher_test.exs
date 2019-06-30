@@ -1,7 +1,7 @@
 defmodule Poxa.WebHook.DispatcherTest do
   use ExUnit.Case, async: true
   alias Poxa.WebHook.EventTable
-  import Mimic
+  use Mimic
   import Poxa.WebHook.Dispatcher
 
   @table_name :web_hook_events
@@ -23,8 +23,6 @@ defmodule Poxa.WebHook.DispatcherTest do
 
     :ok
   end
-
-  setup :verify_on_exit!
 
   setup do
     case :ets.info(@table_name) do

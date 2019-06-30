@@ -3,10 +3,8 @@ defmodule Poxa.EventHandlerTest do
   alias Poxa.PusherEvent
   alias Poxa.Authentication
   alias Poxa.Event
-  import Mimic
+  use Mimic
   import Poxa.EventHandler
-
-  setup :verify_on_exit!
 
   setup do
     stub(:cowboy_req)

@@ -1,10 +1,8 @@
 defmodule Poxa.ChannelTest do
   use ExUnit.Case, async: true
   import Poxa.Channel
-  import Mimic
+  use Mimic
   doctest Poxa.Channel
-
-  setup :verify_on_exit!
 
   setup do
     stub(Poxa.registry)

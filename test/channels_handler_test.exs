@@ -2,10 +2,8 @@ defmodule Poxa.ChannelsHandlerTest do
   use ExUnit.Case, async: true
   alias Poxa.Channel
   alias Poxa.PresenceChannel
-  import Mimic
+  use Mimic
   import Poxa.ChannelsHandler
-
-  setup :verify_on_exit!
 
   setup do
     stub(Poison)

@@ -1,10 +1,8 @@
 defmodule Poxa.PusherEventTest do
   use ExUnit.Case, async: true
-  import Mimic
+  use Mimic
   import Poxa.PusherEvent
   alias Poxa.PusherEvent
-
-  setup :verify_on_exit!
 
   doctest Poxa.PusherEvent
 

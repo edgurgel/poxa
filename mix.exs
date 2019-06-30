@@ -24,7 +24,7 @@ defmodule Poxa.Mixfile do
       {:poison, "~> 3.0"},
       {:signaturex, "~> 1.3"},
       {:gproc, "~> 0.6"},
-      {:mimic, "~> 0.2", only: :test},
+      {:mimic, "~> 1.0", only: :test},
       {:pusher_client, github: "edgurgel/pusher_client", only: :test},
       {:pusher, "~> 0.1", only: :test},
       {:distillery, "~> 1.4", runtime: false},

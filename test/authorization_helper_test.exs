@@ -1,10 +1,8 @@
 defmodule Poxa.AuthorizarionHelperTest do
   use ExUnit.Case, async: true
   alias Poxa.Authentication
-  import Mimic
+  use Mimic
   import Poxa.AuthorizationHelper
-
-  setup :verify_on_exit!
 
   setup do
     stub(Authentication)

@@ -4,10 +4,8 @@ defmodule Poxa.SubscriptionTest do
   alias Poxa.PresenceSubscription
   alias Poxa.Channel
   alias Poxa.PusherEvent
-  import Mimic
+  use Mimic
   import Poxa.Subscription
-
-  setup :verify_on_exit!
 
   setup do
     stub(Poxa.registry)

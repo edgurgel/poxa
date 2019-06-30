@@ -2,11 +2,9 @@ defmodule Poxa.PresenceSubscriptionTest do
   use ExUnit.Case, async: true
   alias Poxa.PusherEvent
   alias Poxa.Channel
-  import Mimic
+  use Mimic
   import Poxa.PresenceSubscription
   alias Poxa.PresenceSubscription
-
-  setup :verify_on_exit!
 
   setup do
     stub(PusherEvent)
