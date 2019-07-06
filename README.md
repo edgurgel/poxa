@@ -48,7 +48,7 @@ How do I speak 'poxa'?
 * [x] Integration test using pusher-js or other client library;
 * [x] Web hooks;
 * [x] Add 'Vacated' and 'Occupied' events to Console;
-* [X] Use GenEvent to generate Console events so other handlers can be attached (Web hook for example);
+* [X] Use `gproc` to generate Console events so other handlers can be attached (Web hook for example);
 * [ ] Turn Poxa on a distributed server with multiple nodes;
 
 ## Typical usage
@@ -211,7 +211,7 @@ The docker run command should look like this:
 docker run --rm --name poxa -p 8080:8080 edgurgel/poxa-automated:latest
 ```
 
-To use a custom config 
+To use a custom config
 ```
 # download the default config
 wget https://raw.githubusercontent.com/edgurgel/poxa/master/config/poxa.dev.conf -O poxa.conf

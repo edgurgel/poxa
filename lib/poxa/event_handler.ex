@@ -92,6 +92,6 @@ defmodule Poxa.EventHandler do
 
   @doc false
   defp invalid_data_size_json(payload_limit) do
-    JSX.encode!(%{error: "Data key must be smaller than #{payload_limit}B"})
+    Poison.encode!(%{error: "Data key must be smaller than #{payload_limit}B"})
   end
 end

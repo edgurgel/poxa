@@ -7,7 +7,7 @@ defmodule Poxa.WebsocketHandlerTest do
   alias Poxa.Time
   alias Poxa.Channel
   alias Poxa.SocketId
-  import Mimic
+  use Mimic
   import Poxa.WebsocketHandler
   alias Poxa.WebsocketHandler.State
 
@@ -216,9 +216,9 @@ defmodule Poxa.WebsocketHandlerTest do
   test "websocket init" do
     expect(:cowboy_req, :binding, fn _, _ -> {"app_key", :req} end)
     expect(:cowboy_req, :qs_val, fn _, _, _ -> {"7", :req} end)
-    expect(PusherEvent, :connection_established, fn _ -> :connection_established end)
 
     assert websocket_init(:transport, :req, :opts) == {:ok, :req, nil}
+    assert_receive :start
   end
 
   test "websocket init using wrong app_key" do

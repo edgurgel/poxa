@@ -11,8 +11,8 @@ defmodule Poxa.WebHook.Supervisor do
   """
   def init([]) do
     web_wook_dispatcher = worker(Poxa.WebHook.Dispatcher, [])
-    web_wook_watcher = worker(Watcher, [Poxa.Event, Poxa.WebHook.Handler, []])
-    children = [web_wook_watcher, web_wook_dispatcher]
+    web_wook_handler = worker(Poxa.WebHook.Handler, [])
+    children = [web_wook_handler, web_wook_dispatcher]
 
     supervise children, strategy: :one_for_one
   end

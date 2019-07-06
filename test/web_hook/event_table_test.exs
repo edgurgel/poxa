@@ -6,7 +6,7 @@ defmodule Poxa.WebHook.EventTableTest do
 
   setup do
     case :ets.info(@table_name) do
-      :undefined -> init
+      :undefined -> init()
       _ -> :ets.delete_all_objects(@table_name)
     end
     :ok
