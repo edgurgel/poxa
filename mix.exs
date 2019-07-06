@@ -31,7 +31,6 @@ defmodule Poxa.Mixfile do
       {:conform, "~> 2.0"},
       {:httpoison, "~> 0.9"},
       {:ex2ms, "~> 1.5"},
-      {:watcher, "~> 1.1.0"},
       {:dialyxir, "~> 0.3", only: [:dev, :test]}]
   end
 end

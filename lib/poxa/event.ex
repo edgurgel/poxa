@@ -1,27 +1,22 @@
 defmodule Poxa.Event do
   @moduledoc """
-  GenEvent interface to internal events
+  Uses gproc to publish and subscribe internal events
   """
 
-  @doc """
-  Uses GenEvent to notify a new event.
+  @gproc_key {:p, :l, :internal_event}
 
-  It adds the socket_id if not available
-  """
-  @spec notify(atom, map) :: :ok
+  @doc false
   def notify(event, %{socket_id: _socket_id} = data) do
-    GenEvent.notify(Poxa.Event, Map.put(data, :event, event))
+    :gproc.send(@gproc_key, {:internal_event, Map.put(data, :event, event)})
   end
+
   def notify(event, data) do
     socket_id = Poxa.SocketId.mine
     notify(event, Map.put(data, :socket_id, socket_id))
   end
 
-  def add_handler(handler, pid) do
-    GenEvent.add_mon_handler(Poxa.Event, handler, pid)
-  end
-
-  def remove_handler(handler, pid) do
-    GenEvent.remove_handler(Poxa.Event, handler, pid)
+  @doc false
+  def subscribe do
+    :gproc.reg(@gproc_key)
   end
 end

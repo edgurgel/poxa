@@ -66,7 +66,8 @@ defmodule Poxa.EventHandlerTest do
   test "valid_entity_length with data key bigger than 10KB" do
     data = File.read! "test/more_than_10KB.data"
     event = %PusherEvent{data: data}
-    expect(:cowboy_req, :set_resp_body, fn _, :req -> :req2 end)
+    expect(Poison, :encode!, &(&1))
+    expect(:cowboy_req, :set_resp_body, fn %{error: "Data key must be smaller than 10000B"}, :req -> :req2 end)
 
     assert valid_entity_length(:req, %{event: event}) == {false, :req2, %{event: event}}
   end

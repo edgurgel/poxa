@@ -14,6 +14,7 @@ Mimic.copy(Poxa.Time)
 Mimic.copy(Poxa.Subscription)
 Mimic.copy(Poxa.registry)
 Mimic.copy(HTTPoison)
+Mimic.copy(:gproc)
 ExUnit.start
 ExUnit.configure(exclude: :pending)
 
