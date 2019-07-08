@@ -16,7 +16,7 @@ defmodule Poxa.Console.WSHandler do
       Poxa.Event.subscribe()
       {:ok, nil}
     else
-      Logger.error "Failed to authenticate on Console Websocket"
+      Logger.error("Failed to authenticate on Console Websocket")
       {:shutdown, req}
     end
   end
@@ -34,8 +34,17 @@ defmodule Poxa.Console.WSHandler do
     build_message("Connection", socket_id, "Origin: #{origin}")
   end
 
-  defp do_websocket_info(%{event: :disconnected, socket_id: socket_id, channels: channels, duration: duration}) do
-    build_message("Disconnection", socket_id, "Channels: #{inspect channels}, Lifetime: #{duration}s")
+  defp do_websocket_info(%{
+         event: :disconnected,
+         socket_id: socket_id,
+         channels: channels,
+         duration: duration
+       }) do
+    build_message(
+      "Disconnection",
+      socket_id,
+      "Channels: #{inspect(channels)}, Lifetime: #{duration}s"
+    )
   end
 
   defp do_websocket_info(%{event: :subscribed, socket_id: socket_id, channel: channel}) do
@@ -47,39 +56,66 @@ defmodule Poxa.Console.WSHandler do
   end
 
   defp do_websocket_info(%{event: :api_message, channels: channels, name: name}) do
-    build_message("API Message", "", "Channels: #{inspect channels}, Event: #{name}")
+    build_message("API Message", "", "Channels: #{inspect(channels)}, Event: #{name}")
   end
 
-  defp do_websocket_info(%{event: :client_event_message, socket_id: socket_id, channels: channels, name: name}) do
-    build_message("Client Event Message", socket_id, "Channels: #{inspect channels}, Event: #{name}")
+  defp do_websocket_info(%{
+         event: :client_event_message,
+         socket_id: socket_id,
+         channels: channels,
+         name: name
+       }) do
+    build_message(
+      "Client Event Message",
+      socket_id,
+      "Channels: #{inspect(channels)}, Event: #{name}"
+    )
   end
 
-  defp do_websocket_info(%{event: :member_added, channel: channel, socket_id: socket_id, user_id: user_id}) do
-    build_message("Member added", socket_id, "Channel: #{inspect channel}, UserId: #{inspect user_id}")
+  defp do_websocket_info(%{
+         event: :member_added,
+         channel: channel,
+         socket_id: socket_id,
+         user_id: user_id
+       }) do
+    build_message(
+      "Member added",
+      socket_id,
+      "Channel: #{inspect(channel)}, UserId: #{inspect(user_id)}"
+    )
   end
 
-  defp do_websocket_info(%{event: :member_removed, channel: channel, socket_id: socket_id, user_id: user_id}) do
-    build_message("Member removed", socket_id, "Channel: #{inspect channel}, UserId: #{inspect user_id}")
+  defp do_websocket_info(%{
+         event: :member_removed,
+         channel: channel,
+         socket_id: socket_id,
+         user_id: user_id
+       }) do
+    build_message(
+      "Member removed",
+      socket_id,
+      "Channel: #{inspect(channel)}, UserId: #{inspect(user_id)}"
+    )
   end
 
   defp do_websocket_info(%{event: :channel_vacated, channel: channel, socket_id: socket_id}) do
-    build_message("Channel vacated", socket_id, "Channel: #{inspect channel}")
+    build_message("Channel vacated", socket_id, "Channel: #{inspect(channel)}")
   end
 
   defp do_websocket_info(%{event: :channel_occupied, channel: channel, socket_id: socket_id}) do
-    build_message("Channel occupied", socket_id, "Channel: #{inspect channel}")
+    build_message("Channel occupied", socket_id, "Channel: #{inspect(channel)}")
   end
 
   defp build_message(type, socket_id, details) do
-    message(type, socket_id, details) |> Jason.encode!
+    message(type, socket_id, details) |> Jason.encode!()
   end
 
   defp message(type, socket_id, details) do
-    %{ type: type, socket: socket_id, details: details, time: time() }
+    %{type: type, socket: socket_id, details: details, time: time()}
   end
 
   defp time do
-    {_, {hour, min, sec}} = :erlang.localtime
+    {_, {hour, min, sec}} = :erlang.localtime()
     :io_lib.format("~2w:~2..0w:~2..0w", [hour, min, sec]) |> to_string
   end
 end

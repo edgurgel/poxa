@@ -11,7 +11,7 @@ defmodule Poxa.Event do
   end
 
   def notify(event, data) do
-    socket_id = Poxa.SocketId.mine
+    socket_id = Poxa.SocketId.mine()
     notify(event, Map.put(data, :socket_id, socket_id))
   end
 

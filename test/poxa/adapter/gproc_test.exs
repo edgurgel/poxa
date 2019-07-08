@@ -5,21 +5,25 @@ defmodule Poxa.Adapter.GProcTest do
 
   setup do
     Application.start(:gproc)
-    on_exit fn -> Application.stop(:gproc) end
+    on_exit(fn -> Application.stop(:gproc) end)
     :ok
   end
 
   def spawn_registered(channel, execution, value \\ nil) do
     parent = self()
-    child = spawn_link fn ->
-      if value do
-        register!(channel, value)
-      else
-        register!(channel)
-      end
-      send parent, {self(), :registered}
-      execution.()
-    end
+
+    child =
+      spawn_link(fn ->
+        if value do
+          register!(channel, value)
+        else
+          register!(channel)
+        end
+
+        send(parent, {self(), :registered})
+        execution.()
+      end)
+
     assert_receive {^child, :registered}
     child
   end
@@ -37,6 +41,7 @@ defmodule Poxa.Adapter.GProcTest do
   test "unregister a property" do
     :gproc.reg({:p, :l, {:pusher, :property}})
     unregister!(:property)
+
     assert_raise ArgumentError, fn ->
       assert :gproc.get_value({:p, :l, {:pusher, :property}})
     end
@@ -44,12 +49,14 @@ defmodule Poxa.Adapter.GProcTest do
 
   test "send message to registered processes" do
     parent = self()
-    child = spawn_registered("channel", fn ->
-      receive do
-        {^parent, msg} ->
-          send parent, {self(), msg}
-      end
-    end)
+
+    child =
+      spawn_registered("channel", fn ->
+        receive do
+          {^parent, msg} ->
+            send(parent, {self(), msg})
+        end
+      end)
 
     send!(:msg, "channel", self())
     assert_receive {^child, :msg}
@@ -57,12 +64,14 @@ defmodule Poxa.Adapter.GProcTest do
 
   test "send message to registered processes with socket_id" do
     parent = self()
-    child = spawn_registered("channel", fn ->
-      receive do
-        {^parent, msg, socket_id} ->
-          send parent, {self(), msg, socket_id}
-      end
-    end)
+
+    child =
+      spawn_registered("channel", fn ->
+        receive do
+          {^parent, msg, socket_id} ->
+            send(parent, {self(), msg, socket_id})
+        end
+      end)
 
     send!(:msg, "channel", self(), :socket_id)
     assert_receive {^child, :msg, :socket_id}
@@ -74,6 +83,7 @@ defmodule Poxa.Adapter.GProcTest do
         _ -> :ok
       end
     end
+
     child1 = spawn_registered("channel1", execution)
     child2 = spawn_registered("channel1", execution)
 
@@ -85,10 +95,11 @@ defmodule Poxa.Adapter.GProcTest do
   test "subscriptions" do
     register!("presence-channel1", {"user123", "userinfo"})
     register!("presence-channel2", {"user234", "userinfo"})
+
     assert subscriptions(self()) == [
-      ["presence-channel1", "user123"],
-      ["presence-channel2", "user234"]
-    ]
+             ["presence-channel1", "user123"],
+             ["presence-channel2", "user234"]
+           ]
   end
 
   test "list channels processes are registered to" do
@@ -97,6 +108,7 @@ defmodule Poxa.Adapter.GProcTest do
         _ -> :ok
       end
     end
+
     child_channel1 = spawn_registered("channel1", execution)
     child_channel2 = spawn_registered("channel2", execution)
 
@@ -111,11 +123,13 @@ defmodule Poxa.Adapter.GProcTest do
         _ -> :ok
       end
     end
+
     spawn_registered("channel", execution, {"user1", "user1 info"})
     spawn_registered("channel", execution, {"user1", "different user1 info"})
     spawn_registered("channel", execution, {"user2", "user2 info"})
 
-    %{ "user1" => "different user1 info", "user2" => "user2 info" } = unique_subscriptions("channel")
+    %{"user1" => "different user1 info", "user2" => "user2 info"} =
+      unique_subscriptions("channel")
   end
 
   test "subscription_count" do
@@ -124,6 +138,7 @@ defmodule Poxa.Adapter.GProcTest do
         _ -> :ok
       end
     end
+
     spawn_registered("channel", execution, {"user1", "user1 info"})
     spawn_registered("channel", execution, {"user1", "different user1 info"})
     spawn_registered("channel", execution, {"user2", "user2 info"})

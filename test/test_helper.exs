@@ -12,19 +12,23 @@ Mimic.copy(Poxa.SocketId)
 Mimic.copy(Poxa.PresenceSubscription)
 Mimic.copy(Poxa.Time)
 Mimic.copy(Poxa.Subscription)
-Mimic.copy(Poxa.registry)
+Mimic.copy(Poxa.registry())
 Mimic.copy(HTTPoison)
 Mimic.copy(:gproc)
-ExUnit.start
+ExUnit.start()
 ExUnit.configure(exclude: :integration)
 
 defmodule Connection do
   def connect do
-    {:ok, pid} = PusherClient.start_link("ws://localhost:8080", "app_key", "secret", stream_to: self())
+    {:ok, pid} =
+      PusherClient.start_link("ws://localhost:8080", "app_key", "secret", stream_to: self())
 
-    socket_id = receive do
-      %{channel: nil, event: "pusher:connection_established", data: %{"socket_id" => socket_id}} -> socket_id
-    end
+    socket_id =
+      receive do
+        %{channel: nil, event: "pusher:connection_established", data: %{"socket_id" => socket_id}} ->
+          socket_id
+      end
+
     {:ok, pid, socket_id}
   end
 end

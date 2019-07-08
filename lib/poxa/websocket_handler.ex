@@ -34,20 +34,22 @@ defmodule Poxa.WebsocketHandler do
     app_key = :cowboy_req.binding(:app_key, req)
     qs_vals = :cowboy_req.parse_qs(req)
     {"protocol", protocol} = List.keyfind(qs_vals, "protocol", 0, to_string(@max_protocol))
+
     case :application.get_env(:poxa, :app_key) do
       {:ok, ^app_key} ->
         if supported_protocol?(protocol) do
-          send self(), :start
+          send(self(), :start)
           {:ok, req}
         else
-          Logger.error "Protocol #{protocol} not supported"
-          send self(), :start_error
+          Logger.error("Protocol #{protocol} not supported")
+          send(self(), :start_error)
           {:ok, {4007, "Unsupported protocol version"}}
         end
+
       {:ok, expected_app_key} ->
-        Logger.error "Invalid app_key, expected #{expected_app_key}, found #{app_key}"
-          send self(), :start_error
-          {:ok, {4001, "Application does not exist"}}
+        Logger.error("Invalid app_key, expected #{expected_app_key}, found #{app_key}")
+        send(self(), :start_error)
+        {:ok, {4001, "Application does not exist"}}
     end
   end
 
@@ -73,7 +75,8 @@ defmodule Poxa.WebsocketHandler do
   def websocket_handle({:text, json}, state) do
     Jason.decode!(json) |> handle_pusher_event(state)
   end
-  def websocket_handle({:ping, _}, state), do: { :ok, state }
+
+  def websocket_handle({:ping, _}, state), do: {:ok, state}
 
   defp handle_pusher_event(decoded_json, state) do
     handle_pusher_event(decoded_json["event"], decoded_json, state)
@@ -81,38 +84,65 @@ defmodule Poxa.WebsocketHandler do
 
   defp handle_pusher_event("pusher:subscribe", decoded_json, %State{socket_id: socket_id} = state) do
     data = decoded_json["data"]
-    reply = case Subscription.subscribe!(data, socket_id) do
-      {:ok, channel} ->
-        Event.notify(:subscribed, %{socket_id: socket_id, channel: channel})
-        PusherEvent.subscription_succeeded(channel)
-      subscription = %PresenceSubscription{channel: channel} ->
-        Event.notify(:subscribed, %{socket_id: socket_id, channel: channel})
-        PusherEvent.subscription_succeeded(subscription)
-      {:error, error} -> error
-    end
+
+    reply =
+      case Subscription.subscribe!(data, socket_id) do
+        {:ok, channel} ->
+          Event.notify(:subscribed, %{socket_id: socket_id, channel: channel})
+          PusherEvent.subscription_succeeded(channel)
+
+        subscription = %PresenceSubscription{channel: channel} ->
+          Event.notify(:subscribed, %{socket_id: socket_id, channel: channel})
+          PusherEvent.subscription_succeeded(subscription)
+
+        {:error, error} ->
+          error
+      end
+
     {:reply, {:text, reply}, state}
   end
-  defp handle_pusher_event("pusher:unsubscribe", decoded_json, %State{socket_id: socket_id} = state) do
-    {:ok, channel} = Subscription.unsubscribe! decoded_json["data"]
+
+  defp handle_pusher_event(
+         "pusher:unsubscribe",
+         decoded_json,
+         %State{socket_id: socket_id} = state
+       ) do
+    {:ok, channel} = Subscription.unsubscribe!(decoded_json["data"])
     Event.notify(:unsubscribed, %{socket_id: socket_id, channel: channel})
     {:ok, state}
   end
+
   defp handle_pusher_event("pusher:ping", _decoded_json, state) do
-    reply = PusherEvent.pong
+    reply = PusherEvent.pong()
     {:reply, {:text, reply}, state}
   end
+
   # Client Events
-  defp handle_pusher_event("client-" <> _event_name, decoded_json, %State{socket_id: socket_id} = state) do
+  defp handle_pusher_event(
+         "client-" <> _event_name,
+         decoded_json,
+         %State{socket_id: socket_id} = state
+       ) do
     {:ok, event} = PusherEvent.build_client_event(decoded_json, socket_id)
     channel = List.first(event.channels)
+
     if Channel.private_or_presence?(channel) and Channel.member?(channel, self()) do
       PusherEvent.publish(event)
-      Event.notify(:client_event_message, %{socket_id: socket_id, channels: event.channels, name: event.name, data: event.data, user_id: event.user_id})
+
+      Event.notify(:client_event_message, %{
+        socket_id: socket_id,
+        channels: event.channels,
+        name: event.name,
+        data: event.data,
+        user_id: event.user_id
+      })
     end
+
     {:ok, state}
   end
+
   defp handle_pusher_event(_, _, state) do
-    Logger.error "Undefined event"
+    Logger.error("Undefined event")
     {:ok, state}
   end
 
@@ -125,15 +155,19 @@ defmodule Poxa.WebsocketHandler do
   """
   def websocket_info(:start, req) do
     # Unique identifier for the connection
-    socket_id = SocketId.generate!
+    socket_id = SocketId.generate!()
 
     SocketId.register!(socket_id)
 
-    origin = IO.iodata_to_binary(:cowboy_req.uri(req, %{path: :undefined, qs: :undefined, fragment: :undefined}))
+    origin =
+      IO.iodata_to_binary(
+        :cowboy_req.uri(req, %{path: :undefined, qs: :undefined, fragment: :undefined})
+      )
+
     Event.notify(:connected, %{socket_id: socket_id, origin: origin})
 
     reply = PusherEvent.connection_established(socket_id)
-    {:reply, {:text, reply}, %State{socket_id: socket_id, time: Time.stamp}}
+    {:reply, {:text, reply}, %State{socket_id: socket_id, time: Time.stamp()}}
   end
 
   def websocket_info(:start_error, {code, message}) do
@@ -159,19 +193,20 @@ defmodule Poxa.WebsocketHandler do
   member removal if necessary and explicitly unregister tags on registry
   """
   def terminate(_reason, _req, %State{socket_id: socket_id, time: time}) do
-    duration = Time.stamp - time
+    duration = Time.stamp() - time
     channels = Channel.all(self())
-    PresenceSubscription.check_and_remove
-    Poxa.registry.clean_up
+    PresenceSubscription.check_and_remove()
+    Poxa.registry().clean_up
     Event.notify(:disconnected, %{socket_id: socket_id, channels: channels, duration: duration})
     :ok
   end
+
   def terminate(_, _, _), do: :ok
 end
 
 defmodule Poxa.Time do
   def stamp do
     {mega, sec, _micro} = :os.timestamp()
-    mega * 1000000 + sec
+    mega * 1_000_000 + sec
   end
 end

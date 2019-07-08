@@ -9,6 +9,7 @@ defmodule Poxa.WebHook.EventTableTest do
       :undefined -> init()
       _ -> :ets.delete_all_objects(@table_name)
     end
+
     :ok
   end
 
@@ -47,7 +48,7 @@ defmodule Poxa.WebHook.EventTableTest do
   test "ready does not return events to be delivered in the future" do
     result = insert(~w(ready_event), 0)
     insert(~w(delayed_event), 10000)
-    assert ~w(delayed_event ready_event) == Enum.sort all()
+    assert ~w(delayed_event ready_event) == Enum.sort(all())
     assert {_, ^result} = ready()
   end
 end

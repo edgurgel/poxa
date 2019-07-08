@@ -9,7 +9,13 @@ defmodule Poxa.Integration.TriggerEvent do
   end
 
   setup do
-    client = %Pusher.Client{ endpoint: "localhost:8080", app_id: "app_id", app_key: "app_key", secret: "secret" }
+    client = %Pusher.Client{
+      endpoint: "localhost:8080",
+      app_id: "app_id",
+      app_key: "app_key",
+      secret: "secret"
+    }
+
     {:ok, client: client}
   end
 
@@ -31,11 +37,16 @@ defmodule Poxa.Integration.TriggerEvent do
     assert {:error, _} = Pusher.trigger(client, "test_event", %{}, channel, socket_id)
   end
 
-
   test "trigger event returns 401 on invalid authentication" do
     [channel, socket_id] = ["channel", "123.456"]
 
-    client = %Pusher.Client{ endpoint: "localhost:8080", app_id: "app_id", app_key: "app_key", secret: "wrong_secret" }
+    client = %Pusher.Client{
+      endpoint: "localhost:8080",
+      app_id: "app_id",
+      app_key: "app_key",
+      secret: "wrong_secret"
+    }
+
     assert {:error, _} = Pusher.trigger(client, "test_event", %{}, channel, socket_id)
   end
 end

@@ -30,4 +30,3 @@ defmodule Poxa.AuthorizarionHelperTest do
     assert is_authorized(:req, :state) == {{false, "authentication failed"}, :req1, nil}
   end
 end
-

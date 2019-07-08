@@ -28,13 +28,19 @@ defmodule Poxa.ChannelsHandler do
   def malformed_request(req, _state) do
     qs_vals = :cowboy_req.parse_qs(req)
     {"info", info} = List.keyfind(qs_vals, "info", 0, {"info", ""})
-    attributes = String.split(info, ",")
+
+    attributes =
+      String.split(info, ",")
       |> Enum.reject(&(&1 == ""))
+
     channel = :cowboy_req.binding(:channel_name, req, nil)
+
     if channel do
       {malformed_request_one_channel?(attributes, channel), req, {:one, channel, attributes}}
     else
-      {"filter_by_prefix", filter} = List.keyfind(qs_vals, "filter_by_prefix", 0, {"filter_by_prefix", nil})
+      {"filter_by_prefix", filter} =
+        List.keyfind(qs_vals, "filter_by_prefix", 0, {"filter_by_prefix", nil})
+
       {malformed_request_all_channels?(attributes, filter), req, {:all, filter, attributes}}
     end
   end
@@ -73,6 +79,7 @@ defmodule Poxa.ChannelsHandler do
   def get_json(req, {:one, channel, attributes}) do
     show(channel, attributes, req, nil)
   end
+
   def get_json(req, {:all, filter, attributes}) do
     index(filter, attributes, req, nil)
   end
@@ -90,11 +97,12 @@ defmodule Poxa.ChannelsHandler do
       else
         %{}
       end
-      if Enum.member?(attributes, "user_count") do
-        Map.put(attributes_data, :user_count, PresenceChannel.user_count(channel))
-      else
-        attributes_data
-      end
+
+    if Enum.member?(attributes, "user_count") do
+      Map.put(attributes_data, :user_count, PresenceChannel.user_count(channel))
+    else
+      attributes_data
+    end
   end
 
   defp index(filter, attributes, req, state) do
@@ -103,7 +111,7 @@ defmodule Poxa.ChannelsHandler do
   end
 
   defp channels(filter, attributes) do
-    for channel <- Channel.all, filter_channel(channel, filter), into: %{} do
+    for channel <- Channel.all(), filter_channel(channel, filter), into: %{} do
       {channel, mount_attribute_list(attributes, channel)}
     end
   end

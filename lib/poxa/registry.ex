@@ -19,7 +19,7 @@ defmodule Poxa.Registry do
   @doc """
   Sends a message to a channel and identify it as coming from the given sender.
   """
-  @callback send!(binary, binary, PresenceSubscription.user_id | pid) :: any
+  @callback send!(binary, binary, PresenceSubscription.user_id() | pid) :: any
 
   @doc """
   Sends a message to a channel and identify it as coming from the given sender
@@ -31,7 +31,8 @@ defmodule Poxa.Registry do
   Returns the subscription count of a channel. If a connection identifier is provided,
   it counts only the subscriptions identified by the given identifier.
   """
-  @callback subscription_count(binary, PresenceSubscription.user_id | pid | :_) :: non_neg_integer
+  @callback subscription_count(binary, PresenceSubscription.user_id() | pid | :_) ::
+              non_neg_integer
 
   @doc """
   Returns the presence channel subscriptions of the given process.
@@ -46,7 +47,7 @@ defmodule Poxa.Registry do
   @doc """
   Returns the unique subscriptions of the given channel.
   """
-  @callback unique_subscriptions(binary) :: Map.t
+  @callback unique_subscriptions(binary) :: Map.t()
 
   @doc """
   Returns the value assigned with the given property.

@@ -17,7 +17,9 @@ defmodule Poxa.AuthSignature do
       [app_key, remote_signed_data] ->
         signed_data = sign_data(to_sign)
         Poxa.Authentication.check_key(app_key) and signed_data == remote_signed_data
-      _ -> false
+
+      _ ->
+        false
     end
   end
 

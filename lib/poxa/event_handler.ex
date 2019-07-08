@@ -24,14 +24,18 @@ defmodule Poxa.EventHandler do
   """
   def malformed_request(req, state) do
     {:ok, body, req} = :cowboy_req.read_body(req)
+
     case Jason.decode(body) do
       {:ok, data} ->
         case PusherEvent.build(data) do
-          {:ok, event} -> {false, req, %{body: body, event: event}}
+          {:ok, event} ->
+            {false, req, %{body: body, event: event}}
+
           _ ->
             req = :cowboy_req.set_resp_body(@invalid_event_json, req)
             {true, req, state}
         end
+
       _ ->
         req = :cowboy_req.set_resp_body(@invalid_event_json, req)
         {true, req, state}
@@ -45,8 +49,9 @@ defmodule Poxa.EventHandler do
   """
   def is_authorized(req, %{body: body} = state) do
     qs_vals = :cowboy_req.parse_qs(req)
-    method  = :cowboy_req.method(req)
+    method = :cowboy_req.method(req)
     path = :cowboy_req.path(req)
+
     if Authentication.check(method, path, body, qs_vals) do
       {true, req, state}
     else
@@ -61,11 +66,14 @@ defmodule Poxa.EventHandler do
   def valid_entity_length(req, %{event: event} = state) do
     {:ok, payload_limit} = Application.fetch_env(:poxa, :payload_limit)
     valid = byte_size(event.data) <= payload_limit
-    req = if valid do
-            req
-          else
-            :cowboy_req.set_resp_body(invalid_data_size_json(payload_limit), req)
-          end
+
+    req =
+      if valid do
+        req
+      else
+        :cowboy_req.set_resp_body(invalid_data_size_json(payload_limit), req)
+      end
+
     {valid, req, state}
   end
 
