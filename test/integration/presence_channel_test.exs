@@ -5,8 +5,8 @@ defmodule Poxa.Integration.PresenceChannelTest do
 
   setup_all do
     Application.ensure_all_started(:pusher)
-    Pusher.configure!("localhost", 8080, "app_id", "app_key", "secret")
-    :ok
+    client = %Pusher.Client{ endpoint: "localhost:8080", app_id: "app_id", app_key: "app_key", secret: "secret" }
+    {:ok, client: client}
   end
 
   setup do
@@ -44,13 +44,13 @@ defmodule Poxa.Integration.PresenceChannelTest do
                      event: "pusher:subscription_succeeded",
                      data: _}, 1_000
 
-    Pusher.trigger("test_event", %{data: 42}, channel)
+    Pusher.trigger(context.client, "test_event", %{data: 42}, channel)
 
     assert_receive %{channel: ^channel,
                      event: "test_event",
                      data: %{"data" => 42}}, 1_000
 
-    assert Pusher.users(channel) == {:ok, [%{"id" => "123"}]}
+    assert Pusher.users(context.client, channel) == {:ok, [%{"id" => "123"}]}
   end
 
   test "member_added event on populated presence channel", context do
@@ -76,7 +76,7 @@ defmodule Poxa.Integration.PresenceChannelTest do
                      data: %{"user_id" => "123", "user_info" => %{"k2" => "v2"}},
                      event: "pusher_internal:member_added"}, 1_000
 
-    assert Pusher.users(channel) == {:ok, [%{"id" => "123"}, %{"id" => "456"}]}
+    assert Pusher.users(context.client, channel) == {:ok, [%{"id" => "123"}, %{"id" => "456"}]}
 
     PusherClient.disconnect!(other_pid)
   end
@@ -128,7 +128,7 @@ defmodule Poxa.Integration.PresenceChannelTest do
                      data: %{"user_id" => "456"},
                      event: "pusher_internal:member_removed"}, 1_000
 
-    assert Pusher.users(channel) == {:ok, [%{"id" => "123"}]}
+    assert Pusher.users(context.client, channel) == {:ok, [%{"id" => "123"}]}
 
     PusherClient.disconnect!(other_pid)
   end
@@ -156,7 +156,7 @@ defmodule Poxa.Integration.PresenceChannelTest do
                      data: %{"user_id" => "123"},
                      event: "pusher_internal:member_removed"}, 1_000
 
-    assert Pusher.users(channel) == {:ok, [%{"id" => "123"}]}
+    assert Pusher.users(context.client, channel) == {:ok, [%{"id" => "123"}]}
 
     PusherClient.disconnect!(other_pid)
   end

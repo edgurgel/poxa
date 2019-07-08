@@ -12,21 +12,20 @@ defmodule Poxa do
 
   def start(_type, _args) do
     dispatch = :cowboy_router.compile([
-      {:_, [ { '/ping', Poxa.PingHandler, [] },
-             { '/console', Poxa.Console.WSHandler, [] },
-             { '/', :cowboy_static, {:priv_file, :poxa, 'index.html'} },
-             { '/static/[...]', :cowboy_static, {:priv_dir, :poxa, 'static'} },
-             { '/apps/:app_id/events', Poxa.EventHandler, [] },
-             { '/apps/:app_id/channels[/:channel_name]', Poxa.ChannelsHandler, [] },
-             { '/apps/:app_id/channels/:channel_name/users', Poxa.UsersHandler, [] },
-             { '/app/:app_key', Poxa.WebsocketHandler, [] } ] }
+      {:_, [ { "/ping", Poxa.PingHandler, [] },
+             { "/console", Poxa.Console.WSHandler, [] },
+             { "/", :cowboy_static, {:priv_file, :poxa, 'index.html'} },
+             { "/static/[...]", :cowboy_static, {:priv_dir, :poxa, 'static'} },
+             { "/apps/:app_id/events", Poxa.EventHandler, [] },
+             { "/apps/:app_id/channels[/:channel_name]", Poxa.ChannelsHandler, [] },
+             { "/apps/:app_id/channels/:channel_name/users", Poxa.UsersHandler, [] },
+             { "/app/:app_key", Poxa.WebsocketHandler, [] } ] }
     ])
     case load_config() do
       {:ok, config} ->
         Logger.info "Starting Poxa, app_id: #{config.app_id} on port #{config.port}"
-        {:ok, _} = :cowboy.start_http(:poxa, 100,
-                                      [port: config.port],
-                                      [env: [dispatch: dispatch]])
+        {:ok, _} = :cowboy.start_clear(:poxa_http, [port: config.port],
+                                      %{env: %{dispatch: dispatch}})
         run_ssl(dispatch)
         Poxa.Supervisor.start_link
       :invalid_configuration ->
@@ -37,7 +36,8 @@ defmodule Poxa do
   end
 
   def stop(_State) do
-    :ok = :cowboy.stop_listener(:poxa)
+    :ok = :cowboy.stop_listener(:poxa_http)
+    :ok = :cowboy.stop_listener(:poxa_https)
   end
 
   defp load_config do
@@ -65,7 +65,7 @@ defmodule Poxa do
           ssl_port = Keyword.get(ssl_config, :port)
           Logger.info "Starting Poxa using SSL on port #{ssl_port}"
           ssl_config = Keyword.drop(ssl_config, [:enabled])
-          {:ok, _} = :cowboy.start_https(:https, 100, ssl_config, [env: [dispatch: dispatch] ])
+          {:ok, _} = :cowboy.start_tls(:poxa_https, ssl_config, %{env: %{dispatch: dispatch}})
         else
           Logger.info "SSL not configured/started"
         end

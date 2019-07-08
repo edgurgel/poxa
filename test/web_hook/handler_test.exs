@@ -1,6 +1,6 @@
 defmodule Poxa.WebHook.HandlerTest do
   use ExUnit.Case, async: true
-  alias Poxa.{Channel, Event}
+  alias Poxa.Event
   alias Poxa.WebHook.EventTable
   use Mimic
   import Poxa.WebHook.Handler

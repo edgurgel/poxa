@@ -5,8 +5,8 @@ defmodule Poxa.Integration.PrivateChannelTest do
 
   setup_all do
     Application.ensure_all_started(:pusher)
-    Pusher.configure!("localhost", 8080, "app_id", "app_key", "secret")
-    :ok
+    client = %Pusher.Client{ endpoint: "localhost:8080", app_id: "app_id", app_key: "app_key", secret: "secret" }
+    {:ok, client: client}
   end
 
   setup do
@@ -38,7 +38,7 @@ defmodule Poxa.Integration.PrivateChannelTest do
                      event: "pusher:subscription_succeeded",
                      data: %{}}, 1_000
 
-    Pusher.trigger("test_event", %{data: 42}, channel)
+    Pusher.trigger(context.client, "test_event", %{data: 42}, channel)
 
     assert_receive %{channel: ^channel,
                      event: "test_event",

@@ -16,7 +16,7 @@ defmodule Poxa.WebHook.DispatcherTest do
 
   setup do
     stub HTTPoison, :post, fn url, body, headers ->
-      args_map = %{url: url, body: Poison.decode!(body), headers: headers}
+      args_map = %{url: url, body: Jason.decode!(body), headers: headers}
       send(self(), args_map)
       {:ok, args_map}
     end

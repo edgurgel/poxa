@@ -12,19 +12,19 @@ defmodule Poxa.EventHandler do
   require Logger
 
   @doc false
-  def init(_transport, _req, _opts), do: {:upgrade, :protocol, :cowboy_rest}
+  def init(req, state), do: {:cowboy_rest, req, state}
 
   def allowed_methods(req, state), do: {["POST"], req, state}
 
-  @invalid_event_json Poison.encode!(%{error: "Event must have channel(s), name, and data"})
+  @invalid_event_json Jason.encode!(%{error: "Event must have channel(s), name, and data"})
 
   @doc """
   If the body is not JSON or not a valid PusherEvent this function will
   guarantee that 400 will be returned
   """
   def malformed_request(req, state) do
-    {:ok, body, req} = :cowboy_req.body(req)
-    case Poison.decode(body) do
+    {:ok, body, req} = :cowboy_req.read_body(req)
+    case Jason.decode(body) do
       {:ok, data} ->
         case PusherEvent.build(data) do
           {:ok, event} -> {false, req, %{body: body, event: event}}
@@ -38,15 +38,15 @@ defmodule Poxa.EventHandler do
     end
   end
 
-  @authentication_error_json Poison.encode!(%{error: "Authentication error"})
+  @authentication_error_json Jason.encode!(%{error: "Authentication error"})
 
   @doc """
   More info http://pusher.com/docs/rest_api#authentication
   """
   def is_authorized(req, %{body: body} = state) do
-    {qs_vals, req} = :cowboy_req.qs_vals(req)
-    {method, req} = :cowboy_req.method(req)
-    {path, req} = :cowboy_req.path(req)
+    qs_vals = :cowboy_req.parse_qs(req)
+    method  = :cowboy_req.method(req)
+    path = :cowboy_req.path(req)
     if Authentication.check(method, path, body, qs_vals) do
       {true, req, state}
     else
@@ -54,9 +54,6 @@ defmodule Poxa.EventHandler do
       {{false, "Authentication error"}, req, state}
     end
   end
-
-
-  @invalid_data_size_json Poison.encode!(%{error: "Data key must be smaller than 10KB"})
 
   @doc """
   The event data can't be greater than payload_limit which defaults to 10KB
@@ -92,6 +89,6 @@ defmodule Poxa.EventHandler do
 
   @doc false
   defp invalid_data_size_json(payload_limit) do
-    Poison.encode!(%{error: "Data key must be smaller than #{payload_limit}B"})
+    Jason.encode!(%{error: "Data key must be smaller than #{payload_limit}B"})
   end
 end

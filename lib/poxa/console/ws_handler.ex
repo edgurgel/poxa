@@ -1,20 +1,20 @@
 defmodule Poxa.Console.WSHandler do
-  @behaviour :cowboy_websocket_handler
+  @behaviour :cowboy_websocket
   require Logger
   alias Poxa.Authentication
 
   @doc false
-  def init(_transport, _req, _opts), do: {:upgrade, :protocol, :cowboy_websocket}
+  def init(req, _opts), do: {:cowboy_websocket, req, req}
 
   @doc false
-  def websocket_init(_transport_name, req, _opts) do
-    {method, req} = :cowboy_req.method(req)
-    {path, req} = :cowboy_req.path(req)
-    {qs_vals, req} = :cowboy_req.qs_vals(req)
+  def websocket_init(req) do
+    method = :cowboy_req.method(req)
+    path = :cowboy_req.path(req)
+    qs_vals = :cowboy_req.parse_qs(req)
 
     if Authentication.check(method, path, "", qs_vals) do
       Poxa.Event.subscribe()
-      {:ok, req, nil}
+      {:ok, nil}
     else
       Logger.error "Failed to authenticate on Console Websocket"
       {:shutdown, req}
@@ -22,13 +22,13 @@ defmodule Poxa.Console.WSHandler do
   end
 
   @doc false
-  def websocket_handle(_data, req, state), do: {:ok, req, state}
+  def websocket_handle(_data, state), do: {:ok, state}
 
-  def websocket_info({:internal_event, event}, req, state) do
-    {:reply, {:text, do_websocket_info(event)}, req, state}
+  def websocket_info({:internal_event, event}, state) do
+    {:reply, {:text, do_websocket_info(event)}, state}
   end
 
-  def websocket_terminate(_reason, _req, _state), do: :ok
+  def terminate(_reason, _req, _state), do: :ok
 
   defp do_websocket_info(%{event: :connected, socket_id: socket_id, origin: origin}) do
     build_message("Connection", socket_id, "Origin: #{origin}")
@@ -71,7 +71,7 @@ defmodule Poxa.Console.WSHandler do
   end
 
   defp build_message(type, socket_id, details) do
-    message(type, socket_id, details) |> Poison.encode!
+    message(type, socket_id, details) |> Jason.encode!
   end
 
   defp message(type, socket_id, details) do

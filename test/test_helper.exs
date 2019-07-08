@@ -3,7 +3,7 @@ Mimic.copy(Poxa.Authentication)
 Mimic.copy(Poxa.AuthSignature)
 Mimic.copy(Signaturex)
 Mimic.copy(:cowboy_req)
-Mimic.copy(Poison)
+Mimic.copy(Jason)
 Mimic.copy(Poxa.Channel)
 Mimic.copy(Poxa.Event)
 Mimic.copy(Poxa.PusherEvent)
@@ -16,7 +16,7 @@ Mimic.copy(Poxa.registry)
 Mimic.copy(HTTPoison)
 Mimic.copy(:gproc)
 ExUnit.start
-ExUnit.configure(exclude: :pending)
+ExUnit.configure(exclude: :integration)
 
 defmodule Connection do
   def connect do
