@@ -12,21 +12,6 @@ How do I speak 'poxa'?
 
 [posha] : po ( potion ), sha ( shall )
 
-## Table of Contents
-
-- [Features](#features)
-- [TODO](#todo)
-- [Typical usage](#typical-usage)
-- [Release](#release)
-- [Using Docker](#using-docker)
-- [Your application](#your-application)
-- [Console](#console)
-- [Implementation](#implementation)
-- [Contributing](#contributing)
-- [Pusher](#pusher)
-- [Acknowledgements](#acknowledgements)
-- [Who is using it?](#who-is-using-it)
-
 ## Features
 
 * Public channels;
@@ -40,22 +25,11 @@ How do I speak 'poxa'?
   * /channels/:channel_name
   * /channels
 
-## TODO
-
-* [ ] SockJS support;
-* [x] Complete REST api;
-* [x] Mimic pusher error codes;
-* [x] Integration test using pusher-js or other client library;
-* [x] Web hooks;
-* [x] Add 'Vacated' and 'Occupied' events to Console;
-* [X] Use `gproc` to generate Console events so other handlers can be attached (Web hook for example);
-* [ ] Turn Poxa on a distributed server with multiple nodes;
-
-## Typical usage
+## Development
 
 Poxa is a standalone elixir server implementation of the Pusher protocol.
 
-You need [Elixir](http://elixir-lang.org) 1.5 at least and Erlang 20.0
+You need [Elixir](http://elixir-lang.org) 1.9 at least and Erlang 21.0
 
 Clone this repository
 
@@ -64,7 +38,6 @@ Run
 ```console
 mix deps.get
 mix compile
-mix compile.protocols
 ```
 
 The default configuration is:
@@ -74,110 +47,21 @@ The default configuration is:
 * App key: 'app_key'
 * App secret: 'secret'
 
-You can run and configure these values using these environment variables:
+## Using Docker
+
+Docker images are automatically built by [Docker Hub](https://hub.docker.com/r/edgurgel/poxa-automated/builds/). They are available at Docker Hub: https://hub.docker.com/r/edgurgel/poxa-automated/tags/
+
+One can generate it using: `docker build -t local/poxa .`.
+
+The `docker run` command should look like this:
 
 ```
-PORT=8080
-POXA_APP_KEY=app_key
-POXA_SECRET=secret
-POXA_APP_ID=app_id
+docker run --rm --name poxa -p 8080:8080 edgurgel/poxa-automated:latest
 ```
 
-Or you can setup a configuration file like this:
+## Configuration
 
-my_config.exs
-
-```elixir
-use Mix.Config
-
-config :poxa,
-  port: 4567,
-  app_key: "123456789",
-  app_secret: "987654321",
-  app_id: "theid"
-```
-
-And run:
-
-```console
-elixir -pa _build/dev/consolidated -S mix run --config my_config.exs --no-halt
-```
-
-And if you want SSL, try something like this on your configuration file:
-
-```elixir
-use Mix.Config
-
-config :poxa,
-  port: 4567,
-  app_key: "123456789",
-  app_secret: "987654321",
-  app_id: "theid",
-  ssl: [enabled: true,
-        port: 8443,
-        cacertfile: "priv/ssl/server-ca.crt",
-        certfile: "priv/ssl/server.crt",
-        keyfile: "priv/ssl/server.key"]
-```
-
-Optionally you can specify a payload limit. The default value is 10kb. To change it pass
-```
-PAYLOAD_LIMIT=20000
-```
-where 20000 is number of bytes.
-
-You can also specify this value via `payload_limit` in your config file (e.g. my_config.exs) as you would for other variables.
-
-## Release
-
-This is the preferred way to deploy a Poxa server.
-
-If you just want to run a release, follow these instructions:
-
-First download dependencies and generate the release
-
-```console
-MIX_ENV=prod mix do deps.get, compile, release
-```
-
-Then you can run it using:
-
-```console
-$ _build/prod/rel/poxa/bin/poxa
-Usage: poxa {start|start_boot <file>|foreground|stop|restart|reboot|ping|rpc <m> <f> [<a>]|console|console_clean|console_boot <file>|attach|remote_console|upgrade}
-```
-
-To start as daemon you just need to:
-
-```console
-$ _build/prod/rel/poxa/bin/poxa start
-```
-
-### Release configuration
-
-Starting from Poxa 0.7.0 the configuration can be done on `_build/prod/rel/poxa/releases/0.7.0/poxa.conf` considering 0.7.0 is the release version.
-
-You should see a file like this:
-
-```
-# HTTP port
-poxa.port = 8080
-
-# Pusher app key
-poxa.app_key = "app_key"
-
-# Pusher secret
-poxa.app_secret = "secret"
-
-# Pusher app id
-poxa.app_id = "app_id"
-```
-
-You can change anything on this file and just start the release and this configuration will be used.
-
-#### Environment variables
-
-The .conf file is not the only way to configure a release. The following environment variables are supported:
+The following environment variables are supported:
 
 * `PORT`
 * `POXA_APP_KEY`
@@ -191,35 +75,6 @@ The .conf file is not the only way to configure a release. The following environ
 * `SSL_CERTFILE`
 * `SSL_KEYFILE`
 
-Even if the file is not used at all, an empty file must exist or you will get this error:
-
-```
-missing .conf, expected it at /Users/eduardo/workspace/poxa/_build/prod/rel/poxa/releases/0.7.0/poxa.conf
-```
-
-It is very important that the .conf file does not have the same configuration. For example if both `PORT` and `poxa.port` (inside the .conf file) are defined, then the file will have precedence.
-
-## Using Docker
-
-Docker images are automatically built by [Docker Hub](https://hub.docker.com/r/edgurgel/poxa-automated/builds/). They are available at Docker Hub: https://hub.docker.com/r/edgurgel/poxa-automated/tags/
-
-One can generate it just running `docker build -t local/poxa .`.
-
-The docker run command should look like this:
-
-```
-docker run --rm --name poxa -p 8080:8080 edgurgel/poxa-automated:latest
-```
-
-To use a custom config
-```
-# download the default config
-wget https://raw.githubusercontent.com/edgurgel/poxa/master/config/poxa.dev.conf -O poxa.conf
-
-# run docker with custom config
-docker run --rm --name poxa -p 8080:8080 -v $(pwd)/poxa.conf:/app/poxa/releases/0.8.1/poxa.conf edgurgel/poxa-automated:v0.8.1
-```
-
 ## Your application
 
 If you are using the pusher-gem:
@@ -228,7 +83,9 @@ If you are using the pusher-gem:
 Pusher.host   = 'localhost'
 Pusher.port   = 8080
 ```
+
 And pusher-js:
+
 ```javascript
 
 // will only use WebSockets
@@ -287,9 +144,20 @@ mix test
 
 Pull requests are greatly appreciated.
 
+## TODO
+
+* [ ] SockJS support;
+* [x] Complete REST api;
+* [x] Mimic pusher error codes;
+* [x] Integration test using pusher-js or other client library;
+* [x] Web hooks;
+* [x] Add 'Vacated' and 'Occupied' events to Console;
+* [X] Use `gproc` to generate Console events so other handlers can be attached (Web hook for example);
+* [ ] Turn Poxa on a distributed server with multiple nodes;
+
 ## Pusher
 
-Pusher is an excellent service and you should use it on production.
+Pusher is an excellent service and you should use it in production.
 
 ## Acknowledgements
 
