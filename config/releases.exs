@@ -1,8 +1,4 @@
 import Config
-if Mix.env == :test do
-  config :logger, backends: []
-end
-
 import System
 
 config :poxa,
