@@ -19,7 +19,7 @@ defmodule Poxa.Integration.PrivateChannelTest do
   setup do
     {:ok, pid, socket_id} = Connection.connect()
 
-    on_exit(fn -> PusherClient.disconnect!(pid) end)
+    on_exit(fn -> Pusher.WS.disconnect!(pid) end)
 
     {:ok, [pid: pid, socket_id: socket_id]}
   end
@@ -28,7 +28,7 @@ defmodule Poxa.Integration.PrivateChannelTest do
     pid = context[:pid]
     channel = "private-channel"
 
-    PusherClient.subscribe!(pid, channel)
+    Pusher.WS.subscribe!(pid, channel)
 
     assert_receive %{channel: ^channel, event: "pusher:subscription_succeeded", data: %{}},
                    1_000
@@ -38,7 +38,7 @@ defmodule Poxa.Integration.PrivateChannelTest do
     pid = context[:pid]
     channel = "private-channel"
 
-    PusherClient.subscribe!(pid, channel)
+    Pusher.WS.subscribe!(pid, channel)
 
     assert_receive %{channel: ^channel, event: "pusher:subscription_succeeded", data: %{}},
                    1_000
@@ -54,21 +54,21 @@ defmodule Poxa.Integration.PrivateChannelTest do
     channel = "private-channel"
 
     {:ok, other_pid, _} = Connection.connect()
-    PusherClient.subscribe!(other_pid, channel)
+    Pusher.WS.subscribe!(other_pid, channel)
 
     assert_receive %{channel: ^channel, event: "pusher:subscription_succeeded", data: _},
                    1_000
 
-    PusherClient.subscribe!(pid, channel)
+    Pusher.WS.subscribe!(pid, channel)
 
     assert_receive %{channel: ^channel, event: "pusher:subscription_succeeded", data: _},
                    1_000
 
-    PusherClient.trigger_event!(pid, "client-event", %{}, channel)
+    Pusher.WS.trigger_event!(pid, "client-event", %{}, channel)
 
     assert_receive %{channel: ^channel, event: "client-event", data: _},
                    1_000
 
-    PusherClient.disconnect!(other_pid)
+    Pusher.WS.disconnect!(other_pid)
   end
 end

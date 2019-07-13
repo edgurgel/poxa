@@ -21,7 +21,7 @@ ExUnit.configure(exclude: :integration)
 defmodule Connection do
   def connect do
     {:ok, pid} =
-      PusherClient.start_link("ws://localhost:8080", "app_key", "secret", stream_to: self())
+      Pusher.WS.start_link("ws://localhost:8080", "app_key", "secret", stream_to: self())
 
     socket_id =
       receive do

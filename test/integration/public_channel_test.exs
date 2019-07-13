@@ -19,7 +19,7 @@ defmodule Poxa.Integration.PublicChannelTest do
   setup do
     {:ok, pid, socket_id} = Connection.connect()
 
-    on_exit(fn -> PusherClient.disconnect!(pid) end)
+    on_exit(fn -> Pusher.WS.disconnect!(pid) end)
 
     {:ok, [pid: pid, socket_id: socket_id]}
   end
@@ -28,7 +28,7 @@ defmodule Poxa.Integration.PublicChannelTest do
     pid = context[:pid]
     channel = "channel"
 
-    PusherClient.subscribe!(pid, channel)
+    Pusher.WS.subscribe!(pid, channel)
 
     assert_receive %{channel: ^channel, event: "pusher:subscription_succeeded", data: %{}},
                    1_000
@@ -38,7 +38,7 @@ defmodule Poxa.Integration.PublicChannelTest do
     pid = context[:pid]
     channel = "channel"
 
-    PusherClient.subscribe!(pid, channel)
+    Pusher.WS.subscribe!(pid, channel)
 
     assert_receive %{channel: ^channel, event: "pusher:subscription_succeeded", data: %{}},
                    1_000
@@ -53,7 +53,7 @@ defmodule Poxa.Integration.PublicChannelTest do
     pid = context[:pid]
     channel = "channel"
 
-    PusherClient.subscribe!(pid, channel)
+    Pusher.WS.subscribe!(pid, channel)
 
     assert_receive %{channel: ^channel, event: "pusher:subscription_succeeded", data: %{}},
                    1_000

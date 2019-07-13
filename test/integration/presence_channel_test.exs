@@ -19,7 +19,7 @@ defmodule Poxa.Integration.PresenceChannelTest do
   setup do
     {:ok, pid, socket_id} = Connection.connect()
 
-    on_exit(fn -> PusherClient.disconnect!(pid) end)
+    on_exit(fn -> Pusher.WS.disconnect!(pid) end)
 
     {:ok, [pid: pid, socket_id: socket_id]}
   end
@@ -28,7 +28,7 @@ defmodule Poxa.Integration.PresenceChannelTest do
     pid = context[:pid]
     channel = "presence-channel"
 
-    PusherClient.subscribe!(pid, channel, %PusherClient.User{id: 123, info: %{k: "v"}})
+    Pusher.WS.subscribe!(pid, channel, %Pusher.WS.User{id: 123, info: %{k: "v"}})
 
     data = %{"presence" => %{"count" => 1, "hash" => %{"123" => %{"k" => "v"}}, "ids" => ["123"]}}
 
@@ -40,7 +40,7 @@ defmodule Poxa.Integration.PresenceChannelTest do
     pid = context[:pid]
     channel = "presence-channel"
 
-    PusherClient.subscribe!(pid, channel, %PusherClient.User{id: 123})
+    Pusher.WS.subscribe!(pid, channel, %Pusher.WS.User{id: 123})
 
     assert_receive %{channel: ^channel, event: "pusher:subscription_succeeded", data: _},
                    1_000
@@ -58,12 +58,12 @@ defmodule Poxa.Integration.PresenceChannelTest do
     channel = "presence-channel"
 
     {:ok, other_pid, _} = Connection.connect()
-    PusherClient.subscribe!(other_pid, channel, %PusherClient.User{id: 456, info: %{k1: "v1"}})
+    Pusher.WS.subscribe!(other_pid, channel, %Pusher.WS.User{id: 456, info: %{k1: "v1"}})
 
     assert_receive %{channel: ^channel, event: "pusher:subscription_succeeded", data: _},
                    1_000
 
-    PusherClient.subscribe!(pid, channel, %PusherClient.User{id: 123, info: %{k2: "v2"}})
+    Pusher.WS.subscribe!(pid, channel, %Pusher.WS.User{id: 123, info: %{k2: "v2"}})
 
     assert_receive %{channel: ^channel, event: "pusher:subscription_succeeded", data: _},
                    1_000
@@ -77,7 +77,7 @@ defmodule Poxa.Integration.PresenceChannelTest do
 
     assert Pusher.users(context.client, channel) == {:ok, [%{"id" => "123"}, %{"id" => "456"}]}
 
-    PusherClient.disconnect!(other_pid)
+    Pusher.WS.disconnect!(other_pid)
   end
 
   test "client event on populated presence channel", context do
@@ -85,35 +85,35 @@ defmodule Poxa.Integration.PresenceChannelTest do
     channel = "presence-channel"
 
     {:ok, other_pid, _} = Connection.connect()
-    PusherClient.subscribe!(other_pid, channel, %PusherClient.User{id: 456, info: %{k1: "v1"}})
+    Pusher.WS.subscribe!(other_pid, channel, %Pusher.WS.User{id: 456, info: %{k1: "v1"}})
 
     assert_receive %{channel: ^channel, event: "pusher:subscription_succeeded", data: _},
                    1_000
 
-    PusherClient.subscribe!(pid, channel, %PusherClient.User{id: 123, info: %{k2: "v2"}})
+    Pusher.WS.subscribe!(pid, channel, %Pusher.WS.User{id: 123, info: %{k2: "v2"}})
 
     assert_receive %{channel: ^channel, event: "pusher:subscription_succeeded", data: _},
                    1_000
 
-    PusherClient.trigger_event!(pid, "client-event", %{}, channel)
+    Pusher.WS.trigger_event!(pid, "client-event", %{}, channel)
 
     assert_receive %{channel: ^channel, event: "client-event", data: _},
                    1_000
 
-    PusherClient.disconnect!(other_pid)
+    Pusher.WS.disconnect!(other_pid)
   end
 
   test "member_removed event on populated presence channel", context do
     pid = context[:pid]
     channel = "presence-channel"
-    PusherClient.subscribe!(pid, channel, %PusherClient.User{id: 123, info: %{k2: "v2"}})
+    Pusher.WS.subscribe!(pid, channel, %Pusher.WS.User{id: 123, info: %{k2: "v2"}})
 
     assert_receive %{channel: ^channel, event: "pusher:subscription_succeeded", data: _},
                    1_000
 
     {:ok, other_pid, _} = Connection.connect()
-    PusherClient.subscribe!(other_pid, channel, %PusherClient.User{id: 456, info: %{k1: "v1"}})
-    PusherClient.unsubscribe!(other_pid, channel)
+    Pusher.WS.subscribe!(other_pid, channel, %Pusher.WS.User{id: 456, info: %{k1: "v1"}})
+    Pusher.WS.unsubscribe!(other_pid, channel)
 
     assert_receive %{
                      channel: "presence-channel",
@@ -124,24 +124,24 @@ defmodule Poxa.Integration.PresenceChannelTest do
 
     assert Pusher.users(context.client, channel) == {:ok, [%{"id" => "123"}]}
 
-    PusherClient.disconnect!(other_pid)
+    Pusher.WS.disconnect!(other_pid)
   end
 
   test "member_removed event on populated presence channel with same user id", context do
     pid = context[:pid]
     channel = "presence-channel"
-    PusherClient.subscribe!(pid, channel, %PusherClient.User{id: 123, info: %{k2: "v2"}})
+    Pusher.WS.subscribe!(pid, channel, %Pusher.WS.User{id: 123, info: %{k2: "v2"}})
 
     assert_receive %{channel: ^channel, event: "pusher:subscription_succeeded", data: _},
                    1_000
 
     {:ok, other_pid, _} = Connection.connect()
-    PusherClient.subscribe!(other_pid, channel, %PusherClient.User{id: 123, info: %{k1: "v1"}})
+    Pusher.WS.subscribe!(other_pid, channel, %Pusher.WS.User{id: 123, info: %{k1: "v1"}})
 
     assert_receive %{channel: ^channel, event: "pusher:subscription_succeeded", data: _},
                    1_000
 
-    PusherClient.unsubscribe!(other_pid, channel)
+    Pusher.WS.unsubscribe!(other_pid, channel)
 
     refute_receive %{
                      channel: "presence-channel",
@@ -152,6 +152,6 @@ defmodule Poxa.Integration.PresenceChannelTest do
 
     assert Pusher.users(context.client, channel) == {:ok, [%{"id" => "123"}]}
 
-    PusherClient.disconnect!(other_pid)
+    Pusher.WS.disconnect!(other_pid)
   end
 end

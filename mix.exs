@@ -28,8 +28,7 @@ defmodule Poxa.Mixfile do
       {:signaturex, "~> 1.3"},
       {:gproc, "~> 0.8"},
       {:mimic, "~> 1.0", only: :test},
-      {:pusher_client, github: "edgurgel/pusher_client", only: :test},
-      {:pusher, "~> 2.0", only: :test},
+      {:pusher, "~> 2.1", only: :test},
       {:httpoison, "~> 1.0"},
       {:ex2ms, "~> 1.5"},
       {:dialyxir, "~> 0.3", only: [:dev, :test]}
