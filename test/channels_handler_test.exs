@@ -6,129 +6,138 @@ defmodule Poxa.ChannelsHandlerTest do
   import Poxa.ChannelsHandler
 
   setup do
-    stub(Poison)
+    stub(Jason)
     stub(:cowboy_req)
     :ok
   end
 
-  test "malformed_request on multiple channels with no attributes" do
-    expect(:cowboy_req, :qs_val, fn "info", :req, "" -> {"", :req2} end)
-    expect(:cowboy_req, :binding, fn :channel_name, :req2, nil -> {:nil, :req3} end)
-    expect(:cowboy_req, :qs_val, fn "filter_by_prefix", :req3, nil -> {nil, :req4} end)
+  describe "malformed_request/2" do
+    test "multiple channels with no attributes" do
+      expect(:cowboy_req, :parse_qs, fn :req -> [] end)
+      expect(:cowboy_req, :binding, fn :channel_name, :req, nil -> nil end)
+      assert malformed_request(:req, :state) == {false, :req, {:all, nil, []}}
+    end
 
-    assert malformed_request(:req, :state) == {false, :req4, {:all, nil, []}}
+    test "multiple channels with valid attributes" do
+      expect(:cowboy_req, :parse_qs, fn :req -> [{"info", "subscription_count"}] end)
+      expect(:cowboy_req, :binding, fn :channel_name, :req, nil -> nil end)
+
+      assert malformed_request(:req, :state) == {false, :req, {:all, nil, ["subscription_count"]}}
+    end
+
+    test "multiple channels with invalid attributes" do
+      expect(:cowboy_req, :parse_qs, fn :req -> [{"info", "user_count"}] end)
+      expect(:cowboy_req, :binding, fn :channel_name, :req, nil -> nil end)
+
+      assert malformed_request(:req, :state) == {true, :req, {:all, nil, ["user_count"]}}
+    end
+
+    test "multiple channels with filter" do
+      expect(:cowboy_req, :parse_qs, fn :req -> [{"filter_by_prefix", "poxa-"}] end)
+      expect(:cowboy_req, :binding, fn :channel_name, :req, nil -> nil end)
+
+      assert malformed_request(:req, :state) == {false, :req, {:all, "poxa-", []}}
+    end
+
+    test "multiple channels with presence filter and user_count attribute" do
+      expect(:cowboy_req, :parse_qs, fn :req ->
+        [{"info", "user_count"}, {"filter_by_prefix", "presence-"}]
+      end)
+
+      expect(:cowboy_req, :binding, fn :channel_name, :req, nil -> nil end)
+
+      assert malformed_request(:req, :state) == {false, :req, {:all, "presence-", ["user_count"]}}
+    end
+
+    test "single channel with invalid attributes" do
+      expect(:cowboy_req, :parse_qs, fn :req ->
+        [{"info", "subscription_count,message_count"}, {"filter_by_prefix", "presence-"}]
+      end)
+
+      expect(:cowboy_req, :binding, fn :channel_name, :req, nil -> "channel" end)
+
+      assert malformed_request(:req, :state) ==
+               {true, :req, {:one, "channel", ["subscription_count", "message_count"]}}
+    end
+
+    test "single channel with invalid attribute" do
+      expect(:cowboy_req, :parse_qs, fn :req -> [{"info", "message_count"}] end)
+      expect(:cowboy_req, :binding, fn :channel_name, :req, nil -> "channel" end)
+
+      assert malformed_request(:req, :state) == {true, :req, {:one, "channel", ["message_count"]}}
+    end
+
+    test "single channel with valid attributes" do
+      expect(:cowboy_req, :parse_qs, fn :req -> [{"info", "subscription_count"}] end)
+      expect(:cowboy_req, :binding, fn :channel_name, :req, nil -> "channel" end)
+
+      assert malformed_request(:req, :state) ==
+               {false, :req, {:one, "channel", ["subscription_count"]}}
+    end
+
+    test "single non presence-channel with invalid attributes" do
+      expect(:cowboy_req, :parse_qs, fn :req -> [{"info", "user_count"}] end)
+      expect(:cowboy_req, :binding, fn :channel_name, :req, nil -> "channel" end)
+
+      assert malformed_request(:req, :state) == {true, :req, {:one, "channel", ["user_count"]}}
+    end
+
+    test "single presence-channel with invalid attributes" do
+      expect(:cowboy_req, :parse_qs, fn :req -> [{"info", "user_count,subscription_count"}] end)
+      expect(:cowboy_req, :binding, fn :channel_name, :req, nil -> "presence-channel" end)
+
+      assert malformed_request(:req, :state) ==
+               {false, :req, {:one, "presence-channel", ["user_count", "subscription_count"]}}
+    end
   end
 
-  test "malformed_request on multiple channels with valid attributes" do
-    expect(:cowboy_req, :qs_val, fn "info", :req, "" -> {"subscription_count", :req2} end)
-    expect(:cowboy_req, :binding, fn :channel_name, :req2, nil -> {:nil, :req3} end)
-    expect(:cowboy_req, :qs_val, fn "filter_by_prefix", :req3, nil -> {nil, :req4} end)
+  describe "get_json/2" do
+    test "a specific channel with subscription_count attribute" do
+      expect(Channel, :occupied?, fn "channel" -> true end)
+      expect(Channel, :subscription_count, fn "channel" -> 5 end)
+      expected = %{:occupied => true, :subscription_count => 5}
+      expect(Jason, :encode!, fn ^expected -> :encoded_json end)
 
-    assert malformed_request(:req, :state) == {false, :req4, {:all, nil, ["subscription_count"]}}
-  end
+      assert get_json(:req, {:one, "channel", ["subscription_count"]}) ==
+               {:encoded_json, :req, nil}
+    end
 
-  test "malformed_request on multiple channels with invalid attributes" do
-    expect(:cowboy_req, :qs_val, fn "info", :req, "" -> {"user_count", :req2} end)
-    expect(:cowboy_req, :binding, fn :channel_name, :req2, nil -> {:nil, :req3} end)
-    expect(:cowboy_req, :qs_val, fn "filter_by_prefix", :req3, nil -> {nil, :req4} end)
+    test "a specific channel with user_count attribute" do
+      expect(Channel, :occupied?, fn "presence-channel" -> true end)
+      expect(PresenceChannel, :user_count, fn "presence-channel" -> 3 end)
+      expected = %{:occupied => true, :user_count => 3}
+      expect(Jason, :encode!, fn ^expected -> :encoded_json end)
 
-    assert malformed_request(:req, :state) == {true, :req4, {:all, nil, ["user_count"]}}
-  end
+      assert get_json(:req, {:one, "presence-channel", ["user_count"]}) ==
+               {:encoded_json, :req, nil}
+    end
 
-  test "malformed_request on multiple channels with filter" do
-    expect(:cowboy_req, :qs_val, fn "info", :req, "" -> {"", :req2} end)
-    expect(:cowboy_req, :binding, fn :channel_name, :req2, nil -> {:nil, :req3} end)
-    expect(:cowboy_req, :qs_val, fn "filter_by_prefix", :req3, nil -> {"poxa-", :req4} end)
+    test "a specific channel with user_count and subscription_count attributes" do
+      expect(Channel, :occupied?, fn "presence-channel" -> true end)
+      expect(PresenceChannel, :user_count, fn "presence-channel" -> 3 end)
+      expect(Channel, :subscription_count, fn "presence-channel" -> 5 end)
+      expected = %{occupied: true, subscription_count: 5, user_count: 3}
+      expect(Jason, :encode!, fn ^expected -> :encoded_json end)
 
-    assert malformed_request(:req, :state) == {false, :req4, {:all, "poxa-", []}}
-  end
+      assert get_json(:req, {:one, "presence-channel", ["subscription_count", "user_count"]}) ==
+               {:encoded_json, :req, nil}
+    end
 
-  test "malformed_request on multiple channels with presence filter and user_count attribute" do
+    test "every single channel" do
+      expect(Channel, :all, fn -> ["presence-channel", "private-channel"] end)
+      expect(PresenceChannel, :user_count, fn "presence-channel" -> 3 end)
+      expected = %{channels: %{"presence-channel" => %{user_count: 3}}}
+      expect(Jason, :encode!, fn ^expected -> :encoded_json end)
 
-    expect(:cowboy_req, :qs_val, fn "info", :req, "" -> {"user_count", :req2} end)
-    expect(:cowboy_req, :binding, fn :channel_name, :req2, nil -> {:nil, :req3} end)
-    expect(:cowboy_req, :qs_val, fn "filter_by_prefix", :req3, nil -> {"presence-", :req4} end)
+      assert get_json(:req, {:all, nil, ["user_count"]}) == {:encoded_json, :req, nil}
+    end
 
-    assert malformed_request(:req, :state) == {false, :req4, {:all, "presence-", ["user_count"]}}
-  end
+    test "every single channel with filter" do
+      expect(Channel, :all, fn -> ["presence-channel", "poxa-channel"] end)
+      expected = %{channels: %{"poxa-channel" => %{}}}
+      expect(Jason, :encode!, fn ^expected -> :encoded_json end)
 
-  test "malformed_request on single channel with invalid attributes" do
-    expect(:cowboy_req, :qs_val, fn "info", :req, "" -> {"subscription_count,message_count", :req2} end)
-    expect(:cowboy_req, :binding, fn :channel_name, :req2, nil -> {"channel", :req3} end)
-
-    assert malformed_request(:req, :state) == {true, :req3, {:one, "channel", ["subscription_count", "message_count"]}}
-  end
-
-  test "malformed_request on single channel with invalid attribute" do
-    expect(:cowboy_req, :qs_val, fn "info", :req, "" -> {"message_count", :req2} end)
-    expect(:cowboy_req, :binding, fn :channel_name, :req2, nil -> {"channel", :req3} end)
-
-    assert malformed_request(:req, :state) == {true, :req3, {:one, "channel", ["message_count"]}}
-  end
-
-  test "malformed_request on single channel with valid attributes" do
-    expect(:cowboy_req, :qs_val, fn "info", :req, "" -> {"subscription_count", :req2} end)
-    expect(:cowboy_req, :binding, fn :channel_name, :req2, nil -> {"channel", :req3} end)
-
-    assert malformed_request(:req, :state) == {false, :req3, {:one, "channel", ["subscription_count"]}}
-  end
-
-  test "malformed_request on single non presence-channel with invalid attributes" do
-    expect(:cowboy_req, :qs_val, fn "info", :req, "" -> {"user_count", :req2} end)
-    expect(:cowboy_req, :binding, fn :channel_name, :req2, nil -> {"channel", :req3} end)
-
-    assert malformed_request(:req, :state) == {true, :req3, {:one, "channel", ["user_count"]}}
-  end
-
-  test "malformed_request on single presence-channel with invalid attributes" do
-    expect(:cowboy_req, :qs_val, fn "info", :req, "" -> {"user_count,subscription_count", :req2} end)
-    expect(:cowboy_req, :binding, fn :channel_name, :req2, nil -> {"presence-channel", :req3} end)
-
-    assert malformed_request(:req, :state) == {false, :req3, {:one, "presence-channel", ["user_count", "subscription_count"]}}
-  end
-
-  test "get_json on a specific channel with subscription_count attribute" do
-    expect(Channel, :occupied?, fn "channel" -> true end)
-    expect(Channel, :subscription_count, fn "channel" -> 5 end)
-    expected = %{:occupied => true, :subscription_count => 5}
-    expect(Poison, :encode!, fn ^expected -> :encoded_json end)
-
-    assert get_json(:req, {:one, "channel", ["subscription_count"]}) == {:encoded_json, :req, nil}
-  end
-
-  test "get_json on a specific channel with user_count attribute" do
-    expect(Channel, :occupied?, fn "presence-channel" -> true end)
-    expect(PresenceChannel, :user_count, fn "presence-channel" -> 3 end)
-    expected = %{:occupied => true, :user_count => 3}
-    expect(Poison, :encode!, fn ^expected -> :encoded_json end)
-
-    assert get_json(:req, {:one, "presence-channel", ["user_count"]}) == {:encoded_json, :req, nil}
-  end
-
-  test "get_json on a specific channel with user_count and subscription_count attributes" do
-    expect(Channel, :occupied?, fn "presence-channel" -> true end)
-    expect(PresenceChannel, :user_count, fn "presence-channel" -> 3 end)
-    expect(Channel, :subscription_count, fn "presence-channel" -> 5 end)
-    expected = %{occupied: true, subscription_count: 5, user_count: 3}
-    expect(Poison, :encode!, fn ^expected -> :encoded_json end)
-
-    assert get_json(:req, {:one, "presence-channel", ["subscription_count", "user_count"]}) == {:encoded_json, :req, nil}
-  end
-
-  test "get_json on every single channel" do
-    expect(Channel, :all, fn -> ["presence-channel", "private-channel"] end)
-    expect(PresenceChannel, :user_count, fn "presence-channel" -> 3 end)
-    expected = %{channels: %{"presence-channel" => %{user_count: 3}}}
-    expect(Poison, :encode!, fn ^expected -> :encoded_json end)
-
-    assert get_json(:req, {:all, nil, ["user_count"]}) == {:encoded_json, :req, nil}
-  end
-
-  test "get_json on every single channel with filter" do
-    expect(Channel, :all, fn -> ["presence-channel", "poxa-channel"] end)
-    expected = %{channels:  %{"poxa-channel" => %{}}}
-    expect(Poison, :encode!, fn ^expected -> :encoded_json end)
-
-    assert get_json(:req, {:all, "poxa-", []}) == {:encoded_json, :req, nil}
+      assert get_json(:req, {:all, "poxa-", []}) == {:encoded_json, :req, nil}
+    end
   end
 end

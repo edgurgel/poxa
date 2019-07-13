@@ -41,7 +41,7 @@ defmodule Poxa.WebHook.EventData do
       iex> Poxa.WebHook.EventData.member_added("presence-test_channel", "test_user_id")
       %{name: "member_added", channel: "presence-test_channel", user_id: "test_user_id"}
   """
-  @spec member_added(binary, PresenceSubscription.user_id) :: map
+  @spec member_added(binary, PresenceSubscription.user_id()) :: map
   def member_added(channel, user_id) do
     %{name: "member_added", channel: channel, user_id: user_id}
   end
@@ -54,7 +54,7 @@ defmodule Poxa.WebHook.EventData do
       iex> Poxa.WebHook.EventData.member_removed("presence-test_channel", "test_user_id")
       %{name: "member_removed", channel: "presence-test_channel", user_id: "test_user_id"}
   """
-  @spec member_removed(binary, PresenceSubscription.user_id) :: map
+  @spec member_removed(binary, PresenceSubscription.user_id()) :: map
   def member_removed(channel, user_id) do
     %{name: "member_removed", channel: channel, user_id: user_id}
   end
@@ -83,13 +83,14 @@ defmodule Poxa.WebHook.EventData do
         socket_id: "test_socket_id",
       }
   """
-  @spec client_event(binary, binary, any, binary, PresenceSubscription.user_id | nil) :: map
+  @spec client_event(binary, binary, any, binary, PresenceSubscription.user_id() | nil) :: map
   def client_event(channel, event, data, socket_id, nil) do
     Map.delete(client_event(channel, event, data, socket_id, ""), :user_id)
   end
 
   def client_event(channel, event, data, socket_id, user_id) do
-    %{name: "client_event",
+    %{
+      name: "client_event",
       channel: channel,
       event: event,
       data: data,

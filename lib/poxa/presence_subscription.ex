@@ -22,22 +22,26 @@ defmodule Poxa.PresenceSubscription do
   @doc """
   Returns a PresenceSubscription struct
   """
-  @spec subscribe!(binary, term) :: __MODULE__.t
+  @spec subscribe!(binary, term) :: __MODULE__.t()
   def subscribe!(channel, channel_data) do
-    decoded_channel_data = Poison.decode!(channel_data)
+    decoded_channel_data = Jason.decode!(channel_data)
+
     if member?(channel, self()) do
-      Logger.info "Already subscribed #{inspect self()} on channel #{channel}"
+      Logger.info("Already subscribed #{inspect(self())} on channel #{channel}")
     else
-      Logger.info "Registering #{inspect self()} to channel #{channel}"
+      Logger.info("Registering #{inspect(self())} to channel #{channel}")
       {user_id, user_info} = extract_userid_and_userinfo(decoded_channel_data)
+
       unless Poxa.Channel.member?(channel, user_id) do
         Event.notify(:member_added, %{channel: channel, user_id: user_id})
         message = PusherEvent.presence_member_added(channel, user_id, user_info)
-        Poxa.registry.send!(message, channel, self())
+        Poxa.registry().send!(message, channel, self())
       end
-      Poxa.registry.register!(channel, {user_id, user_info})
+
+      Poxa.registry().register!(channel, {user_id, user_info})
     end
-    %__MODULE__{channel: channel, channel_data: Poxa.registry.unique_subscriptions(channel)}
+
+    %__MODULE__{channel: channel, channel_data: Poxa.registry().unique_subscriptions(channel)}
   end
 
   @spec extract_userid_and_userinfo(map) :: {user_id, user_info}
@@ -48,7 +52,7 @@ defmodule Poxa.PresenceSubscription do
   end
 
   defp sanitize_user_id(user_id) when is_binary(user_id), do: user_id
-  defp sanitize_user_id(user_id), do: Poison.encode!(user_id)
+  defp sanitize_user_id(user_id), do: Jason.encode!(user_id)
 
   @doc """
   Unsubscribe from a presence channel, possibly triggering `presence_member_removed`.
@@ -56,13 +60,16 @@ defmodule Poxa.PresenceSubscription do
   """
   @spec unsubscribe!(binary) :: {:ok, binary}
   def unsubscribe!(channel) do
-    case Poxa.registry.fetch(channel) do
+    case Poxa.registry().fetch(channel) do
       {user_id, _} ->
         if only_one_connection_on_user_id?(channel, user_id) do
           presence_member_removed(channel, user_id)
         end
-      _ -> nil
+
+      _ ->
+        nil
     end
+
     {:ok, channel}
   end
 
@@ -74,19 +81,21 @@ defmodule Poxa.PresenceSubscription do
   """
   @spec check_and_remove :: non_neg_integer
   def check_and_remove do
-    for [channel, user_id] <- Poxa.registry.subscriptions(self()),
-      presence?(channel), only_one_connection_on_user_id?(channel, user_id) do
-        presence_member_removed(channel, user_id)
-    end |> Enum.count
+    for [channel, user_id] <- Poxa.registry().subscriptions(self()),
+        presence?(channel),
+        only_one_connection_on_user_id?(channel, user_id) do
+      presence_member_removed(channel, user_id)
+    end
+    |> Enum.count()
   end
 
   defp presence_member_removed(channel, user_id) do
     Event.notify(:member_removed, %{channel: channel, user_id: user_id})
     message = PusherEvent.presence_member_removed(channel, user_id)
-    Poxa.registry.send!(message, channel, self())
+    Poxa.registry().send!(message, channel, self())
   end
 
   defp only_one_connection_on_user_id?(channel, user_id) do
-    Poxa.registry.subscription_count(channel, user_id) == 1
+    Poxa.registry().subscription_count(channel, user_id) == 1
   end
 end

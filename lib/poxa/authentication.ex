@@ -14,7 +14,8 @@ defmodule Poxa.Authentication do
     {:ok, app_key} = Application.fetch_env(:poxa, :app_key)
     {:ok, secret} = Application.fetch_env(:poxa, :app_secret)
 
-    valid_body?(body, body_md5) and Signaturex.validate(app_key, secret, method, path, qs_vals, 600)
+    valid_body?(body, body_md5) and
+      Signaturex.validate(app_key, secret, method, path, qs_vals, 600)
   end
 
   @doc """
@@ -27,6 +28,7 @@ defmodule Poxa.Authentication do
   end
 
   defp valid_body?("", nil), do: true
+
   defp valid_body?(body, body_md5) do
     body_md5 == Poxa.CryptoHelper.md5_to_string(body)
   end

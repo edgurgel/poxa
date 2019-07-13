@@ -10,9 +10,7 @@ defmodule Poxa.ChannelsHandler do
   alias Poxa.PresenceChannel
 
   @doc false
-  def init(_transport, _req, _opts) do
-    {:upgrade, :protocol, :cowboy_rest}
-  end
+  def init(req, state), do: {:cowboy_rest, req, state}
 
   @doc false
   def allowed_methods(req, state) do
@@ -28,14 +26,21 @@ defmodule Poxa.ChannelsHandler do
   * user_count for non-presence channels
   """
   def malformed_request(req, _state) do
-    {info, req} = :cowboy_req.qs_val("info", req, "")
-    attributes = String.split(info, ",")
+    qs_vals = :cowboy_req.parse_qs(req)
+    {"info", info} = List.keyfind(qs_vals, "info", 0, {"info", ""})
+
+    attributes =
+      String.split(info, ",")
       |> Enum.reject(&(&1 == ""))
-    {channel, req} = :cowboy_req.binding(:channel_name, req, nil)
+
+    channel = :cowboy_req.binding(:channel_name, req, nil)
+
     if channel do
       {malformed_request_one_channel?(attributes, channel), req, {:one, channel, attributes}}
     else
-      {filter, req} = :cowboy_req.qs_val("filter_by_prefix", req, nil)
+      {"filter_by_prefix", filter} =
+        List.keyfind(qs_vals, "filter_by_prefix", 0, {"filter_by_prefix", nil})
+
       {malformed_request_all_channels?(attributes, filter), req, {:all, filter, attributes}}
     end
   end
@@ -74,6 +79,7 @@ defmodule Poxa.ChannelsHandler do
   def get_json(req, {:one, channel, attributes}) do
     show(channel, attributes, req, nil)
   end
+
   def get_json(req, {:all, filter, attributes}) do
     index(filter, attributes, req, nil)
   end
@@ -81,7 +87,7 @@ defmodule Poxa.ChannelsHandler do
   defp show(channel, attributes, req, state) do
     occupied = Channel.occupied?(channel)
     attribute_list = mount_attribute_list(attributes, channel)
-    {Poison.encode!(Map.merge(%{occupied: occupied}, attribute_list)), req, state}
+    {Jason.encode!(Map.merge(%{occupied: occupied}, attribute_list)), req, state}
   end
 
   defp mount_attribute_list(attributes, channel) do
@@ -91,20 +97,21 @@ defmodule Poxa.ChannelsHandler do
       else
         %{}
       end
-      if Enum.member?(attributes, "user_count") do
-        Map.put(attributes_data, :user_count, PresenceChannel.user_count(channel))
-      else
-        attributes_data
-      end
+
+    if Enum.member?(attributes, "user_count") do
+      Map.put(attributes_data, :user_count, PresenceChannel.user_count(channel))
+    else
+      attributes_data
+    end
   end
 
   defp index(filter, attributes, req, state) do
     channels = channels(filter, attributes)
-    {Poison.encode!(%{:channels => channels}), req, state}
+    {Jason.encode!(%{:channels => channels}), req, state}
   end
 
   defp channels(filter, attributes) do
-    for channel <- Channel.all, filter_channel(channel, filter), into: %{} do
+    for channel <- Channel.all(), filter_channel(channel, filter), into: %{} do
       {channel, mount_attribute_list(attributes, channel)}
     end
   end

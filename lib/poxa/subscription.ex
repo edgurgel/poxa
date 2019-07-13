@@ -14,26 +14,32 @@ defmodule Poxa.Subscription do
   Returns {:ok, channel} to public and private channels and
   a PresenceSubscription to a presence channel
   """
-  @spec subscribe!(term, binary) :: {:ok, binary}
-    | PresenceSubscription.t
-    | {:error, binary}
+  @spec subscribe!(term, binary) ::
+          {:ok, binary}
+          | PresenceSubscription.t()
+          | {:error, binary}
   def subscribe!(data, socket_id) do
     channel = data["channel"]
+
     cond do
       Channel.private?(channel) ->
         subscribe_private_channel(socket_id, channel, data["auth"], data["channel_data"])
+
       Channel.presence?(channel) ->
         subscribe_presence_channel(socket_id, channel, data["auth"], data["channel_data"])
+
       is_binary(channel) ->
         subscribe_channel(channel)
+
       true ->
-        Logger.info "Missing channel"
+        Logger.info("Missing channel")
         {:error, PusherEvent.pusher_error("Missing parameter: data.channel")}
     end
   end
 
   defp subscribe_presence_channel(socket_id, channel, auth, channel_data) do
     to_sign = socket_id <> ":" <> channel <> ":" <> (channel_data || "")
+
     if AuthSignature.valid?(to_sign, auth) do
       PresenceSubscription.subscribe!(channel, channel_data)
     else
@@ -42,10 +48,12 @@ defmodule Poxa.Subscription do
   end
 
   defp subscribe_private_channel(socket_id, channel, auth, channel_data) do
-    to_sign = case channel_data do
-      nil -> socket_id <> ":" <> channel
-      channel_data -> socket_id <> ":" <> channel <> ":" <> channel_data
-    end
+    to_sign =
+      case channel_data do
+        nil -> socket_id <> ":" <> channel
+        channel_data -> socket_id <> ":" <> channel <> ":" <> channel_data
+      end
+
     if AuthSignature.valid?(to_sign, auth) do
       subscribe_channel(channel)
     else
@@ -59,13 +67,15 @@ defmodule Poxa.Subscription do
   end
 
   defp subscribe_channel(channel) do
-    Logger.info "Subscribing to channel #{channel}"
+    Logger.info("Subscribing to channel #{channel}")
+
     if Channel.member?(channel, self()) do
-      Logger.info "Already subscribed #{inspect self()} on channel #{channel}"
+      Logger.info("Already subscribed #{inspect(self())} on channel #{channel}")
     else
-      Logger.info "Registering #{inspect self()} to channel #{channel}"
-      Poxa.registry.register!(channel)
+      Logger.info("Registering #{inspect(self())} to channel #{channel}")
+      Poxa.registry().register!(channel)
     end
+
     {:ok, channel}
   end
 
@@ -75,14 +85,17 @@ defmodule Poxa.Subscription do
   @spec unsubscribe!(term) :: {:ok, binary}
   def unsubscribe!(data) do
     channel = data["channel"]
+
     if Channel.member?(channel, self()) do
       if Channel.presence?(channel) do
-        PresenceSubscription.unsubscribe!(channel);
+        PresenceSubscription.unsubscribe!(channel)
       end
-      Poxa.registry.unregister!(channel)
+
+      Poxa.registry().unregister!(channel)
     else
-      Logger.debug "Not subscribed to"
+      Logger.debug("Not subscribed to")
     end
+
     {:ok, channel}
   end
 end

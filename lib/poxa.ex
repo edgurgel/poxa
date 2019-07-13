@@ -6,38 +6,45 @@ defmodule Poxa do
   use Application
   require Logger
 
-  @registry_adapter Poxa.Registry.adapter
+  @registry_adapter Poxa.Registry.adapter()
 
   def registry, do: @registry_adapter
 
   def start(_type, _args) do
-    dispatch = :cowboy_router.compile([
-      {:_, [ { '/ping', Poxa.PingHandler, [] },
-             { '/console', Poxa.Console.WSHandler, [] },
-             { '/', :cowboy_static, {:priv_file, :poxa, 'index.html'} },
-             { '/static/[...]', :cowboy_static, {:priv_dir, :poxa, 'static'} },
-             { '/apps/:app_id/events', Poxa.EventHandler, [] },
-             { '/apps/:app_id/channels[/:channel_name]', Poxa.ChannelsHandler, [] },
-             { '/apps/:app_id/channels/:channel_name/users', Poxa.UsersHandler, [] },
-             { '/app/:app_key', Poxa.WebsocketHandler, [] } ] }
-    ])
+    dispatch =
+      :cowboy_router.compile([
+        {:_,
+         [
+           {"/ping", Poxa.PingHandler, []},
+           {"/console", Poxa.Console.WSHandler, []},
+           {"/", :cowboy_static, {:priv_file, :poxa, 'index.html'}},
+           {"/static/[...]", :cowboy_static, {:priv_dir, :poxa, 'static'}},
+           {"/apps/:app_id/events", Poxa.EventHandler, []},
+           {"/apps/:app_id/channels[/:channel_name]", Poxa.ChannelsHandler, []},
+           {"/apps/:app_id/channels/:channel_name/users", Poxa.UsersHandler, []},
+           {"/app/:app_key", Poxa.WebsocketHandler, []}
+         ]}
+      ])
+
     case load_config() do
       {:ok, config} ->
-        Logger.info "Starting Poxa, app_id: #{config.app_id} on port #{config.port}"
-        {:ok, _} = :cowboy.start_http(:poxa, 100,
-                                      [port: config.port],
-                                      [env: [dispatch: dispatch]])
+        Logger.info("Starting Poxa, app_id: #{config.app_id} on port #{config.port}")
+
+        {:ok, _} =
+          :cowboy.start_clear(:poxa_http, [port: config.port], %{env: %{dispatch: dispatch}})
+
         run_ssl(dispatch)
-        Poxa.Supervisor.start_link
+        Poxa.Supervisor.start_link()
+
       :invalid_configuration ->
-        Logger.error "Error on start, set app_key, app_id and app_secret"
+        Logger.error("Error on start, set app_key, app_id and app_secret")
         exit(:invalid_configuration)
     end
-
   end
 
   def stop(_State) do
-    :ok = :cowboy.stop_listener(:poxa)
+    :ok = :cowboy.stop_listener(:poxa_http)
+    :ok = :cowboy.stop_listener(:poxa_https)
   end
 
   defp load_config do
@@ -47,9 +54,15 @@ defmodule Poxa do
       {:ok, app_secret} = Application.fetch_env(:poxa, :app_secret)
       {:ok, port} = Application.fetch_env(:poxa, :port)
       {:ok, registry_adapter} = Application.fetch_env(:poxa, :registry_adapter)
-      {:ok, %{app_key: app_key, app_id: app_id,
-              app_secret: app_secret, port: to_integer(port),
-              registry_adapter: registry_adapter}}
+
+      {:ok,
+       %{
+         app_key: app_key,
+         app_id: app_id,
+         app_secret: app_secret,
+         port: to_integer(port),
+         registry_adapter: registry_adapter
+       }}
     rescue
       MatchError -> :invalid_configuration
     end
@@ -63,14 +76,15 @@ defmodule Poxa do
       {:ok, ssl_config} ->
         if enabled_ssl?(ssl_config) do
           ssl_port = Keyword.get(ssl_config, :port)
-          Logger.info "Starting Poxa using SSL on port #{ssl_port}"
+          Logger.info("Starting Poxa using SSL on port #{ssl_port}")
           ssl_config = Keyword.drop(ssl_config, [:enabled])
-          {:ok, _} = :cowboy.start_https(:https, 100, ssl_config, [env: [dispatch: dispatch] ])
+          {:ok, _} = :cowboy.start_tls(:poxa_https, ssl_config, %{env: %{dispatch: dispatch}})
         else
-          Logger.info "SSL not configured/started"
+          Logger.info("SSL not configured/started")
         end
+
       :error ->
-        Logger.info "SSL not configured/started"
+        Logger.info("SSL not configured/started")
     end
   end
 

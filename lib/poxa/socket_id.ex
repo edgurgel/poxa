@@ -28,7 +28,7 @@ defmodule Poxa.SocketId do
   """
   @spec register!(binary) :: true
   def register!(socket_id) do
-    Poxa.registry.register!(:socket_id, socket_id)
+    Poxa.registry().register!(:socket_id, socket_id)
   end
 
   @doc """
@@ -38,6 +38,6 @@ defmodule Poxa.SocketId do
   """
   @spec mine :: binary
   def mine do
-    Poxa.registry.fetch(:socket_id)
+    Poxa.registry().fetch(:socket_id)
   end
 end

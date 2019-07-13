@@ -77,10 +77,12 @@ defmodule Poxa.Channel do
   """
   def matches?(_, nil), do: false
   def matches?(_, ""), do: false
+
   def matches?(channel, prefix) do
     base = byte_size(prefix)
+
     case channel do
-      <<^prefix :: binary-size(base), _ :: binary>> -> true
+      <<^prefix::binary-size(base), _::binary>> -> true
       _ -> false
     end
   end
@@ -95,19 +97,19 @@ defmodule Poxa.Channel do
   Returns the list of channels the `pid` is subscribed
   """
   @spec all(pid | :_) :: [binary]
-  def all(pid \\ :_), do: Poxa.registry.channels(pid)
+  def all(pid \\ :_), do: Poxa.registry().channels(pid)
 
   @doc """
   Returns a boolean indicating if the user identified by `identifier` is subscribed to the channel.
   """
-  @spec member?(binary, pid | :_ | PresenceSubscription.user_id) :: boolean
+  @spec member?(binary, pid | :_ | PresenceSubscription.user_id()) :: boolean
   def member?(channel, identifier \\ :_), do: subscription_count(channel, identifier) != 0
 
   @doc """
   Returns how many connections are opened on the `channel`
   """
-  @spec subscription_count(binary, pid | :_ | PresenceSubscription.user_id) :: non_neg_integer
+  @spec subscription_count(binary, pid | :_ | PresenceSubscription.user_id()) :: non_neg_integer
   def subscription_count(channel, pid \\ :_) do
-    Poxa.registry.subscription_count(channel, pid)
+    Poxa.registry().subscription_count(channel, pid)
   end
 end

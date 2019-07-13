@@ -2,35 +2,36 @@ defmodule Poxa.Mixfile do
   use Mix.Project
 
   def project do
-    [ app: :poxa,
-      version: "0.8.1",
+    [
+      app: :poxa,
+      version: "1.0.0",
       name: "Poxa",
-      elixir: "~> 1.5",
+      elixir: "~> 1.9",
       deps: deps(),
       dialyzer: [
         plt_add_apps: ~w(cowboy poison gproc httpoison signaturex),
         plt_file: ".local.plt",
-        flags: ~w(-Wunmatched_returns -Werror_handling -Wrace_conditions -Wno_opaque --fullpath --statistics)
+        flags:
+          ~w(-Wunmatched_returns -Werror_handling -Wrace_conditions -Wno_opaque --fullpath --statistics)
       ]
     ]
   end
 
   def application do
-    [ mod: { Poxa, [] } ]
+    [extra_applications: [:logger], mod: {Poxa, []}]
   end
 
   defp deps do
-    [ {:cowboy, "~> 1.1.2" },
-      {:poison, "~> 3.0"},
+    [
+      {:cowboy, "~> 2.6"},
+      {:jason, "~> 1.0"},
       {:signaturex, "~> 1.3"},
-      {:gproc, "~> 0.6"},
+      {:gproc, "~> 0.8"},
       {:mimic, "~> 1.0", only: :test},
-      {:pusher_client, github: "edgurgel/pusher_client", only: :test},
-      {:pusher, "~> 0.1", only: :test},
-      {:distillery, "~> 1.4", runtime: false},
-      {:conform, "~> 2.0"},
-      {:httpoison, "~> 0.9"},
+      {:pusher, "~> 2.1", only: :test},
+      {:httpoison, "~> 1.0"},
       {:ex2ms, "~> 1.5"},
-      {:dialyxir, "~> 0.3", only: [:dev, :test]}]
+      {:dialyxir, "~> 0.3", only: [:dev, :test]}
+    ]
   end
 end

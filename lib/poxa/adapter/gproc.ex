@@ -29,27 +29,34 @@ defmodule Poxa.Adapter.GProc do
   end
 
   def subscription_count(channel, pid \\ :_)
+
   def subscription_count(channel, pid) when is_pid(pid) or pid == :_ do
     Ex2ms.fun do
       {{:p, :l, {:pusher, ^channel}}, ^pid, _} -> true
-    end |> select_count
+    end
+    |> select_count
   end
+
   def subscription_count(channel, user_id) do
     Ex2ms.fun do
       {{:p, :l, {:pusher, ^channel}}, _, {^user_id, _}} -> true
-    end |> select_count
+    end
+    |> select_count
   end
 
   def subscriptions(pid) do
     Ex2ms.fun do
       {{:p, :l, {:pusher, channel}}, ^pid, {user_id, _}} -> [channel, user_id]
-    end |> select
+    end
+    |> select
   end
 
   def channels(pid \\ :_) do
     Ex2ms.fun do
       {{:p, :l, {:pusher, channel}}, ^pid, _} -> channel
-    end |> select |> Enum.uniq_by(&(&1))
+    end
+    |> select
+    |> Enum.uniq_by(& &1)
   end
 
   def unique_subscriptions(channel) do
