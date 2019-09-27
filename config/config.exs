@@ -12,7 +12,8 @@ config :poxa,
   app_id: get_env("POXA_APP_ID", "app_id"),
   registry_adapter: get_env("POXA_REGISTRY_ADAPTER", "gproc"),
   web_hook: get_env("WEB_HOOK", nil),
-  payload_limit: get_env("PAYLOAD_LIMIT") || 10_000
+  payload_limit: get_env("PAYLOAD_LIMIT") || 10_000,
+  activity_timeout: get_env("ACTIVITY_TIMEOUT", "120") |> String.to_integer()
 
 config :poxa, :ssl,
   enabled: get_env("POXA_SSL", "false") == "true",
