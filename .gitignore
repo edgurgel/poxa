@@ -6,3 +6,8 @@ erl_crash.dump
 /docs
 /rel/poxa
 .local.plt
+# idea plugin
+/.idea
+poxa.iml
+# vscode plugin
+/.elixir_ls

@@ -7,8 +7,10 @@ defmodule Poxa.PusherEventTest do
   doctest Poxa.PusherEvent
 
   test "connection established output" do
+    :application.set_env(:poxa, :activity_timeout, 30)
+
     json =
-      "{\"data\":\"{\\\"activity_timeout\\\":120,\\\"socket_id\\\":\\\"SocketId\\\"}\",\"event\":\"pusher:connection_established\"}"
+      "{\"data\":\"{\\\"activity_timeout\\\":30,\\\"socket_id\\\":\\\"SocketId\\\"}\",\"event\":\"pusher:connection_established\"}"
 
     assert connection_established("SocketId") == json
   end
