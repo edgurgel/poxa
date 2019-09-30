@@ -9,3 +9,5 @@ erl_crash.dump
 # idea plugin
 /.idea
 poxa.iml
+# vscode plugin
+/.elixir_ls

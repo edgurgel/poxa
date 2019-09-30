@@ -21,7 +21,10 @@ defmodule Poxa.PusherEvent do
   """
   @spec connection_established(binary) :: binary
   def connection_established(socket_id) do
-    data = %{socket_id: socket_id, activity_timeout: Application.get_env(:poxa, :activity_timeout)} |> encode!
+    data =
+      %{socket_id: socket_id, activity_timeout: Application.get_env(:poxa, :activity_timeout)}
+      |> encode!
+
     %{event: "pusher:connection_established", data: data} |> encode!
   end
 

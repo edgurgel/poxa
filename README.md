@@ -69,6 +69,7 @@ The following environment variables are supported:
 * `POXA_APP_ID`
 * `POXA_REGISTRY_ADAPTER`
 * `WEB_HOOK`
+* `ACTIVITY_TIMEOUT`
 * `POXA_SSL`
 * `SSL_PORT`
 * `SSL_CACERTFILE`
