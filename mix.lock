@@ -15,7 +15,7 @@
   "jsx": {:hex, :jsx, "2.8.3", "a05252d381885240744d955fbe3cf810504eb2567164824e19303ea59eef62cf", [:mix, :rebar3], [], "hexpm"},
   "metrics": {:hex, :metrics, "1.0.1", "25f094dea2cda98213cecc3aeff09e940299d950904393b2a29d191c346a8486", [], [], "hexpm"},
   "mimerl": {:hex, :mimerl, "1.2.0", "67e2d3f571088d5cfd3e550c383094b47159f3eee8ffa08e64106cdf5e981be3", [:rebar3], [], "hexpm"},
-  "mimic": {:hex, :mimic, "1.0.0", "6108d6b19e794525c7ca68877347a9f8895e8f28aea618cd976e8a150c59d0f8", [:mix], [], "hexpm"},
+  "mimic": {:hex, :mimic, "1.1.2", "829a13ddefaa34185cffc3777d26c98fe1b19878350fea13536cda0430d92f15", [:mix], [], "hexpm"},
   "neotoma": {:hex, :neotoma, "1.7.3", "d8bd5404b73273989946e4f4f6d529e5c2088f5fa1ca790b4dbe81f4be408e61", [:rebar], [], "hexpm"},
   "parse_trans": {:hex, :parse_trans, "3.3.0", "09765507a3c7590a784615cfd421d101aec25098d50b89d7aa1d66646bc571c1", [:rebar3], [], "hexpm"},
   "poison": {:hex, :poison, "3.1.0", "d9eb636610e096f86f25d9a46f35a9facac35609a7591b3be3326e99a0484665", [:mix], [], "hexpm"},
