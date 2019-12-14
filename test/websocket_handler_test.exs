@@ -221,6 +221,13 @@ defmodule Poxa.WebsocketHandlerTest do
     assert websocket_handle({:text, :client_event_json}, state) == {:ok, state}
   end
 
+  describe "init/1" do
+    test "sets cowboy's idle_timeout" do
+      :application.set_env(:poxa, :activity_timeout, 30)
+      assert init(:req, []) == {:cowboy_websocket, :req, :req, %{idle_timeout: 30_000}}
+    end
+  end
+
   describe "websocket_init/1" do
     test "websocket init" do
       expect(:cowboy_req, :binding, fn :app_key, :req -> "app_key" end)
