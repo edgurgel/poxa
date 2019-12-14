@@ -24,7 +24,10 @@ defmodule Poxa.WebsocketHandler do
   end
 
   @doc false
-  def init(req, _opts), do: {:cowboy_websocket, req, req}
+  def init(req, _opts) do
+    idle_timeout_ms = Application.get_env(:poxa, :activity_timeout) * 1_000
+    {:cowboy_websocket, req, req, %{idle_timeout: idle_timeout_ms}}
+  end
 
   @doc """
   This function checks for proper app_key and protocol before continuing
