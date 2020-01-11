@@ -5,13 +5,10 @@ defmodule Poxa.PingHandler do
   require Logger
 
   @doc false
-  def init(_transport, req, _Opts), do: {:ok, req, nil}
-
-  @doc false
-  def handle(req, state) do
-    req = :cowboy_req.reply(200, %{"content-type" => "text/plain"}, "Hello World!", req)
+  def init(req, _Opts) do
+    req = :cowboy_req.reply(200, %{"content-type" => "text/plain"}, "Pong!", req)
     Logger.debug("Ping requested")
-    {:ok, req, state}
+    {:ok, req, nil}
   end
 
   @doc false
