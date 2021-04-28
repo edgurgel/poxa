@@ -1,0 +1,12 @@
+version: 2
+updates:
+- package-ecosystem: mix
+  directory: "/"
+  schedule:
+    interval: weekly
+    time: "17:00"
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: mimic
+    versions:
+    - 1.4.0
