@@ -6,7 +6,7 @@ defmodule Poxa.Mixfile do
       app: :poxa,
       version: "1.1.2",
       name: "Poxa",
-      elixir: "~> 1.9",
+      elixir: "~> 1.11",
       deps: deps(),
       dialyzer: [
         plt_add_apps: ~w(cowboy poison gproc httpoison signaturex),
@@ -31,7 +31,7 @@ defmodule Poxa.Mixfile do
       {:pusher, "~> 2.1", only: :test},
       {:httpoison, "~> 1.0"},
       {:ex2ms, "~> 1.5"},
-      {:dialyxir, "~> 1.0", only: [:dev, :test]}
+      {:dialyxir, "~> 1.0", runtime: false, only: [:dev, :test]}
     ]
   end
 end
