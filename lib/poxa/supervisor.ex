@@ -9,16 +9,16 @@ defmodule Poxa.Supervisor do
   @doc false
   def init([]) do
     {:ok, web_hook} = Application.fetch_env(:poxa, :web_hook)
-    subscription_worker = worker(Poxa.SubscriptionHandler, [])
+    subscription_worker = Poxa.SubscriptionHandler
 
     children =
       if to_string(web_hook) != "" do
-        web_wook_supervisor = worker(Poxa.WebHook.Supervisor, [])
+        web_wook_supervisor = Poxa.WebHook.Supervisor
         [subscription_worker, web_wook_supervisor]
       else
         [subscription_worker]
       end
 
-    supervise(children, strategy: :one_for_one)
+    Supervisor.init(children, strategy: :one_for_one)
   end
 end

@@ -13,7 +13,7 @@ defmodule Poxa.WebHook.Dispatcher do
   @timeout 1500
 
   @doc false
-  def start_link do
+  def start_link(_) do
     GenServer.start_link(__MODULE__, nil)
   end
 

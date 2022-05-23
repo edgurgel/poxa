@@ -11,7 +11,7 @@ defmodule Poxa.WebHook.Handler do
   @delay 1500
 
   @doc false
-  def start_link(), do: GenServer.start_link(__MODULE__, [])
+  def start_link(_), do: GenServer.start_link(__MODULE__, [])
 
   @doc false
   def init(_) do
