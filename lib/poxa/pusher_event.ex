@@ -195,8 +195,6 @@ defmodule Poxa.PusherEvent do
       (!socket_id || Poxa.SocketId.valid?(socket_id))
   end
 
-  defp valid?(_), do: false
-
   @doc """
   Send `message` to `channels` excluding `exclude`
   """

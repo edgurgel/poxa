@@ -8,12 +8,7 @@ defmodule Poxa.Mixfile do
       name: "Poxa",
       elixir: "~> 1.13",
       deps: deps(),
-      dialyzer: [
-        plt_add_apps: ~w(cowboy poison gproc httpoison signaturex),
-        plt_file: ".local.plt",
-        flags:
-          ~w(-Wunmatched_returns -Werror_handling -Wrace_conditions -Wno_opaque --fullpath --statistics)
-      ]
+      dialyzer: [plt_file: {:no_warn, "priv/plts/dialyzer.plt"}]
     ]
   end
 
@@ -31,7 +26,7 @@ defmodule Poxa.Mixfile do
       {:ex2ms, "~> 1.5"},
       {:mimic, "~> 1.0", only: :test},
       {:pusher, "~> 2.1", only: :test},
-      {:dialyxir, "~> 1.0", only: [:dev, :test]}
+      {:dialyxir, "~> 1.0", only: :dev, runtime: false}
     ]
   end
 end

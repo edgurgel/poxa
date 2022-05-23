@@ -8,26 +8,32 @@ defmodule Poxa.Adapter.GProc do
   import :gproc
   require Ex2ms
 
+  @impl true
   def register!(key) do
     reg({:p, :l, {:pusher, key}})
   end
 
+  @impl true
   def register!(key, value) do
     reg({:p, :l, {:pusher, key}}, value)
   end
 
+  @impl true
   def unregister!(key) do
     unreg({:p, :l, {:pusher, key}})
   end
 
+  @impl true
   def send!(message, channel, sender) do
     :gproc.send({:p, :l, {:pusher, channel}}, {sender, message})
   end
 
+  @impl true
   def send!(message, channel, sender, socket_id) do
     :gproc.send({:p, :l, {:pusher, channel}}, {sender, message, socket_id})
   end
 
+  @impl true
   def subscription_count(channel, pid \\ :_)
 
   def subscription_count(channel, pid) when is_pid(pid) or pid == :_ do
@@ -44,6 +50,7 @@ defmodule Poxa.Adapter.GProc do
     |> select_count
   end
 
+  @impl true
   def subscriptions(pid) do
     Ex2ms.fun do
       {{:p, :l, {:pusher, channel}}, ^pid, {user_id, _}} -> [channel, user_id]
@@ -51,6 +58,7 @@ defmodule Poxa.Adapter.GProc do
     |> select
   end
 
+  @impl true
   def channels(pid \\ :_) do
     Ex2ms.fun do
       {{:p, :l, {:pusher, channel}}, ^pid, _} -> channel
@@ -59,15 +67,18 @@ defmodule Poxa.Adapter.GProc do
     |> Enum.uniq_by(& &1)
   end
 
+  @impl true
   def unique_subscriptions(channel) do
     for {_pid, {user_id, user_info}} <- lookup_values({:p, :l, {:pusher, channel}}), into: %{} do
       {user_id, user_info}
     end
   end
 
+  @impl true
   def fetch(key) do
     get_value({:p, :l, {:pusher, key}})
   end
 
+  @impl true
   def clean_up, do: goodbye()
 end
