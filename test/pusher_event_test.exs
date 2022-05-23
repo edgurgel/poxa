@@ -1,5 +1,5 @@
 defmodule Poxa.PusherEventTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
   use Mimic
   import Poxa.PusherEvent
   alias Poxa.PusherEvent
@@ -7,7 +7,7 @@ defmodule Poxa.PusherEventTest do
   doctest Poxa.PusherEvent
 
   test "connection established output" do
-    :application.set_env(:poxa, :activity_timeout, 30)
+    Application.put_env(:poxa, :activity_timeout, 30)
 
     json =
       "{\"data\":\"{\\\"activity_timeout\\\":30,\\\"socket_id\\\":\\\"SocketId\\\"}\",\"event\":\"pusher:connection_established\"}"
