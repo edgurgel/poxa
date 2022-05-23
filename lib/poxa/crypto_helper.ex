@@ -4,7 +4,7 @@ defmodule Poxa.CryptoHelper do
   """
   @spec hmac256_to_string(binary, binary) :: binary
   def hmac256_to_string(app_secret, to_sign) do
-    :crypto.hmac(:sha256, app_secret, to_sign) |> Base.encode16(case: :lower)
+    :crypto.mac(:hmac, :sha256, app_secret, to_sign) |> Base.encode16(case: :lower)
   end
 
   @doc """
