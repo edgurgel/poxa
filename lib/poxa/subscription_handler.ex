@@ -8,7 +8,7 @@ defmodule Poxa.SubscriptionHandler do
   import Poxa.Event, only: [notify: 2]
 
   @doc false
-  def start_link(), do: GenServer.start_link(__MODULE__, [])
+  def start_link(_), do: GenServer.start_link(__MODULE__, [])
 
   @doc false
   def init(_) do
