@@ -1,5 +1,5 @@
 defmodule Poxa.AuthSignatureTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
   alias Poxa.Authentication
   use Mimic
   import Poxa.AuthSignature
@@ -10,7 +10,7 @@ defmodule Poxa.AuthSignatureTest do
   end
 
   test "a valid signature" do
-    :application.set_env(:poxa, :app_secret, "secret")
+    Application.put_env(:poxa, :app_secret, "secret")
     app_key = "app_key"
     signature = Poxa.CryptoHelper.hmac256_to_string("secret", "SocketId:private-channel")
     auth = <<app_key::binary, ":", signature::binary>>
@@ -26,14 +26,14 @@ defmodule Poxa.AuthSignatureTest do
   end
 
   test "an invalid signature" do
-    :application.set_env(:poxa, :app_secret, "secret")
+    Application.put_env(:poxa, :app_secret, "secret")
     expect(Authentication, :check_key, fn _ -> true end)
 
     refute valid?("SocketId:private-channel", "Wrong:Auth")
   end
 
   test "invalid " do
-    :application.set_env(:poxa, :app_secret, "secret")
+    Application.put_env(:poxa, :app_secret, "secret")
 
     refute valid?("SocketId:private-channel", "asdfasdf")
     refute valid?("SocketId:private-channel", "asdfasdf")

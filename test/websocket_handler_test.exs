@@ -1,5 +1,5 @@
 defmodule Poxa.WebsocketHandlerTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
   alias Poxa.PresenceSubscription
   alias Poxa.PusherEvent
   alias Poxa.Subscription
@@ -12,8 +12,8 @@ defmodule Poxa.WebsocketHandlerTest do
   alias Poxa.WebsocketHandler.State
 
   setup_all do
-    :application.set_env(:poxa, :app_secret, "secret")
-    :application.set_env(:poxa, :app_key, "app_key")
+    Application.put_env(:poxa, :app_secret, "secret")
+    Application.put_env(:poxa, :app_key, "app_key")
     :ok
   end
 
@@ -223,7 +223,7 @@ defmodule Poxa.WebsocketHandlerTest do
 
   describe "init/1" do
     test "sets cowboy's idle_timeout" do
-      :application.set_env(:poxa, :activity_timeout, 30)
+      Application.put_env(:poxa, :activity_timeout, 30)
       assert init(:req, []) == {:cowboy_websocket, :req, :req, %{idle_timeout: 30_000}}
     end
   end

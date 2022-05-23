@@ -1,5 +1,5 @@
 defmodule Poxa.WebHook.DispatcherTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case, async: false
   alias Poxa.WebHook.EventTable
   use Mimic
   import Poxa.WebHook.Dispatcher
@@ -7,9 +7,9 @@ defmodule Poxa.WebHook.DispatcherTest do
   @table_name :web_hook_events
 
   setup_all do
-    :application.set_env(:poxa, :app_secret, "secret")
-    :application.set_env(:poxa, :app_key, "app_key")
-    :application.set_env(:poxa, :web_hook, "web_hook_url")
+    Application.put_env(:poxa, :app_secret, "secret")
+    Application.put_env(:poxa, :app_key, "app_key")
+    Application.put_env(:poxa, :web_hook, "web_hook_url")
 
     :ok
   end
