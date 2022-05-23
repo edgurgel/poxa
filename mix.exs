@@ -4,9 +4,9 @@ defmodule Poxa.Mixfile do
   def project do
     [
       app: :poxa,
-      version: "1.1.2",
+      version: "1.2.0",
       name: "Poxa",
-      elixir: "~> 1.9",
+      elixir: "~> 1.13",
       deps: deps(),
       dialyzer: [
         plt_add_apps: ~w(cowboy poison gproc httpoison signaturex),
@@ -27,10 +27,10 @@ defmodule Poxa.Mixfile do
       {:jason, "~> 1.0"},
       {:signaturex, "~> 1.3"},
       {:gproc, "~> 0.8"},
-      {:mimic, "~> 1.0", only: :test},
-      {:pusher, "~> 2.1", only: :test},
       {:httpoison, "~> 1.0"},
       {:ex2ms, "~> 1.5"},
+      {:mimic, "~> 1.0", only: :test},
+      {:pusher, "~> 2.1", only: :test},
       {:dialyxir, "~> 1.0", only: [:dev, :test]}
     ]
   end
