@@ -1,9 +1,12 @@
 import Config
-if Mix.env == :test do
-  config :logger, backends: []
-end
-
 import System
+
+if config_env() == :test do
+  # Capture all logs
+  config :logger, level: :debug
+  # ... but only alert and up show on the console
+  config :logger, :console, level: :alert
+end
 
 config :poxa,
   port: get_env("PORT", "8080") |> String.to_integer(),
