@@ -23,12 +23,14 @@ defmodule Poxa.WebsocketHandler do
     defstruct [:socket_id, :time]
   end
 
+  @impl true
   @doc false
   def init(req, _opts) do
     idle_timeout_ms = Application.get_env(:poxa, :activity_timeout) * 1_000
     {:cowboy_websocket, req, req, %{idle_timeout: idle_timeout_ms}}
   end
 
+  @impl true
   @doc """
   This function checks for proper app_key and protocol before continuing
   It can return 4007 code if the protocol is wrong or 4001 if the app key is incorrect
@@ -65,6 +67,7 @@ defmodule Poxa.WebsocketHandler do
     end
   end
 
+  @impl true
   @doc """
   The handle function can receive the following requests:
 
@@ -149,6 +152,7 @@ defmodule Poxa.WebsocketHandler do
     {:ok, state}
   end
 
+  @impl true
   @doc """
   This function handles 3 possible cases:
 
@@ -191,6 +195,7 @@ defmodule Poxa.WebsocketHandler do
 
   def websocket_info(_info, state), do: {:ok, state}
 
+  @impl true
   @doc """
   Before terminating the websocket process the presence channels are checked to trigger
   member removal if necessary and explicitly unregister tags on registry
