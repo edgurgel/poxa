@@ -109,12 +109,10 @@ defmodule Poxa.Adapter.GProcTest do
       end
     end
 
-    child_channel1 = spawn_registered("channel1", execution)
-    child_channel2 = spawn_registered("channel2", execution)
+    spawn_registered("channel1", execution)
+    spawn_registered("channel2", execution)
 
     assert channels() == ["channel1", "channel2"]
-    assert channels(child_channel1) == ["channel1"]
-    assert channels(child_channel2) == ["channel2"]
   end
 
   test "unique_subscriptions" do

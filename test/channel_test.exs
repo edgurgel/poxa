@@ -23,17 +23,9 @@ defmodule Poxa.ChannelTest do
 
   test "list all channels" do
     channels = ~w(channel1 channel2 channel3)
-    expect(Poxa.registry(), :channels, fn _ -> ~w(channel1 channel2 channel3) end)
+    expect(Poxa.registry(), :channels, fn -> channels end)
 
     assert all() == channels
-  end
-
-  test "list channels of a pid" do
-    channels = ~w(channel1 channel2 channel3)
-    pid = self()
-    expect(Poxa.registry(), :channels, fn ^pid -> ~w(channel1 channel2 channel3) end)
-
-    assert all(self()) == channels
   end
 
   test "channel is member? returning true" do

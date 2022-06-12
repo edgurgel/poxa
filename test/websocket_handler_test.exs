@@ -76,14 +76,16 @@ defmodule Poxa.WebsocketHandlerTest do
 
   test "subscribe private channel event" do
     expect(Jason, :decode!, fn _ -> %{"event" => "pusher:subscribe"} end)
-    expect(Subscription, :subscribe!, fn _, _ -> {:ok, :channel} end)
+    expect(Subscription, :subscribe!, fn _, _ -> {:ok, "channel"} end)
     expect(PusherEvent, :subscription_succeeded, fn _ -> :subscription_succeeded end)
-    expect(Event, :notify, fn :subscribed, %{socket_id: :socket_id, channel: :channel} -> :ok end)
+
+    expect(Event, :notify, fn :subscribed, %{socket_id: :socket_id, channel: "channel"} -> :ok end)
 
     state = %State{socket_id: :socket_id}
+    new_state = %State{socket_id: :socket_id, channels: MapSet.new(["channel"])}
 
     assert websocket_handle({:text, :subscribe_json}, state) ==
-             {:reply, {:text, :subscription_succeeded}, state}
+             {:reply, {:text, :subscription_succeeded}, new_state}
   end
 
   test "subscribe private channel event failing for bad authentication" do
@@ -98,14 +100,16 @@ defmodule Poxa.WebsocketHandlerTest do
 
   test "subscribe presence channel event" do
     expect(Jason, :decode!, fn _ -> %{"event" => "pusher:subscribe"} end)
-    expect(Subscription, :subscribe!, fn _, _ -> %PresenceSubscription{channel: :channel} end)
+    expect(Subscription, :subscribe!, fn _, _ -> %PresenceSubscription{channel: "channel"} end)
     expect(PusherEvent, :subscription_succeeded, fn _ -> :subscription_succeeded end)
-    expect(Event, :notify, fn :subscribed, %{socket_id: :socket_id, channel: :channel} -> :ok end)
+
+    expect(Event, :notify, fn :subscribed, %{socket_id: :socket_id, channel: "channel"} -> :ok end)
 
     state = %State{socket_id: :socket_id}
+    new_state = %State{socket_id: :socket_id, channels: MapSet.new(["channel"])}
 
     assert websocket_handle({:text, :subscribe_json}, state) ==
-             {:reply, {:text, :subscription_succeeded}, state}
+             {:reply, {:text, :subscription_succeeded}, new_state}
   end
 
   test "subscribe presence channel event failing for bad authentication" do
@@ -120,39 +124,44 @@ defmodule Poxa.WebsocketHandlerTest do
 
   test "subscribe public channel event" do
     expect(Jason, :decode!, fn _ -> %{"event" => "pusher:subscribe"} end)
-    expect(Subscription, :subscribe!, fn _, _ -> {:ok, :channel} end)
+    expect(Subscription, :subscribe!, fn _, _ -> {:ok, "channel"} end)
     expect(PusherEvent, :subscription_succeeded, fn _ -> :subscription_succeeded end)
-    expect(Event, :notify, fn :subscribed, %{socket_id: :socket_id, channel: :channel} -> :ok end)
+
+    expect(Event, :notify, fn :subscribed, %{socket_id: :socket_id, channel: "channel"} -> :ok end)
 
     state = %State{socket_id: :socket_id}
+    new_state = %State{socket_id: :socket_id, channels: MapSet.new(["channel"])}
 
     assert websocket_handle({:text, :subscribe_json}, state) ==
-             {:reply, {:text, :subscription_succeeded}, state}
+             {:reply, {:text, :subscription_succeeded}, new_state}
   end
 
   test "subscribe event on an already subscribed channel" do
     expect(Jason, :decode!, fn _ -> %{"event" => "pusher:subscribe"} end)
-    expect(Subscription, :subscribe!, fn _, _ -> {:ok, :channel} end)
+    expect(Subscription, :subscribe!, fn _, _ -> {:ok, "channel"} end)
     expect(PusherEvent, :subscription_succeeded, fn _ -> :subscription_succeeded end)
-    expect(Event, :notify, fn :subscribed, %{socket_id: :socket_id, channel: :channel} -> :ok end)
 
-    state = %State{socket_id: :socket_id}
+    expect(Event, :notify, fn :subscribed, %{socket_id: :socket_id, channel: "channel"} -> :ok end)
+
+    state = %State{socket_id: :socket_id, channels: MapSet.new(["channel"])}
+    new_state = %State{socket_id: :socket_id, channels: MapSet.new(["channel"])}
 
     assert websocket_handle({:text, :subscribe_json}, state) ==
-             {:reply, {:text, :subscription_succeeded}, state}
+             {:reply, {:text, :subscription_succeeded}, new_state}
   end
 
   test "unsubscribe event" do
     expect(Jason, :decode!, fn _ -> %{"event" => "pusher:unsubscribe", "data" => :data} end)
-    expect(Subscription, :unsubscribe!, fn :data -> {:ok, :channel} end)
+    expect(Subscription, :unsubscribe!, fn :data -> {:ok, "channel"} end)
 
-    expect(Event, :notify, fn :unsubscribed, %{socket_id: :socket_id, channel: :channel} ->
+    expect(Event, :notify, fn :unsubscribed, %{socket_id: :socket_id, channel: "channel"} ->
       :ok
     end)
 
-    state = %State{socket_id: :socket_id}
+    state = %State{socket_id: :socket_id, channels: MapSet.new(["channel"])}
+    new_state = %State{socket_id: :socket_id, channels: MapSet.new()}
 
-    assert websocket_handle({:text, :unsubscribe_json}, state) == {:ok, state}
+    assert websocket_handle({:text, :unsubscribe_json}, state) == {:ok, new_state}
   end
 
   test "client event on presence channel" do
@@ -268,18 +277,25 @@ defmodule Poxa.WebsocketHandlerTest do
 
   describe "terminate/3" do
     test "websocket termination" do
-      expect(Channel, :all, fn _ -> :channels end)
       expect(Time, :stamp, fn -> 100 end)
 
       expect(Event, :notify, fn :disconnected,
-                                %{socket_id: :socket_id, channels: :channels, duration: 90} ->
+                                %{
+                                  socket_id: :socket_id,
+                                  channels: ["channel1", "channel2"],
+                                  duration: 90
+                                } ->
         :ok
       end)
 
       expect(PresenceSubscription, :check_and_remove, fn -> 1 end)
       expect(Poxa.registry(), :clean_up, fn -> :ok end)
 
-      state = %State{socket_id: :socket_id, time: 10}
+      state = %State{
+        socket_id: :socket_id,
+        time: 10,
+        channels: MapSet.new(["channel1", "channel2"])
+      }
 
       assert terminate(:reason, :req, state) == :ok
     end

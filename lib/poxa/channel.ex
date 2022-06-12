@@ -96,8 +96,8 @@ defmodule Poxa.Channel do
   @doc """
   Returns the list of channels the `pid` is subscribed
   """
-  @spec all(pid | :_) :: [binary]
-  def all(pid \\ :_), do: Poxa.registry().channels(pid)
+  @spec all() :: [binary]
+  def all(), do: Poxa.registry().channels()
 
   @doc """
   Returns a boolean indicating if the user identified by `identifier` is subscribed to the channel.

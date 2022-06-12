@@ -59,9 +59,9 @@ defmodule Poxa.Adapter.GProc do
   end
 
   @impl true
-  def channels(pid \\ :_) do
+  def channels() do
     Ex2ms.fun do
-      {{:p, :l, {:pusher, channel}}, ^pid, _} -> channel
+      {{:p, :l, {:pusher, channel}}, :_, _} -> channel
     end
     |> select
     |> Enum.uniq_by(& &1)

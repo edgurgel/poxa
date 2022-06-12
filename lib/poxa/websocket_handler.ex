@@ -20,7 +20,7 @@ defmodule Poxa.WebsocketHandler do
   @min_protocol 5
 
   defmodule State do
-    defstruct [:socket_id, :time]
+    defstruct socket_id: nil, time: nil, channels: MapSet.new()
   end
 
   @impl true
@@ -91,18 +91,22 @@ defmodule Poxa.WebsocketHandler do
   defp handle_pusher_event("pusher:subscribe", decoded_json, %State{socket_id: socket_id} = state) do
     data = decoded_json["data"]
 
-    reply =
+    {reply, state} =
       case Subscription.subscribe!(data, socket_id) do
         {:ok, channel} ->
           Event.notify(:subscribed, %{socket_id: socket_id, channel: channel})
-          PusherEvent.subscription_succeeded(channel)
+
+          {PusherEvent.subscription_succeeded(channel),
+           %{state | channels: MapSet.put(state.channels, channel)}}
 
         subscription = %PresenceSubscription{channel: channel} ->
           Event.notify(:subscribed, %{socket_id: socket_id, channel: channel})
-          PusherEvent.subscription_succeeded(subscription)
+
+          {PusherEvent.subscription_succeeded(subscription),
+           %{state | channels: MapSet.put(state.channels, channel)}}
 
         {:error, error} ->
-          error
+          {error, state}
       end
 
     {:reply, {:text, reply}, state}
@@ -115,7 +119,7 @@ defmodule Poxa.WebsocketHandler do
        ) do
     {:ok, channel} = Subscription.unsubscribe!(decoded_json["data"])
     Event.notify(:unsubscribed, %{socket_id: socket_id, channel: channel})
-    {:ok, state}
+    {:ok, %{state | channels: MapSet.delete(state.channels, channel)}}
   end
 
   defp handle_pusher_event("pusher:ping", _decoded_json, state) do
@@ -174,7 +178,9 @@ defmodule Poxa.WebsocketHandler do
     Event.notify(:connected, %{socket_id: socket_id, origin: origin})
 
     reply = PusherEvent.connection_established(socket_id)
-    {:reply, {:text, reply}, %State{socket_id: socket_id, time: Time.stamp()}}
+
+    {:reply, {:text, reply},
+     %State{socket_id: socket_id, time: Time.stamp(), channels: MapSet.new()}}
   end
 
   def websocket_info(:start_error, {code, message}) do
@@ -200,9 +206,9 @@ defmodule Poxa.WebsocketHandler do
   Before terminating the websocket process the presence channels are checked to trigger
   member removal if necessary and explicitly unregister tags on registry
   """
-  def terminate(_reason, _req, %State{socket_id: socket_id, time: time}) do
+  def terminate(_reason, _req, %State{socket_id: socket_id, time: time, channels: channels}) do
     duration = Time.stamp() - time
-    channels = Channel.all(self())
+    channels = MapSet.to_list(channels)
     PresenceSubscription.check_and_remove()
     Poxa.registry().clean_up
     Event.notify(:disconnected, %{socket_id: socket_id, channels: channels, duration: duration})
