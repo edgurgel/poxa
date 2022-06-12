@@ -25,6 +25,7 @@ defmodule Poxa.Mixfile do
       {:httpoison, "~> 1.0"},
       {:ex2ms, "~> 1.5"},
       {:mimic, "~> 1.0", only: :test},
+      {:mix_test_watch, "~> 1.1", only: [:dev, :test], runtime: false},
       {:pusher, "~> 2.1", only: :test},
       {:dialyxir, "~> 1.0", only: :dev, runtime: false}
     ]

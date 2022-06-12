@@ -8,6 +8,10 @@ if config_env() == :test do
   config :logger, :console, level: :alert
 end
 
+if config_env() == :dev do
+  config :mix_test_watch, clear: true
+end
+
 config :poxa,
   port: get_env("PORT", "8080") |> String.to_integer(),
   app_key: get_env("POXA_APP_KEY", "app_key"),
