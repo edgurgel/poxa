@@ -38,7 +38,7 @@ defmodule Poxa.PresenceSubscription do
         Poxa.registry().send!(message, channel, self())
       end
 
-      Poxa.registry().register!(channel, {user_id, user_info})
+      Poxa.registry().register!(channel, %{user_id: user_id, user_info: user_info})
     end
 
     %__MODULE__{channel: channel, channel_data: Poxa.registry().unique_subscriptions(channel)}

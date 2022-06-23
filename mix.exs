@@ -22,6 +22,7 @@ defmodule Poxa.Mixfile do
       {:jason, "~> 1.0"},
       {:signaturex, "~> 1.3"},
       {:gproc, "~> 0.8"},
+      {:phoenix_pubsub, "~> 2.1"},
       {:httpoison, "~> 1.0"},
       {:ex2ms, "~> 1.5"},
       {:mimic, "~> 1.0", only: :test},

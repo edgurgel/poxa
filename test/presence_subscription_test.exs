@@ -19,7 +19,8 @@ defmodule Poxa.PresenceSubscriptionTest do
     expect(Channel, :member?, fn "presence-channel", ^pid -> false end)
     expect(Channel, :member?, fn "presence-channel", "id123" -> false end)
 
-    expect(Poxa.registry(), :register!, fn "presence-channel", {"id123", "info456"} ->
+    expect(Poxa.registry(), :register!, fn "presence-channel",
+                                           %{user_id: "id123", user_info: "info456"} ->
       :registered
     end)
 
@@ -70,7 +71,8 @@ defmodule Poxa.PresenceSubscriptionTest do
     expect(Channel, :member?, fn "presence-channel", ^pid -> false end)
     expect(Channel, :member?, fn "presence-channel", "id123" -> true end)
 
-    expect(Poxa.registry(), :register!, fn "presence-channel", {"id123", "info456"} ->
+    expect(Poxa.registry(), :register!, fn "presence-channel",
+                                           %{user_id: "id123", user_info: "info456"} ->
       :registered
     end)
 

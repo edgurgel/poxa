@@ -6,6 +6,7 @@ defmodule Poxa.Supervisor do
     Supervisor.start_link(__MODULE__, [])
   end
 
+  @impl true
   @doc false
   def init([]) do
     {:ok, web_hook} = Application.fetch_env(:poxa, :web_hook)
@@ -19,6 +20,18 @@ defmodule Poxa.Supervisor do
         [subscription_worker]
       end
 
-    Supervisor.init(children, strategy: :one_for_one)
+    Poxa.Adapter.PhoenixPubSub.child_spec([])
+
+    Supervisor.init(children ++ registry_child_spec(), strategy: :one_for_one)
+  end
+
+  # FIXME
+  defp registry_child_spec() do
+    if function_exported?(Poxa.registry(), :child_spec, 1) do
+      [Poxa.registry().child_spec([])]
+    else
+      []
+    end
+    |> IO.inspect()
   end
 end

@@ -11,16 +11,19 @@ defmodule Poxa.Adapter.GProc do
   @impl true
   def register!(key) do
     reg({:p, :l, {:pusher, key}})
+    :ok
   end
 
   @impl true
   def register!(key, value) do
     reg({:p, :l, {:pusher, key}}, value)
+    :ok
   end
 
   @impl true
   def unregister!(key) do
     unreg({:p, :l, {:pusher, key}})
+    :ok
   end
 
   @impl true

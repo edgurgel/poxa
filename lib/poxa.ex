@@ -6,9 +6,7 @@ defmodule Poxa do
   use Application
   require Logger
 
-  @registry_adapter Poxa.Registry.adapter()
-
-  def registry, do: @registry_adapter
+  def registry, do: Poxa.Registry.adapter()
 
   def start(_type, _args) do
     dispatch =

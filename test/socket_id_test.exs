@@ -18,13 +18,13 @@ defmodule Poxa.SocketIdTest do
   end
 
   test "register!" do
-    expect(Poxa.registry(), :register!, fn :socket_id, "socket_id" -> :ok end)
+    expect(Poxa.registry(), :register!, fn :socket_id, %{socket_id: "socket_id"} -> :ok end)
 
     assert SocketId.register!("socket_id") == :ok
   end
 
   test "mine" do
-    expect(Poxa.registry(), :fetch, fn :socket_id -> "socket_id" end)
+    expect(Poxa.registry(), :fetch, fn :socket_id -> %{socket_id: "socket_id"} end)
 
     assert SocketId.mine() == "socket_id"
   end
