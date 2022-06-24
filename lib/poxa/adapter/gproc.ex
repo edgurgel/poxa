@@ -54,9 +54,9 @@ defmodule Poxa.Adapter.GProc do
   end
 
   @impl true
-  def subscriptions(pid) do
+  def presence_subscriptions(pid) do
     Ex2ms.fun do
-      {{:p, :l, {:pusher, channel}}, ^pid, {user_id, _}} -> [channel, user_id]
+      {{:p, :l, {:pusher, channel}}, ^pid, %{user_id: user_id}} -> {channel, user_id}
     end
     |> select
   end

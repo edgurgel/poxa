@@ -32,6 +32,5 @@ defmodule Poxa.Supervisor do
     else
       []
     end
-    |> IO.inspect()
   end
 end

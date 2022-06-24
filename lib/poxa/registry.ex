@@ -43,7 +43,7 @@ defmodule Poxa.Registry do
   @doc """
   Returns the presence channel subscriptions of the given process.
   """
-  @callback subscriptions(pid) :: list()
+  @callback presence_subscriptions(pid) :: [{String.t(), PresenceSubscription.user_id()}]
 
   @doc """
   Returns the list of channels that have at least one subscription

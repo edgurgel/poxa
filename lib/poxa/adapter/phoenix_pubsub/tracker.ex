@@ -28,21 +28,8 @@ defmodule Poxa.Adapter.PhoenixPubSub.Tracker do
         _, acc ->
           acc
       end)
-      |> IO.inspect()
 
-    # for {"pusher:" <> topic, {joins, leaves}} <- diff do
-    # for {key, meta} <- joins do
-    # IO.puts("#{topic} - presence join: key \"#{key}\" with meta #{inspect(meta)}")
-    # # msg = {:join, key, meta}
-    # # Phoenix.PubSub.direct_broadcast!(state.node_name, state.pubsub_server, topic, msg)
-    # end
-
-    # for {key, meta} <- leaves do
-    # IO.puts("#{topic} - presence leave: key \"#{key}\" with meta #{inspect(meta)}")
-    # # msg = {:leave, key, meta}
-    # # Phoenix.PubSub.direct_broadcast!(state.node_name, state.pubsub_server, topic, msg)
-    # end
-    # end
+    # |> IO.inspect()
 
     {:ok, %{state | channels: channels}}
   end

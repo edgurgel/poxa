@@ -81,7 +81,7 @@ defmodule Poxa.PresenceSubscription do
   """
   @spec check_and_remove :: non_neg_integer
   def check_and_remove do
-    for [channel, user_id] <- Poxa.registry().subscriptions(self()),
+    for {channel, user_id} <- Poxa.registry().presence_subscriptions(self()),
         presence?(channel),
         only_one_connection_on_user_id?(channel, user_id) do
       presence_member_removed(channel, user_id)

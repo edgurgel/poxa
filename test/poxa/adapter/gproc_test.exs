@@ -9,25 +9,6 @@ defmodule Poxa.Adapter.GProcTest do
     :ok
   end
 
-  def spawn_registered(channel, execution, value \\ nil) do
-    parent = self()
-
-    child =
-      spawn_link(fn ->
-        if value do
-          register!(channel, value)
-        else
-          register!(channel)
-        end
-
-        send(parent, {self(), :registered})
-        execution.()
-      end)
-
-    assert_receive {^child, :registered}
-    child
-  end
-
   describe "register!/1,2" do
     test "register a property without value" do
       register!(:property)
@@ -117,14 +98,14 @@ defmodule Poxa.Adapter.GProcTest do
     end
   end
 
-  describe "subscriptions/1" do
-    test "subscriptions" do
-      register!("presence-channel1", {"user123", "userinfo"})
-      register!("presence-channel2", {"user234", "userinfo"})
+  describe "presence_subscriptions/1" do
+    test "presence_subscriptions" do
+      register!("presence-channel1", %{user_id: "user123", user_info: "userinfo"})
+      register!("presence-channel2", %{user_id: "user234", user_info: "userinfo"})
 
-      assert subscriptions(self()) == [
-               ["presence-channel1", "user123"],
-               ["presence-channel2", "user234"]
+      assert presence_subscriptions(self()) == [
+               {"presence-channel1", "user123"},
+               {"presence-channel2", "user234"}
              ]
     end
   end
@@ -177,5 +158,24 @@ defmodule Poxa.Adapter.GProcTest do
       :gproc.reg({:p, :l, {:pusher, :property}}, :value)
       assert fetch(:property) == :value
     end
+  end
+
+  defp spawn_registered(channel, execution, value \\ nil) do
+    parent = self()
+
+    child =
+      spawn_link(fn ->
+        if value do
+          register!(channel, value)
+        else
+          register!(channel)
+        end
+
+        send(parent, {self(), :registered})
+        execution.()
+      end)
+
+    assert_receive {^child, :registered}
+    child
   end
 end

@@ -109,6 +109,7 @@ defmodule Poxa.PresenceSubscriptionTest do
     assert unsubscribe!("presence-channel") == {:ok, "presence-channel"}
   end
 
+  # FIXME
   # test "unsubscribe to presence channel being not subscribed" do
   # expect(Poxa.registry, :fetch, 1, nil)
   # assert unsubscribe!("presence-channel") == {:ok, "presence-channel"}

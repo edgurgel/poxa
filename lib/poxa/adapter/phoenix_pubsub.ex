@@ -58,37 +58,26 @@ defmodule Poxa.Adapter.PhoenixPubSub do
   end
 
   @impl true
-  def subscription_count(channel, pid \\ :_)
-
-  def subscription_count(channel, pid) when is_pid(pid) do
-    Registry.keys(@registry, pid)
-    |> Enum.count(&(&1 == {:pusher, channel}))
-
-    # Tracker list for pid = :_
-
-    # ETS tracker when pid is pid
-
-    # Ex2ms.fun do
-    # {{:p, :l, {:pusher, ^channel}}, ^pid, _} -> true
-    # end
-    # |> select_count
-  end
-
-  def subscription_count(channel, :_) do
-    Tracker.list(@tracker, topic(channel))
-  end
-
-  def subscription_count(channel, user_id) do
-    # Tracker.list, check the key and value
-    #
-    # Ex2ms.fun do
-    # {{:p, :l, {:pusher, ^channel}}, _, {^user_id, _}} -> true
-    # end
-    # |> select_count
+  def subscription_count(channel) do
+    # Replace this with Tracker ets data
+    Tracker.list(@tracker, topic(channel)) |> Enum.count()
   end
 
   @impl true
-  def subscriptions(pid) do
+  def subscription_count(channel, pid) when is_pid(pid) do
+    Registry.keys(@registry, pid)
+    |> Enum.count(&(&1 == {:pusher, channel}))
+  end
+
+  def subscription_count(channel, user_id) do
+    Tracker.list(@tracker, topic(channel))
+    |> Enum.count(fn {_key, value} -> value[:user_id] == user_id end)
+  end
+
+  @impl true
+  def presence_subscriptions(pid) do
+    Registry.values(@registry, pid)
+
     # ETS from tracker?
 
     # Ex2ms.fun do
