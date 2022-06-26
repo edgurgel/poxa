@@ -7,6 +7,7 @@ defmodule Poxa.Adapter.PhoenixPubSub do
 
   alias Phoenix.PubSub
   alias Phoenix.Tracker
+  require Ex2ms
 
   @registry Poxa.Adapter.PhoenixPubSub.Registry
   @tracker Poxa.Adapter.PhoenixPubSub.Tracker
@@ -76,14 +77,13 @@ defmodule Poxa.Adapter.PhoenixPubSub do
 
   @impl true
   def presence_subscriptions(pid) do
-    Registry.values(@registry, pid)
+    spec =
+      Ex2ms.fun do
+        {{:pusher, channel}, ^pid, %{user_id: user_id}} ->
+          {channel, user_id}
+      end
 
-    # ETS from tracker?
-
-    # Ex2ms.fun do
-    # {{:p, :l, {:pusher, channel}}, ^pid, {user_id, _}} -> [channel, user_id]
-    # end
-    # |> select
+    Registry.select(@registry, spec)
   end
 
   @impl true
@@ -94,11 +94,11 @@ defmodule Poxa.Adapter.PhoenixPubSub do
 
   @impl true
   def unique_subscriptions(channel) do
-    # Tracker.list
-    #
-    # for {_pid, {user_id, user_info}} <- lookup_values({:p, :l, {:pusher, channel}}), into: %{} do
-    # {user_id, user_info}
-    # end
+    for {_key, %{user_id: user_id, user_info: user_info}} <-
+          Tracker.list(@tracker, topic(channel)),
+        into: %{} do
+      {user_id, user_info}
+    end
   end
 
   @impl true

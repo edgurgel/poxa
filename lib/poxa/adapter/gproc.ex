@@ -72,7 +72,9 @@ defmodule Poxa.Adapter.GProc do
 
   @impl true
   def unique_subscriptions(channel) do
-    for {_pid, {user_id, user_info}} <- lookup_values({:p, :l, {:pusher, channel}}), into: %{} do
+    for {_pid, %{user_id: user_id, user_info: user_info}} <-
+          lookup_values({:p, :l, {:pusher, channel}}),
+        into: %{} do
       {user_id, user_info}
     end
   end
