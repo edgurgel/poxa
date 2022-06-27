@@ -25,7 +25,7 @@ defmodule Poxa.PresenceChannel do
   @spec my_user_id(binary) :: {binary, map} | nil
   def my_user_id(channel) do
     case Poxa.registry().fetch(channel) do
-      {user_id, _} -> user_id
+      %{user_id: user_id} -> user_id
       _ -> nil
     end
   end

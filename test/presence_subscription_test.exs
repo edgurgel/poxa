@@ -90,15 +90,19 @@ defmodule Poxa.PresenceSubscriptionTest do
 
   test "unsubscribe to presence channel being subscribed" do
     pid = self()
-    expect(Poxa.registry(), :fetch, fn "presence-channel" -> {:userid, :userinfo} end)
-    expect(Poxa.registry(), :subscription_count, fn "presence-channel", :userid -> 1 end)
+
+    expect(Poxa.registry(), :fetch, fn "presence-channel" ->
+      %{user_id: 123, userinfo: %{key: "value"}}
+    end)
+
+    expect(Poxa.registry(), :subscription_count, fn "presence-channel", 123 -> 1 end)
 
     expect(Poxa.Event, :notify, fn :member_removed,
-                                   %{channel: "presence-channel", user_id: :userid} ->
+                                   %{channel: "presence-channel", user_id: 123} ->
       :ok
     end)
 
-    expect(PusherEvent, :presence_member_removed, fn "presence-channel", :userid ->
+    expect(PusherEvent, :presence_member_removed, fn "presence-channel", 123 ->
       :event_message
     end)
 

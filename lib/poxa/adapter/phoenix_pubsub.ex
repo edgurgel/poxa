@@ -22,9 +22,11 @@ defmodule Poxa.Adapter.PhoenixPubSub do
   # defp channels_topic(pid), do: "channels:#{inspect(pid)}"
 
   @impl true
+  @spec register!(binary | atom) :: :ok | {:error, any}
   def register!(key) do
     topic = topic(key)
 
+    # FIXME teardown?
     with {:ok, _} <- Registry.register(@registry, {:pusher, key}, nil),
          {:ok, _} <- Tracker.track(@tracker, self(), topic, key, %{}),
          :ok <- PubSub.subscribe(@pubsub, topic),
@@ -32,6 +34,7 @@ defmodule Poxa.Adapter.PhoenixPubSub do
   end
 
   @impl true
+  @spec register!(any, map) :: :ok | {:error, {:already_registered, pid}}
   def register!(key, value) do
     topic = topic(key)
     # value might be {user_id, user_info}. Must transform into a map
@@ -103,7 +106,10 @@ defmodule Poxa.Adapter.PhoenixPubSub do
 
   @impl true
   def fetch(key) do
-    # get_value({:p, :l, {:pusher, key}})
+    case Registry.values(@registry, {:pusher, key}, self()) do
+      [] -> nil
+      [value] -> value
+    end
   end
 
   @impl true

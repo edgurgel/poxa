@@ -10,15 +10,15 @@ defmodule Poxa.PresenceChannelTest do
 
   test "return unique user ids currently subscribed" do
     expect(Poxa.registry(), :unique_subscriptions, fn "presence-channel" ->
-      [{:user_id, :user_info}, {:user_id2, :user_info2}]
+      %{"user_id1" => %{key: "value"}, "user_id2" => %{a: "b"}}
     end)
 
-    assert users("presence-channel") == [:user_id, :user_id2]
+    assert users("presence-channel") == ["user_id1", "user_id2"]
   end
 
   test "return number of unique subscribed users" do
     expect(Poxa.registry(), :unique_subscriptions, fn "presence-channel" ->
-      [{:user_id, :user_info}, {:user_id2, :user_info2}]
+      %{"user_id1" => %{key: "value"}, "user_id2" => %{a: "b"}}
     end)
 
     assert user_count("presence-channel") == 2
@@ -26,10 +26,10 @@ defmodule Poxa.PresenceChannelTest do
 
   test "return user_id if available" do
     expect(Poxa.registry(), :fetch, fn "presence-channel" ->
-      {:user_id, :user_info}
+      %{user_id: 123, user_info: %{key: "value"}}
     end)
 
-    assert my_user_id("presence-channel") == :user_id
+    assert my_user_id("presence-channel") == 123
   end
 
   test "return nil if user_id is not available" do

@@ -18,7 +18,7 @@ defmodule Poxa.Adapter.PhoenixPubSubTest do
 
       assert [{"mychannel", _}] = Tracker.list(PhoenixPubSub.Tracker, "pusher:mychannel")
 
-      assert PubSub.broadcast!(PhoenixPubSub.PubSub, "pusher:mychannel", :message)
+      assert PubSub.broadcast!(PhoenixPubSub.PubSub, "pusher:mychannel", :message) == :ok
       assert_receive :message
     end
 
@@ -32,12 +32,24 @@ defmodule Poxa.Adapter.PhoenixPubSubTest do
       assert [{"mychannel", %{my: "value"}}] =
                Tracker.list(PhoenixPubSub.Tracker, "pusher:mychannel")
 
-      assert PubSub.broadcast!(PhoenixPubSub.PubSub, "pusher:mychannel", :message)
+      assert PubSub.broadcast!(PhoenixPubSub.PubSub, "pusher:mychannel", :message) == :ok
       assert_receive :message
     end
   end
 
-  describe "unregister!/1" do
+  describe "unregister/1" do
+    test "unregister a property" do
+      assert :ok = register!(:property)
+
+      unregister!(:property)
+
+      assert Registry.lookup(PhoenixPubSub.Registry, {:pusher, "mychannel"}) == []
+
+      assert Tracker.list(PhoenixPubSub.Tracker, "pusher:mychannel") == []
+
+      assert :ok = PubSub.broadcast!(PhoenixPubSub.PubSub, "pusher:mychannel", :message)
+      refute_receive :message
+    end
   end
 
   describe "send!/3,4" do
@@ -174,6 +186,22 @@ defmodule Poxa.Adapter.PhoenixPubSubTest do
                {"presence-channel1", "user123"},
                {"presence-channel2", "user234"}
              ]
+    end
+  end
+
+  describe "fetch/1" do
+    test "fetch with no previous value" do
+      assert fetch("mychannel") == nil
+    end
+
+    test "fetch with property without specified value" do
+      register!("mychannel")
+      assert fetch("mychannel") == nil
+    end
+
+    test "fetch with property with previous value" do
+      :ok = register!("mychannel", %{user_id: 123})
+      assert fetch("mychannel") == %{user_id: 123}
     end
   end
 

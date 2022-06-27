@@ -61,7 +61,7 @@ defmodule Poxa.PresenceSubscription do
   @spec unsubscribe!(binary) :: {:ok, binary}
   def unsubscribe!(channel) do
     case Poxa.registry().fetch(channel) do
-      {user_id, _} ->
+      %{user_id: user_id} ->
         if only_one_connection_on_user_id?(channel, user_id) do
           presence_member_removed(channel, user_id)
         end
