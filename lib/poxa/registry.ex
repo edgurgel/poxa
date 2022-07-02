@@ -16,7 +16,7 @@ defmodule Poxa.Registry do
   @doc """
   Registers the current process with a given key and map value.
   """
-  @callback register!(key :: key(), value :: map) :: :ok | {:error, any}
+  @callback register!(key :: key(), value :: nil | map) :: :ok | {:error, any}
 
   @doc """
   Unregisters a property for the current process.

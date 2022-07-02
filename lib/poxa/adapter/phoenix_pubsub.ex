@@ -19,28 +19,37 @@ defmodule Poxa.Adapter.PhoenixPubSub do
   end
 
   defp topic(key), do: "pusher:#{key}"
-  # defp channels_topic(pid), do: "channels:#{inspect(pid)}"
 
   @impl true
   @spec register!(binary | atom) :: :ok | {:error, any}
   def register!(key) do
-    topic = topic(key)
-
-    # FIXME teardown?
-    with {:ok, _} <- Registry.register(@registry, {:pusher, key}, nil),
-         {:ok, _} <- Tracker.track(@tracker, self(), topic, key, %{}),
-         :ok <- PubSub.subscribe(@pubsub, topic),
-         do: :ok
+    register!(key, nil)
   end
 
   @impl true
-  @spec register!(any, map) :: :ok | {:error, {:already_registered, pid}}
+  @spec register!(any, nil | map) :: :ok | {:error, {:already_registered, pid}}
   def register!(key, value) do
     topic = topic(key)
-    # value might be {user_id, user_info}. Must transform into a map
-    {:ok, _} = Registry.register(@registry, {:pusher, key}, value)
-    Tracker.track(@tracker, self(), topic, key, value)
-    PubSub.subscribe(@pubsub, topic)
+
+    with {:registry, {:ok, _}} <-
+           {:registry, Registry.register(@registry, {:pusher, key}, value)},
+         {:tracker, {:ok, _}} <-
+           {:tracker, Tracker.track(@tracker, self(), topic, key, value || %{})},
+         :ok <- PubSub.subscribe(@pubsub, topic) do
+      :ok
+    else
+      {:registry, error} ->
+        error
+
+      {:tracker, error} ->
+        Registry.unregister(@registry, {:pusher, key})
+        error
+
+      {:error, reason} ->
+        Registry.unregister(@registry, {:pusher, key})
+        Tracker.untrack(@tracker, self(), topic, key)
+        {:error, reason}
+    end
   end
 
   @impl true
@@ -63,8 +72,6 @@ defmodule Poxa.Adapter.PhoenixPubSub do
 
   @impl true
   def subscription_count(channel) do
-    # Replace this with Tracker ets data
-    # Tracker.list(@tracker, topic(channel)) |> Enum.count()
     Poxa.Adapter.PhoenixPubSub.Tracker.subscription_count(channel)
   end
 
