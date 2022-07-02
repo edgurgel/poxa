@@ -94,6 +94,7 @@ defmodule Poxa.Adapter.PhoenixPubSubTest do
 
       spawn_registered("channel1", execution)
       spawn_registered("channel1", execution)
+      spawn_registered("channel2", execution)
 
       assert subscription_count("channel1") == 2
     end

@@ -64,7 +64,8 @@ defmodule Poxa.Adapter.PhoenixPubSub do
   @impl true
   def subscription_count(channel) do
     # Replace this with Tracker ets data
-    Tracker.list(@tracker, topic(channel)) |> Enum.count()
+    # Tracker.list(@tracker, topic(channel)) |> Enum.count()
+    Poxa.Adapter.PhoenixPubSub.Tracker.subscription_count(channel)
   end
 
   @impl true
@@ -91,8 +92,7 @@ defmodule Poxa.Adapter.PhoenixPubSub do
 
   @impl true
   def channels() do
-    # ETS from Tracker
-    raise "Missing"
+    Poxa.Adapter.PhoenixPubSub.Tracker.channels()
   end
 
   @impl true
