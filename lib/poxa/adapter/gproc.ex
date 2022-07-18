@@ -48,7 +48,7 @@ defmodule Poxa.Adapter.GProc do
 
   def subscription_count(channel, user_id) do
     Ex2ms.fun do
-      {{:p, :l, {:pusher, ^channel}}, _, {^user_id, _}} -> true
+      {{:p, :l, {:pusher, ^channel}}, _, %{user_id: ^user_id}} -> true
     end
     |> select_count
   end

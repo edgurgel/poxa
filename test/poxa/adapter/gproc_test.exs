@@ -87,9 +87,14 @@ defmodule Poxa.Adapter.GProcTest do
         end
       end
 
-      spawn_registered("channel", execution, {"user1", "user1 info"})
-      spawn_registered("channel", execution, {"user1", "different user1 info"})
-      spawn_registered("channel", execution, {"user2", "user2 info"})
+      spawn_registered("channel", execution, %{user_id: "user1", user_info: "user1 info"})
+
+      spawn_registered("channel", execution, %{
+        user_id: "user1",
+        user_info: "different user1 info"
+      })
+
+      spawn_registered("channel", execution, %{user_id: "user2", user_info: "user2 info"})
 
       assert subscription_count("channel", "user1") == 2
       assert subscription_count("channel", "user2") == 1
