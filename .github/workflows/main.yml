@@ -7,22 +7,22 @@ jobs:
     name: Format and compile with warnings as errors
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.3.1
+      - uses: actions/checkout@v2
 
       - name: Install OTP and Elixir
         uses: erlef/setup-beam@v1
         with:
-          otp-version: 24.0
-          elixir-version: 1.13.4
+          otp-version: 26.x
+          elixir-version: 1.16.x
 
       - name: Install dependencies
         run: mix deps.get
 
-      - name: Run "mix format"
-        run: mix format --check-formatted
-
       - name: Compile with --warnings-as-errors
         run: mix compile --warnings-as-errors
+
+      - name: Run "mix format"
+        run: mix format --check-formatted
 
   test:
     name: Test (Elixir ${{matrix.elixir}} | Erlang/OTP ${{matrix.otp}})
@@ -31,9 +31,11 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - otp: 24.0
-            elixir: 1.13.4
+          - otp: 26.x
+            elixir: 1.16.x
             coverage: true
+          - otp: 27.x
+            elixir: 1.17.x
     env:
       MIX_ENV: test
     steps:
@@ -58,8 +60,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - otp: 24.0
-            elixir: 1.13.4
+          - otp: 27.x
+            elixir: 1.17.x
     steps:
       - uses: actions/checkout@v2
 
