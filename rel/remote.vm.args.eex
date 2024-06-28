@@ -9,4 +9,4 @@
 
 ## Enable deployment without epmd
 ## (requires changing both vm.args and remote.vm.args)
-##-start_epmd false -erl_epmd_port 6789false
+##-start_epmd false -erl_epmd_port 6789 -dist_listen false

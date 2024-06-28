@@ -17,8 +17,8 @@ defmodule Poxa do
          [
            {"/ping", Poxa.PingHandler, []},
            {"/console", Poxa.Console.WSHandler, []},
-           {"/", :cowboy_static, {:priv_file, :poxa, 'index.html'}},
-           {"/static/[...]", :cowboy_static, {:priv_dir, :poxa, 'static'}},
+           {"/", :cowboy_static, {:priv_file, :poxa, ~c"index.html"}},
+           {"/static/[...]", :cowboy_static, {:priv_dir, :poxa, ~c"static"}},
            {"/apps/:app_id/events", Poxa.EventHandler, []},
            {"/apps/:app_id/channels[/:channel_name]", Poxa.ChannelsHandler, []},
            {"/apps/:app_id/channels/:channel_name/users", Poxa.UsersHandler, []},

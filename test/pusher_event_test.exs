@@ -17,7 +17,7 @@ defmodule Poxa.PusherEventTest do
 
   test "subscription established output" do
     json =
-      "{\"channel\":\"channel\",\"data\":{},\"event\":\"pusher_internal:subscription_succeeded\"}"
+      "{\"data\":{},\"event\":\"pusher_internal:subscription_succeeded\",\"channel\":\"channel\"}"
 
     assert subscription_succeeded("channel") == json
   end
@@ -44,21 +44,21 @@ defmodule Poxa.PusherEventTest do
 
   test "presence member added output" do
     json =
-      "{\"channel\":\"channel\",\"data\":\"{\\\"user_id\\\":\\\"userid\\\",\\\"user_info\\\":\\\"userinfo\\\"}\",\"event\":\"pusher_internal:member_added\"}"
+      "{\"data\":\"{\\\"user_info\\\":\\\"userinfo\\\",\\\"user_id\\\":\\\"userid\\\"}\",\"event\":\"pusher_internal:member_added\",\"channel\":\"channel\"}"
 
     assert presence_member_added("channel", "userid", "userinfo") == json
   end
 
   test "presence member removed output" do
     json =
-      "{\"channel\":\"channel\",\"data\":\"{\\\"user_id\\\":\\\"userid\\\"}\",\"event\":\"pusher_internal:member_removed\"}"
+      "{\"data\":\"{\\\"user_id\\\":\\\"userid\\\"}\",\"event\":\"pusher_internal:member_removed\",\"channel\":\"channel\"}"
 
     assert presence_member_removed("channel", "userid") == json
   end
 
   test "presence subscription succeeded" do
     json =
-      "{\"channel\":\"presence-channel\",\"data\":\"{\\\"presence\\\":{\\\"count\\\":1,\\\"hash\\\":{\\\"userid\\\":{\\\"user\\\":\\\"info\\\"}},\\\"ids\\\":[\\\"userid\\\"]}}\",\"event\":\"pusher_internal:subscription_succeeded\"}"
+      "{\"data\":\"{\\\"presence\\\":{\\\"count\\\":1,\\\"hash\\\":{\\\"userid\\\":{\\\"user\\\":\\\"info\\\"}},\\\"ids\\\":[\\\"userid\\\"]}}\",\"event\":\"pusher_internal:subscription_succeeded\",\"channel\":\"presence-channel\"}"
 
     subscription = %Poxa.PresenceSubscription{
       channel: "presence-channel",
