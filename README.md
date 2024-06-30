@@ -97,7 +97,7 @@ var pusher = new Pusher(APP_KEY, {
 });
 ```
 
-A working poxa is on http://poxa.herokuapp.com, with:
+A working poxa is on https://poxa.onrender.com/, with:
 
 * App key: "app_key"
 * App id: "app_id"
@@ -112,7 +112,7 @@ A simple console is available on index:
 
 ![Console](http://i.imgur.com/zEbZZgN.png)
 
-You can see it in action on http://poxa.herokuapp.com using "app_key" and "secret" to connect. Now open the [poxa-presence-chat](http://poxa-presence-chat.herokuapp.com) and watch events happening!
+You can see it in action on [http://poxa.herokuapp.com](https://poxa.onrender.com/) using "app_key" and "secret" to connect. Now open the [poxa-presence-chat](http://poxa-presence-chat.herokuapp.com) and watch events happening!
 
 ## Implementation
 
